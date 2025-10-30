@@ -2,6 +2,7 @@
 
 #include "axmol.h"
 #include "Card.h"
+#include "Table.h"
 
 class MainScene : public ax::Scene
 {
@@ -50,10 +51,11 @@ private:
 
     Card* _draggedCard;  // Currently dragged card
     Card* _hoveredCard;  // Card under mouse cursor
-    std::vector<Card*> _cards; 
+    std::vector<Card*> _cards;
+    std::vector<Table*> _tables;
 
     void loadCardsFromDirectory();
-    const std::string cardTypeFolder = "standard/";
+    const std::string cardTypeFolder = "uno/";
 
 
     Card* getCardAtPosition(const ax::Vec2& position);

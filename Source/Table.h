@@ -1,19 +1,24 @@
 #pragma once
 
 #include "axmol.h"
+#include "Card.h"
 
-class Card : public ax::Node
+class Table : public ax::Node
 {
 public:
-    static Card* create(const std::string& frontTexture, const std::string& backTexture);
+    static Table* create(const std::string& texture);
 
-    virtual bool init(const std::string& frontTexture, const std::string& backTexture);
-   
-    void flip(float duration = 0.3f);
-    void setFaceUp(bool faceUp);
-    bool isFaceUp() const { return _isFaceUp; }
+    virtual bool init(const std::string& texture);
+
+    void addCard(Card* card);
+    void removeCard(Card* card);
+    void addCardAt(Card* card, int index);
+    void moveCardToPosition(Card* card, const ax::Vec2& position);
 
     bool containsPoint(const ax::Vec2& worldPoint) const;
+
+    //void setCardSpacing(float spacing) { _cardSpacing = spacing; }
+    void setMaxSpacing(float maxSpacing) { _maxCardSpacing = maxSpacing; }
 
     bool isDragging() const { return _isDragging; }
     void enableDragging(bool enable);
@@ -29,14 +34,18 @@ public:
 
     void setHighlight(bool highlight);
 private:
-    const ax::Vec2 CARD_SPRITE_OFFSET = ax::Vec2(15,12);
-    const ax::Vec2 CARD_SIZE = ax::Vec2(64,96);
+    const ax::Vec2 TABLE_SIZE = ax::Vec2(300,140);
 
-    ax::Sprite* _frontSprite = nullptr;
-    ax::Sprite* _backSprite = nullptr;
-    bool _isFaceUp = false;
+    ax::Sprite* _tableSprite = nullptr;
+
     bool _isDraggable = true;
     bool _isDragging = false;
+
+    std::vector<Card*> _cards;
+    const float _cardSpacing = 40;  
+    float _maxCardSpacing;  
+
+    ax::Vec2 getCardPosition(int index, int cardCount) const;
 
     ax::Vec2 _dragOffset;         // Offset between mouse and card center
     ax::Vec2 _mouseDownPosition;  // Position where mouse was pressed
@@ -45,7 +54,6 @@ private:
 
     float _originalScale = 1.0f;
     ax::DrawNode* _highlightNode;
-    ax::DrawNode* _cardBox;
 
     ax::Rect* _boundingBox;
 };

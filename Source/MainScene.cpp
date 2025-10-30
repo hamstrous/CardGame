@@ -34,6 +34,21 @@ bool MainScene::init()
 
     loadCardsFromDirectory();
 
+    _tables.push_back(Table::create("tables/table_blue.png"));
+    _tables.push_back(Table::create("tables/table_red.png"));
+    for (size_t i = 0; i < _tables.size(); i++)
+    {
+        auto table = _tables[i];
+        if (!table)
+        {
+            problemLoading("table.png");
+            continue;
+        }
+        table->setPosition(
+            Vec2(origin.x + visibleSize.width / 2, origin.y + (i + 1) * visibleSize.height / (_tables.size() + 1)));
+        this->addChild(table, -1);
+    }
+
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
@@ -62,6 +77,15 @@ bool MainScene::onMouseDown(Event* event)
             if (card->containsPoint(mousePos))
             {
                 _draggedCard = card;
+
+                for (auto table : _tables)
+                {
+                    if (table->containsPoint(_draggedCard->getPosition()))
+                    {
+                        table->removeCard(_draggedCard);
+                        break;
+                    }
+                }
 
                 // Calculate offset between mouse and card center
                 auto cardPos = card->getPosition();
@@ -102,7 +126,18 @@ bool MainScene::onMouseDown(Event* event)
 bool MainScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    _draggedCard = nullptr;  // Stop dragging any card
+    if (_draggedCard)
+    {
+        for (auto table : _tables)
+        {
+            if (table->containsPoint(_draggedCard->getPosition()))
+            {
+                table->addCard(_draggedCard);
+                break;
+            }
+        }
+    }
+    _draggedCard  = nullptr;  // Stop dragging any card
     return true;
 }
 
@@ -262,19 +297,20 @@ vector<string> split(const string& str, char delimiter)
     return result;
 }
 
-void MainScene::loadCardsFromDirectory() {
+void MainScene::loadCardsFromDirectory()
+{
     // Get all files in a folder
     auto fileUtils = ax::FileUtils::getInstance();
     vector<string> files;
 
-    string folderPath = "cards/" + cardTypeFolder; 
-    files = fileUtils->listFiles(folderPath);
-    int numCards = static_cast<int>(files.size());
-    int i = 0;
+    string folderPath = "cards/" + cardTypeFolder;
+    files             = fileUtils->listFiles(folderPath);
+    int numCards      = static_cast<int>(files.size());
+    int i             = 0;
     for (const auto& file : files)
     {
-        vector<string> parts = split(file, '/'); //get filename from path
-        auto card = Card::create(folderPath + parts.back(), "cards/Card Back 1.png");
+        vector<string> parts = split(file, '/');  // get filename from path
+        auto card            = Card::create(folderPath + parts.back(), "cards/Card Back 1.png");
         if (card)
         {
             card->setPosition(
