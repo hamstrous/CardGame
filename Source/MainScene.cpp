@@ -1,31 +1,7 @@
-/****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
- Copyright (c) 2019-present Axmol Engine contributors (see AUTHORS.md).
-
- https://axmol.dev/
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
-
 #include "MainScene.h"
 
 using namespace ax;
+using namespace std;
 
 static int s_sceneID = 1000;
 
@@ -48,93 +24,22 @@ bool MainScene::init()
         return false;
     }
 
-    auto visibleSize = _director->getVisibleSize();
-    auto origin      = _director->getVisibleOrigin();
-    auto safeArea    = _director->getSafeAreaRect();
-    auto safeOrigin  = safeArea.origin;
+    visibleSize = _director->getVisibleSize();
+    origin      = _director->getVisibleOrigin();
+    safeArea    = _director->getSafeAreaRect();
+    safeOrigin  = safeArea.origin;
 
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
+    _draggedCard = nullptr;
+    _hoveredCard = nullptr;
 
-    // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png",
-                                           AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    loadCardsFromDirectory();
 
-    if (closeItem == nullptr || closeItem->getContentSize().width <= 0 || closeItem->getContentSize().height <= 0)
-    {
-        problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
-    }
-    else
-    {
-        float x = safeOrigin.x + safeArea.size.width - closeItem->getContentSize().width / 2;
-        float y = safeOrigin.y + closeItem->getContentSize().height / 2;
-        closeItem->setPosition(Vec2(x, y));
-    }
-
-    // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
-
-    /////////////////////////////
-    // 3. add your codes below...
-
-    // Some templates (uncomment what you  need)
-    _touchListener                 = EventListenerTouchAllAtOnce::create();
-    _touchListener->onTouchesBegan = AX_CALLBACK_2(MainScene::onTouchesBegan, this);
-    _touchListener->onTouchesMoved = AX_CALLBACK_2(MainScene::onTouchesMoved, this);
-    _touchListener->onTouchesEnded = AX_CALLBACK_2(MainScene::onTouchesEnded, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, this);
-
-    //_mouseListener                = EventListenerMouse::create();
-    //_mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
-    //_mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
-    //_mouseListener->onMouseDown   = AX_CALLBACK_1(MainScene::onMouseDown, this);
-    //_mouseListener->onMouseScroll = AX_CALLBACK_1(MainScene::onMouseScroll, this);
-    //_eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
-
-    _keyboardListener                = EventListenerKeyboard::create();
-    _keyboardListener->onKeyPressed  = AX_CALLBACK_2(MainScene::onKeyPressed, this);
-    _keyboardListener->onKeyReleased = AX_CALLBACK_2(MainScene::onKeyReleased, this);
-    _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
-
-    // add a label shows "Hello World"
-    // create and initialize a label
-
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    if (label == nullptr)
-    {
-        problemLoading("'fonts/Marker Felt.ttf'");
-    }
-    else
-    {
-        // position the label on the center of the screen
-        label->setPosition(
-            Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - label->getContentSize().height));
-
-        // add the label as a child to this layer
-        this->addChild(label, 1);
-    }
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png"sv);
-    if (sprite == nullptr)
-    {
-        problemLoading("'HelloWorld.png'");
-    }
-    else
-    {
-        // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-
-        // add the sprite as a child to this layer
-        this->addChild(sprite, 0);
-        auto drawNode = DrawNode::create();
-        drawNode->setPosition(Vec2(0, 0));
-        addChild(drawNode);
-
-        drawNode->drawRect(safeArea.origin + Vec2(1, 1), safeArea.origin + safeArea.size, Color4F::BLUE);
-    }
+    _mouseListener                = EventListenerMouse::create();
+    _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
+    _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
+    _mouseListener->onMouseDown   = AX_CALLBACK_1(MainScene::onMouseDown, this);
+    _mouseListener->onMouseScroll = AX_CALLBACK_1(MainScene::onMouseScroll, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -142,48 +47,84 @@ bool MainScene::init()
     return true;
 }
 
-void MainScene::onTouchesBegan(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesBegan detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
-void MainScene::onTouchesMoved(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesMoved detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
-void MainScene::onTouchesEnded(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesEnded detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
 bool MainScene::onMouseDown(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    // AXLOGD("onMouseDown detected, button: {}", static_cast<int>(e->getMouseButton()));
-    return true;
+    auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // Left click for dragging
+    if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
+    {
+        // Check which card was clicked (iterate in reverse for Z-order)
+        for (int i = _cards.size() - 1; i >= 0; i--)
+        {
+            auto card = _cards[i];
+            if (card->containsPoint(mousePos))
+            {
+                _draggedCard = card;
+
+                // Calculate offset between mouse and card center
+                auto cardPos = card->getPosition();
+                card->setDragOffset(mousePos - cardPos);
+
+                // Store original position for snap-back
+                card->setOriginalPosition(cardPos);
+
+                card->setLocalZOrder(100);
+
+                card->startDragging();
+
+                auto it = _cards.begin() + i;
+                _cards.erase(it);
+                _cards.push_back(card);
+                return true;  // Event handled
+            }
+        }
+    }
+
+    // Right click for flipping
+    else if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
+    {
+        for (int i = _cards.size() - 1; i >= 0; i--)
+        {
+            auto card = _cards[i];
+            if (card->containsPoint(mousePos))
+            {
+                card->flip();
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool MainScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    AXLOGD("onMouseUp detected, button: {}", static_cast<int>(e->getMouseButton()));
+    _draggedCard = nullptr;  // Stop dragging any card
     return true;
 }
 
 bool MainScene::onMouseMove(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    // AXLOGD("onMouseMove detected, X:{}  Y:{}", e->getLocation().x, e->getLocation().y);
+    auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // If dragging a card, move it
+    if (_draggedCard != nullptr)
+    {
+        auto dragOffset = _draggedCard->getDragOffset();
+        _draggedCard->setPosition(mousePos - dragOffset);
+
+        updateHoverStates(mousePos);
+    }
+    else
+    {
+        // Update hover states for visual feedback
+        updateHoverStates(mousePos);
+    }
+
     return true;
 }
 
@@ -294,4 +235,70 @@ MainScene::~MainScene()
     if (_mouseListener)
         _eventDispatcher->removeEventListener(_mouseListener);
     _sceneID = -1;
+}
+
+Card* MainScene::getCardAtPosition(const ax::Vec2& position)
+{
+    for (int i = _cards.size() - 1; i >= 0; i--)
+    {
+        auto card = _cards[i];
+        if (card->containsPoint(position))
+            return card;
+    }
+    return nullptr;
+}
+
+vector<string> split(const string& str, char delimiter)
+{
+    vector<string> result;
+    stringstream ss(str);
+    string item;
+
+    while (getline(ss, item, delimiter))
+    {
+        result.push_back(item);
+    }
+
+    return result;
+}
+
+void MainScene::loadCardsFromDirectory() {
+    // Get all files in a folder
+    auto fileUtils = ax::FileUtils::getInstance();
+    vector<string> files;
+
+    string folderPath = "cards/" + cardTypeFolder; 
+    files = fileUtils->listFiles(folderPath);
+    int numCards = static_cast<int>(files.size());
+    int i = 0;
+    for (const auto& file : files)
+    {
+        vector<string> parts = split(file, '/'); //get filename from path
+        auto card = Card::create(folderPath + parts.back(), "cards/Card Back 1.png");
+        if (card)
+        {
+            card->setPosition(
+                Vec2(origin.x + (i + 1) * visibleSize.width / (numCards + 1), origin.y + visibleSize.height / 2));
+            this->addChild(card, i);
+            _cards.push_back(card);
+        }
+        else
+        {
+            problemLoading("card_front.png or card_back.png");
+        }
+        i++;
+    }
+}
+
+void MainScene::updateHoverStates(const ax::Vec2& mousePos)
+{
+    Card* previousHoveredCard = _hoveredCard;
+    _hoveredCard              = getCardAtPosition(mousePos);
+    if (previousHoveredCard != _hoveredCard)
+    {
+        if (previousHoveredCard)
+            previousHoveredCard->setHighlight(false);
+        if (_hoveredCard)
+            _hoveredCard->setHighlight(true);
+    }
 }
