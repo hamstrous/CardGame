@@ -17,10 +17,11 @@ bool Card::init(const std::string& frontTexture, const std::string& backTexture)
 {
     _frontSprite = ax::Sprite::create(frontTexture);
     _backSprite  = ax::Sprite::create(backTexture);
-    _frontSprite->setContentSize(CARD_SIZE);
-    _backSprite->setContentSize(CARD_SIZE);
+    
     if (!_frontSprite || !_backSprite)
         return false;
+    _frontSprite->setContentSize(CARD_SIZE);
+    _backSprite->setContentSize(CARD_SIZE);
     this->addChild(_backSprite);
     this->addChild(_frontSprite);
     _frontSprite->setVisible(false);
