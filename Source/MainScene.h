@@ -53,7 +53,7 @@ private:
     std::vector<Card*> _cards; 
 
     void loadCardsFromDirectory();
-    const std::string cardTypeFolder = "standard/";
+    const std::string cardTypeFolder = "uno/";
 
 
     Card* getCardAtPosition(const ax::Vec2& position);

@@ -30,6 +30,7 @@ public:
     void setHighlight(bool highlight);
 private:
     const ax::Vec2 CARD_SPRITE_OFFSET = ax::Vec2(15,12);
+    const ax::Vec2 CARD_SIZE = ax::Vec2(64,96);
 
     ax::Sprite* _frontSprite = nullptr;
     ax::Sprite* _backSprite = nullptr;
