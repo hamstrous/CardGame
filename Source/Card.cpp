@@ -11,15 +11,21 @@ Card* Card::create(const std::string& frontTexture, const std::string& backTextu
     }
     AX_SAFE_DELETE(card);
     return nullptr;
-}   
+}
 
 bool Card::init(const std::string& frontTexture, const std::string& backTexture)
 {
-    _frontSprite = ax::Sprite::create(frontTexture);
-    _backSprite  = ax::Sprite::create(backTexture);
-    
+    if (!Node::init())
+        return false;
+
+    _objectSize = CARD_SIZE;
+
+    _frontSprite = Sprite::create(frontTexture);
+    _backSprite  = Sprite::create(backTexture);
+
     if (!_frontSprite || !_backSprite)
         return false;
+
     _frontSprite->setContentSize(CARD_SIZE);
     _backSprite->setContentSize(CARD_SIZE);
     this->addChild(_backSprite);
@@ -31,11 +37,11 @@ bool Card::init(const std::string& frontTexture, const std::string& backTexture)
     return true;
 }
 
-void Card::flip(float duration) {
-    _isFaceUp = !_isFaceUp;
-    AXLOGD("flip");
-    auto scaleDown = ScaleTo::create(duration / 2, 0.0f, 1.0f);
-    auto scaleUp   = ScaleTo::create(duration / 2, 1.0f, 1.0f);
+void Card::flip(float duration)
+{
+    _isFaceUp        = !_isFaceUp;
+    auto scaleDown   = ScaleTo::create(duration / 2, 0.0f, 1.0f);
+    auto scaleUp     = ScaleTo::create(duration / 2, 1.0f, 1.0f);
     auto swapSprites = CallFunc::create([this]() {
         if (_isFaceUp)
         {
@@ -48,52 +54,14 @@ void Card::flip(float duration) {
             _backSprite->setVisible(true);
         }
     });
-    auto sequence = Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
+    auto sequence    = Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
     this->runAction(sequence);
 }
 
-void Card::setFaceUp(bool faceUp) {
+void Card::setFaceUp(bool faceUp)
+{
     if (_isFaceUp != faceUp)
     {
-        flip(0.0f); // Instant flip
-    }
-}
-
-bool Card::containsPoint(const ax::Vec2& worldPoint) const
-{
-    Vec2 localPoint = this->convertToNodeSpace(worldPoint);
-    Rect bbox       = Rect(-this->getContentSize().width/2,
-                           -this->getContentSize().height/2,
-                            this->getContentSize().width,this->getContentSize().height);
-    if (bbox.containsPoint(localPoint))
-        return true;
-    return false;
-}
-
-void Card::enableDragging(bool enable) {
-    _isDraggable = enable;
-}
-
-void Card::setHighlight(bool highlight) {
-
-    if (highlight && !_highlightNode)
-    {
-        _highlightNode = ax::DrawNode::create();
-        Vec2 rect[4];
-        float w = this->getContentSize().width;
-        float h = this->getContentSize().height;
-        rect[0] = Vec2(-w/2, -h/2);
-        rect[1] = Vec2(w/2, -h/2);
-        rect[2] = Vec2(w/2, h/2);
-        rect[3] = Vec2(-w/2, h/2);
-        _highlightNode->drawPoly(rect, 4, true, Color4F::YELLOW);
-        this->addChild(_highlightNode, 100);
-        this->setScale(_originalScale * 1.05f);
-    }
-    else if (!highlight && _highlightNode)
-    {
-        this->removeChild(_highlightNode);
-        _highlightNode = nullptr;
-        this->setScale(_originalScale);
+        flip(0.0f);
     }
 }
