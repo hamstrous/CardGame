@@ -3,6 +3,7 @@
 #include "axmol.h"
 #include "Card.h"
 #include "Table.h"
+#include "DraggableObject.h"
 
 class MainScene : public ax::Scene
 {
@@ -19,8 +20,6 @@ class MainScene : public ax::Scene
 public:
     bool init() override;
     void update(float delta) override;
-
-    
 
     // mouse
     bool onMouseDown(ax::Event* event);
@@ -49,16 +48,20 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    Card* _draggedCard;  // Currently dragged card
-    Card* _hoveredCard;  // Card under mouse cursor
+    DraggableObject* _draggedObject;  // Currently dragged card
+    DraggableObject* _hoveredObject;  // Card under mouse cursor
     std::vector<Card*> _cards;
     std::vector<Table*> _tables;
 
     void loadCardsFromDirectory();
+    void loadTables();
     const std::string cardTypeFolder = "uno/";
 
+    void sortCardsByZOrder();
 
-    Card* getCardAtPosition(const ax::Vec2& position);
+    int _cardClickCount = 0; // For z-ordering cards on click
+
+    DraggableObject* getObjectAtPosition(const ax::Vec2& position);
     void updateHoverStates(const ax::Vec2& mousePos);
 };
 

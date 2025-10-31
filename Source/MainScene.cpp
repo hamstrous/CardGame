@@ -29,26 +29,32 @@ bool MainScene::init()
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
 
-    _draggedCard = nullptr;
-    _hoveredCard = nullptr;
+    _draggedObject = nullptr;
+    _hoveredObject = nullptr;
 
-    loadCardsFromDirectory();
-
-    _tables.push_back(Table::create("tables/table_blue.png"));
-    _tables.push_back(Table::create("tables/table_red.png"));
-    for (size_t i = 0; i < _tables.size(); i++)
+    // Add background that fits the screen
+    auto background = Sprite::create("background.png");  // Change to your background filename
+    if (background)
     {
-        auto table = _tables[i];
-        if (!table)
-        {
-            problemLoading("table.png");
-            continue;
-        }
-        table->setPosition(
-            Vec2(origin.x + visibleSize.width / 2, origin.y + (i + 1) * visibleSize.height / (_tables.size() + 1)));
-        this->addChild(table, -1);
+        // Position at center of screen
+        background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+
+        // Scale to fit screen (maintains aspect ratio, covers screen)
+        float scaleX = visibleSize.width / background->getContentSize().width;
+        float scaleY = visibleSize.height / background->getContentSize().height;
+        float scale  = std::max(scaleX, scaleY);  // Use max to cover entire screen
+        background->setScale(scale);
+
+        // Add as background (lowest Z-order)
+        this->addChild(background, -100);
+    }
+    else
+    {
+        problemLoading("background.png");
     }
 
+    loadCardsFromDirectory();
+    loadTables();
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
@@ -76,13 +82,13 @@ bool MainScene::onMouseDown(Event* event)
             auto card = _cards[i];
             if (card->containsPoint(mousePos))
             {
-                _draggedCard = card;
+                _draggedObject = card;
 
                 for (auto table : _tables)
                 {
-                    if (table->containsPoint(_draggedCard->getPosition()))
+                    if (table->containsPoint(_draggedObject->getPosition()))
                     {
-                        table->removeCard(_draggedCard);
+                        table->removeCard(card);
                         break;
                     }
                 }
@@ -94,7 +100,7 @@ bool MainScene::onMouseDown(Event* event)
                 // Store original position for snap-back
                 card->setOriginalPosition(cardPos);
 
-                card->setLocalZOrder(100);
+                card->setLocalZOrder(_cardClickCount++);
 
                 card->startDragging();
 
@@ -102,6 +108,24 @@ bool MainScene::onMouseDown(Event* event)
                 _cards.erase(it);
                 _cards.push_back(card);
                 return true;  // Event handled
+            }
+        }
+
+        for (int i = _tables.size() - 1; i >= 0; i--)
+        {
+            auto table = _tables[i];
+            if (table->containsPoint(mousePos))
+            {
+                _draggedObject = table;
+
+                auto tablePos = table->getPosition();
+                table->setDragOffset(mousePos - tablePos);
+
+                table->setOriginalPosition(tablePos);
+
+                table->startDragging();
+
+                return true;
             }
         }
     }
@@ -126,18 +150,22 @@ bool MainScene::onMouseDown(Event* event)
 bool MainScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    if (_draggedCard)
+    if (_draggedObject)
     {
-        for (auto table : _tables)
+        Card* draggedCard = dynamic_cast<Card*>(_draggedObject);
+        if (draggedCard)
         {
-            if (table->containsPoint(_draggedCard->getPosition()))
+            for (auto table : _tables)
             {
-                table->addCard(_draggedCard);
-                break;
+                if (table->containsPoint(_draggedObject->getPosition()))
+                {
+                    table->addCard(draggedCard);
+                    break;
+                }
             }
         }
     }
-    _draggedCard  = nullptr;  // Stop dragging any card
+    _draggedObject = nullptr;
     return true;
 }
 
@@ -147,12 +175,12 @@ bool MainScene::onMouseMove(Event* event)
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
     // If dragging a card, move it
-    if (_draggedCard != nullptr)
+    if (_draggedObject != nullptr)
     {
-        auto dragOffset = _draggedCard->getDragOffset();
-        _draggedCard->setPosition(mousePos - dragOffset);
+        auto dragOffset = _draggedObject->getDragOffset();
+        _draggedObject->setPosition(mousePos - dragOffset);
 
-        updateHoverStates(mousePos);
+        // updateHoverStates(mousePos);
     }
     else
     {
@@ -272,13 +300,19 @@ MainScene::~MainScene()
     _sceneID = -1;
 }
 
-Card* MainScene::getCardAtPosition(const ax::Vec2& position)
+DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position)
 {
     for (int i = _cards.size() - 1; i >= 0; i--)
     {
         auto card = _cards[i];
         if (card->containsPoint(position))
             return card;
+    }
+    for (int i = _tables.size() - 1; i >= 0; i--)
+    {
+        auto table = _tables[i];
+        if (table->containsPoint(position))
+            return table;
     }
     return nullptr;
 }
@@ -315,7 +349,7 @@ void MainScene::loadCardsFromDirectory()
         {
             card->setPosition(
                 Vec2(origin.x + (i + 1) * visibleSize.width / (numCards + 1), origin.y + visibleSize.height / 2));
-            this->addChild(card, i);
+            this->addChild(card, _cardClickCount++);
             _cards.push_back(card);
         }
         else
@@ -326,15 +360,40 @@ void MainScene::loadCardsFromDirectory()
     }
 }
 
+void MainScene::loadTables()
+{
+    _tables.push_back(Table::create("tables/table_blue.png"));
+    _tables.push_back(Table::create("tables/table_red.png"));
+    _tables[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _tables[0]->getContentSize().y / 2));
+    _tables[1]->setPosition(
+        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _tables[1]->getContentSize().y / 2));
+    for (size_t i = 0; i < _tables.size(); i++)
+    {
+        auto table = _tables[i];
+        if (!table)
+        {
+            problemLoading("table.png");
+            continue;
+        }
+        this->addChild(table, -1);
+    }
+}
+
+void MainScene::sortCardsByZOrder() {
+    std::sort(_cards.begin(), _cards.end(),
+              [](Card* a, Card* b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
+}
+
 void MainScene::updateHoverStates(const ax::Vec2& mousePos)
 {
-    Card* previousHoveredCard = _hoveredCard;
-    _hoveredCard              = getCardAtPosition(mousePos);
-    if (previousHoveredCard != _hoveredCard)
+    sortCardsByZOrder();
+    DraggableObject* previousHoveredCard = _hoveredObject;
+    _hoveredObject                       = getObjectAtPosition(mousePos);
+    if (previousHoveredCard != _hoveredObject)
     {
         if (previousHoveredCard)
             previousHoveredCard->setHighlight(false);
-        if (_hoveredCard)
-            _hoveredCard->setHighlight(true);
+        if (_hoveredObject)
+            _hoveredObject->setHighlight(true);
     }
 }
