@@ -16,7 +16,16 @@ public:
     void addCardAt(Card* card, int index);
     void moveCardToPosition(Card* card, const ax::Vec2& position);
 
-    void setSpacing(float spacing) { if(_cardSpacing > spacing) _cardSpacing = spacing; }
+    // Overloaded functions for vector of cards
+    void addCard(const std::vector<Card*>& cards);
+    void removeCard(const std::vector<Card*>& cards);
+    void addCardAt(const std::vector<Card*>& cards, int index);
+
+    void setSpacing(float spacing)
+    {
+        if (_cardSpacing > spacing)
+            _cardSpacing = spacing;
+    }
 
     void startDragging() override;
 

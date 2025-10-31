@@ -21,6 +21,17 @@ public:
 
     virtual void setHighlight(bool highlight);
 
+    virtual bool isDraggable()
+    {
+        return _isDraggable;
+    }
+
+    virtual ax::Rect getBoundingBox() const
+    {
+        ax::Vec2 worldPos = this->getParent()->convertToWorldSpace(this->getPosition());
+        return ax::Rect(worldPos.x - _objectSize.x / 2, worldPos.y - _objectSize.y / 2, _objectSize.x, _objectSize.y);
+    }
+
 protected:
     ax::Vec2 _objectSize;
 

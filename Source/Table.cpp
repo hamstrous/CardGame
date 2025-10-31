@@ -21,7 +21,7 @@ bool Table::init(const std::string& texture)
         return false;
 
     _objectSize  = TABLE_SIZE;
-    _isDraggable = true;
+    _isDraggable = false;
 
     _tableSprite = Sprite::create(texture);
     if (!_tableSprite)
@@ -119,6 +119,32 @@ void Table::startDragging()
 {
     _isDragging = true;
     _cards.clear();
+}
+
+void Table::addCard(const std::vector<Card*>& cards)
+{
+    for (auto card : cards)
+    {
+        addCard(card);
+    }
+}
+
+void Table::removeCard(const std::vector<Card*>& cards)
+{
+    for (auto card : cards)
+    {
+        removeCard(card);
+    }
+}
+
+void Table::addCardAt(const std::vector<Card*>& cards, int index)
+{
+    int currentIndex = index;
+    for (auto card : cards)
+    {
+        addCardAt(card, currentIndex);
+        currentIndex++;
+    }
 }
 
 ax::Vec2 Table::getCardPosition(int index, int cardCount) const
