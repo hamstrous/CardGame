@@ -40,9 +40,7 @@ void Table::addCard(Card* card)
 {
     if (!card)
         return;
-
-    if (_cards.size() > 0)
-        setSpacing((this->getContentSize().x - TABLE_OFFSET.x) / _cards.size());
+     setSpacing(_cards.size() + 1);
 
     if (_cards.empty())
     {
@@ -84,6 +82,8 @@ void Table::removeCard(Card* card)
     if (it != _cards.end())
     {
         _cards.erase(it);
+        if (_cards.size() > 0)
+            setSpacing(_cards.size());
         for (int i = 0; i < _cards.size(); i++)
         {
             moveCardToPosition(_cards[i], getCardPosition(i, _cards.size()));
@@ -121,12 +121,41 @@ void Table::startDragging()
     _cards.clear();
 }
 
-void Table::addCard(const std::vector<Card*>& cards)
+void Table::addCard(const std::vector<Card*>& cards, Vec2& mousePos)
 {
-    for (auto card : cards)
+    if (cards.empty())
+        return;
+    setSpacing(_cards.size() + cards.size());
+
+    if (_cards.empty())
     {
-        addCard(card);
+        addCardAt(cards, 0);
+        return;
     }
+
+    int nearestIndex  = 0;
+    float minDistance = std::numeric_limits<float>::max();
+    int newSize      = _cards.size() + cards.size();
+    for (int i = 0; i < _cards.size(); i++)
+    {
+        Vec2 existingCardPos = getCardPosition(i, newSize);
+        float distance       = mousePos.distance(existingCardPos);
+
+        if (distance < minDistance)
+        {
+            minDistance  = distance;
+            nearestIndex = i;
+        }
+    }
+
+    Vec2 lastPos        = getCardPosition(_cards.size(), newSize);
+    float distanceToEnd = mousePos.distance(lastPos);
+    if (distanceToEnd < minDistance)
+    {
+        nearestIndex = _cards.size();
+    }
+
+    addCardAt(cards, nearestIndex);
 }
 
 void Table::removeCard(const std::vector<Card*>& cards)
@@ -139,15 +168,26 @@ void Table::removeCard(const std::vector<Card*>& cards)
 
 void Table::addCardAt(const std::vector<Card*>& cards, int index)
 {
-    int currentIndex = index;
+    int newSize = _cards.size() + cards.size();
+    for (int i = 0; i < index; i++)
+    {
+        _cards[i]->setLocalZOrder(i);
+        moveCardToPosition(_cards[i], getCardPosition(i, newSize));
+    }
+    for (int i = index; i < _cards.size(); i++)
+    {
+        _cards[i]->setLocalZOrder(i + cards.size());
+        moveCardToPosition(_cards[i], getCardPosition(i + cards.size(), newSize));
+    }
     for (auto card : cards)
     {
-        addCardAt(card, currentIndex);
-        currentIndex++;
+        card->setLocalZOrder(index);
+        _cards.insert(_cards.begin() + index, card);
+        moveCardToPosition(card, getCardPosition(index++, newSize));
     }
 }
 
-ax::Vec2 Table::getCardPosition(int index, int cardCount) const
+ax::Vec2 Table::getCardPosition(int index, int cardCount)
 {
     float startX = this->getPosition().x - (cardCount - 1) * _cardSpacing / 2;
 

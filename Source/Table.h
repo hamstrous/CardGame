@@ -17,13 +17,19 @@ public:
     void moveCardToPosition(Card* card, const ax::Vec2& position);
 
     // Overloaded functions for vector of cards
-    void addCard(const std::vector<Card*>& cards);
+    void addCard(const std::vector<Card*>& cards, ax::Vec2& mousePos);
     void removeCard(const std::vector<Card*>& cards);
     void addCardAt(const std::vector<Card*>& cards, int index);
 
-    void setSpacing(float spacing)
+    void setSpacing(int cardCount)
     {
-        if (_cardSpacing > spacing)
+        if (cardCount <= 1)
+        {
+            _cardSpacing = _maxCardSpacing;
+            return;
+        }
+        float spacing = (this->getContentSize().x - TABLE_OFFSET.x) / (cardCount - 1);
+        if (_maxCardSpacing > spacing)
             _cardSpacing = spacing;
     }
 
@@ -37,7 +43,7 @@ private:
 
     std::vector<Card*> _cards;
     float _cardSpacing = Card::CARD_SIZE.x;
-    float _maxCardSpacing;
+    const float _maxCardSpacing = Card::CARD_SIZE.x;
 
-    ax::Vec2 getCardPosition(int index, int cardCount) const;
+    ax::Vec2 getCardPosition(int index, int cardCount);
 };

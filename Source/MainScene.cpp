@@ -164,15 +164,21 @@ bool MainScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+    vector<Card*> _draggedCards;
+    sortObjectsByPosition(_draggedObjects);
+    for (auto obj : _draggedObjects)
+    {
+        if (auto card = dynamic_cast<Card*>(obj))
+        {
+            _draggedCards.push_back(card);
+        }
+    }
     for (auto table : _tables)
     {
-        for (auto draggedObject : _draggedObjects)
+        if (!_draggedObjects.empty() && table->containsPoint(mousePos))
         {
-            Card* draggedCard = dynamic_cast<Card*>(draggedObject);
-            if (draggedCard && table->containsPoint(mousePos))
-            {
-                table->addCard(draggedCard);
-            }
+            table->addCard(_draggedCards, mousePos);
+            break;
         }
     }
     _draggedObjects.clear();
