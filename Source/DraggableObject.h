@@ -44,6 +44,20 @@ public:
         });
     }
 
+    void rotate(float angle)
+    {
+        if (this->getNumberOfRunningActions() == 0)
+        {
+            auto rotateBy = ax::RotateBy::create(0.2f, angle);
+            this->runAction(rotateBy);
+        }
+    }
+    void rotateSmooth(float angle)
+    {
+        auto rotateBy = ax::RotateBy::create(0.08f, angle);
+        this->runAction(rotateBy);
+    }
+
 protected:
     ax::Vec2 _objectSize;
 

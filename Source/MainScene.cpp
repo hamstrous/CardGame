@@ -59,12 +59,18 @@ bool MainScene::init()
 
     loadCardsFromDirectory();
     loadRacks();
+
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
     _mouseListener->onMouseDown   = AX_CALLBACK_1(MainScene::onMouseDown, this);
     _mouseListener->onMouseScroll = AX_CALLBACK_1(MainScene::onMouseScroll, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+
+    _keyboardListener             = EventListenerKeyboard::create();
+    _keyboardListener->onKeyPressed = AX_CALLBACK_2(MainScene::onKeyPressed, this);
+    _keyboardListener->onKeyReleased = AX_CALLBACK_2(MainScene::onKeyReleased, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -225,21 +231,60 @@ bool MainScene::onMouseScroll(Event* event)
 
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
-    AXLOGD("Scene: #{} onKeyPressed, keycode: {}", _sceneID, static_cast<int>(code));
-
     switch (code)
     {
-    case EventKeyboard::KeyCode::KEY_D:
-        // Go
+    case EventKeyboard::KeyCode::KEY_R:
+        // Reveal cards up
+        for (auto obj : _selectedObjects) {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->setFaceUp(true);
+        }
         break;
-    case EventKeyboard::KeyCode::KEY_S:
-        // A key pressed
+    case EventKeyboard::KeyCode::KEY_H:
+        // Hide cards down
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->setFaceUp(false);
+        }
         break;
-    case EventKeyboard::KeyCode::KEY_F:
-        // S key pressed
+    case EventKeyboard::KeyCode::KEY_Q:
+        // Rotate left
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotate(-90.0f);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_E:
+        // Roatate right
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotate(90.0f);
+        }
         break;
     case EventKeyboard::KeyCode::KEY_U:
-        // D key pressed
+        // Rotate left
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotateSmooth(-10.0f);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_O:
+        // Roatate right
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotateSmooth(10.0f);
+        }
         break;
     default:
         break;
@@ -248,7 +293,6 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 
 void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
 {
-    AXLOGD("onKeyReleased, keycode: {}", static_cast<int>(code));
 }
 
 void MainScene::update(float delta)
@@ -410,8 +454,8 @@ void MainScene::loadRacks()
     _racks.push_back(Rack::create("racks/rack_blue.png"));
     _racks.push_back(Rack::create("racks/rack_red.png"));
     _racks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _racks[0]->getContentSize().y / 2));
-    _racks[1]->setPosition(
-        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
+    _racks[1]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
+    _racks[1]->rotate(90.0f);
     for (size_t i = 0; i < _racks.size(); i++)
     {
         auto rack = _racks[i];

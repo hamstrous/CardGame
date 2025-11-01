@@ -62,6 +62,6 @@ void Card::setFaceUp(bool faceUp)
 {
     if (_isFaceUp != faceUp)
     {
-        flip(0.0f);
+        flip();
     }
 }
