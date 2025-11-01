@@ -3,6 +3,9 @@
 #include <algorithm>
 using namespace ax;
 
+const ax::Vec2 Table::TABLE_SIZE{650, 170};
+const ax::Vec2 Table::TABLE_OFFSET{250, 0};
+
 Table* Table::create(const std::string& texture)
 {
     Table* table = new (std::nothrow) Table();
@@ -20,13 +23,14 @@ bool Table::init(const std::string& texture)
     if (!Node::init())
         return false;
 
-    _objectSize  = TABLE_SIZE;
-    _isDraggable = true;
+    _objectSize   = TABLE_SIZE;
+    _isDraggable  = false;
+    _holderOffset = TABLE_SIZE;
 
     _tableSprite = Sprite::create(texture);
     if (!_tableSprite)
     {
-        AXLOG("Failed to load table texture: %s", texture.c_str());
+        AXLOG("Failed to load Table texture: %s", texture.c_str());
         return false;
     }
 
@@ -34,96 +38,4 @@ bool Table::init(const std::string& texture)
     this->addChild(_tableSprite);
     setContentSize(TABLE_SIZE);
     return true;
-}
-
-void Table::addCard(Card* card)
-{
-    if (!card)
-        return;
-
-    if (_cards.size() > 0)
-        setSpacing((this->getContentSize().x - TABLE_OFFSET.x) / _cards.size());
-
-    if (_cards.empty())
-    {
-        addCardAt(card, 0);
-        return;
-    }
-
-    Vec2 cardPos      = card->getPosition();
-    int nearestIndex  = 0;
-    float minDistance = std::numeric_limits<float>::max();
-
-    for (int i = 0; i < _cards.size(); i++)
-    {
-        Vec2 existingCardPos = getCardPosition(i, _cards.size() + 1);
-        float distance       = cardPos.distance(existingCardPos);
-
-        if (distance < minDistance)
-        {
-            minDistance  = distance;
-            nearestIndex = i;
-        }
-    }
-
-    Vec2 lastPos        = getCardPosition(_cards.size(), _cards.size() + 1);
-    float distanceToEnd = cardPos.distance(lastPos);
-    if (distanceToEnd < minDistance)
-    {
-        nearestIndex = _cards.size();
-    }
-
-    addCardAt(card, nearestIndex);
-}
-
-void Table::removeCard(Card* card)
-{
-    if (!card)
-        return;
-    auto it = std::find(_cards.begin(), _cards.end(), card);
-    if (it != _cards.end())
-    {
-        _cards.erase(it);
-        for (int i = 0; i < _cards.size(); i++)
-        {
-            moveCardToPosition(_cards[i], getCardPosition(i, _cards.size()));
-        }
-    }
-}
-
-void Table::addCardAt(Card* card, int index)
-{
-    for (int i = 0; i < index; i++)
-    {
-        moveCardToPosition(_cards[i], getCardPosition(i, _cards.size() + 1));
-    }
-    for (int i = index; i < _cards.size(); i++)
-    {
-        _cards[i]->setLocalZOrder(i + 1);
-        moveCardToPosition(_cards[i], getCardPosition(i + 1, _cards.size() + 1));
-    }
-    card->setLocalZOrder(index);
-    _cards.insert(_cards.begin() + index, card);
-    moveCardToPosition(card, getCardPosition(index, _cards.size()));
-}
-
-void Table::moveCardToPosition(Card* card, const ax::Vec2& position)
-{
-    card->stopAllActions();
-    auto moveTo  = MoveTo::create(0.3f, position);
-    auto easeOut = EaseOut::create(moveTo, 2.0f);
-    card->runAction(easeOut);
-}
-
-void Table::startDragging()
-{
-    _isDragging = true;
-    _cards.clear();
-}
-
-ax::Vec2 Table::getCardPosition(int index, int cardCount) const
-{
-    float startX = this->getPosition().x - (cardCount - 1) * _cardSpacing / 2;
-
-    return ax::Vec2(startX + index * _cardSpacing, this->getPosition().y);
 }

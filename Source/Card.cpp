@@ -1,6 +1,8 @@
 #include "Card.h"
 using namespace ax;
 
+const ax::Vec2 Card::CARD_SIZE{82, 127.5f};
+
 Card* Card::create(const std::string& frontTexture, const std::string& backTexture)
 {
     Card* card = new (std::nothrow) Card();
@@ -62,6 +64,6 @@ void Card::setFaceUp(bool faceUp)
 {
     if (_isFaceUp != faceUp)
     {
-        flip(0.0f);
+        flip();
     }
 }

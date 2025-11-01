@@ -21,6 +21,43 @@ public:
 
     virtual void setHighlight(bool highlight);
 
+    virtual bool isDraggable() { return _isDraggable; }
+
+    virtual ax::Rect getBoundingBox() const
+    {
+        ax::Vec2 worldPos = this->getParent()->convertToWorldSpace(this->getPosition());
+        return ax::Rect(worldPos.x - _objectSize.x / 2, worldPos.y - _objectSize.y / 2, _objectSize.x, _objectSize.y);
+    }
+
+    // Static helper function to sort objects by position
+    template <typename T>
+    static void sortObjectsByPosition(std::vector<T>& objects)
+    {
+        std::sort(objects.begin(), objects.end(), [](T a, T b) {
+            ax::Vec2 posA = a->getPosition();
+            ax::Vec2 posB = b->getPosition();
+            if (posA.x != posB.x)
+            {
+                return posA.x < posB.x;
+            }
+            return posA.y < posB.y;
+        });
+    }
+
+    void rotate(float angle)
+    {
+        if (this->getNumberOfRunningActions() == 0)
+        {
+            auto rotateBy = ax::RotateBy::create(0.2f, angle);
+            this->runAction(rotateBy);
+        }
+    }
+    void rotateSmooth(float angle)
+    {
+        auto rotateBy = ax::RotateBy::create(0.08f, angle);
+        this->runAction(rotateBy);
+    }
+
 protected:
     ax::Vec2 _objectSize;
 

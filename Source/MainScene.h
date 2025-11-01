@@ -2,7 +2,8 @@
 
 #include "axmol.h"
 #include "Card.h"
-#include "Table.h"
+#include "Rack.h"
+#include "Deck.h"
 #include "DraggableObject.h"
 
 class MainScene : public ax::Scene
@@ -48,20 +49,49 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    DraggableObject* _draggedObject;  // Currently dragged card
-    DraggableObject* _hoveredObject;  // Card under mouse cursor
+    std::vector<DraggableObject*> _draggedObjects;
+
+    std::vector<DraggableObject*> _selectedObjects;
+    void selectObjectsClear()
+    {
+        for (auto& obj : _selectedObjects)
+            obj->setHighlight(false);
+        _selectedObjects.clear();
+    }
+
+    DraggableObject* _hoveredObject;
     std::vector<Card*> _cards;
-    std::vector<Table*> _tables;
+    std::vector<Rack*> _racks;
+    std::vector<Deck*> _decks;
 
     void loadCardsFromDirectory();
-    void loadTables();
+    void loadRacks();
+    void loadDecks();
     const std::string cardTypeFolder = "uno/";
 
-    void sortCardsByZOrder();
-
-    int _cardClickCount = 0; // For z-ordering cards on click
+    int _cardClickCount = 0;  // For z-ordering cards on click
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position);
     void updateHoverStates(const ax::Vec2& mousePos);
-};
 
+    ax::DrawNode* _selectionRectangle = nullptr;
+    ax::Vec2 _selectionStartPoint;
+    void updateSelectionRectangle(const ax::Vec2& currentPoint);
+
+    // Helper function to initialize dragging for an object
+    bool initDrag(DraggableObject* obj, const ax::Vec2& mousePos);
+
+    // Helper function to check if a value exists in a vector
+    template <typename T, typename U>
+    bool contains(const std::vector<T>& vec, const U& value)
+    {
+        return std::find(vec.begin(), vec.end(), value) != vec.end();
+    }
+
+    // Template functions for sorting objects
+    template <typename T>
+    void sortObjectsByZOrder(std::vector<T>& objects)
+    {
+        std::sort(objects.begin(), objects.end(), [](T a, T b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
+    }
+};

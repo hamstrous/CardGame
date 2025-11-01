@@ -29,7 +29,7 @@ bool MainScene::init()
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
 
-    _draggedObject = nullptr;
+    _draggedObjects.clear();
     _hoveredObject = nullptr;
 
     // Add background that fits the screen
@@ -53,14 +53,25 @@ bool MainScene::init()
         problemLoading("background.png");
     }
 
+    _selectionRectangle = DrawNode::create();
+    this->addChild(_selectionRectangle, 1000);
+    _selectionStartPoint = Vec2::ZERO;
+
     loadCardsFromDirectory();
-    loadTables();
+    loadRacks();
+    loadDecks();
+
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
     _mouseListener->onMouseDown   = AX_CALLBACK_1(MainScene::onMouseDown, this);
     _mouseListener->onMouseScroll = AX_CALLBACK_1(MainScene::onMouseScroll, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+
+    _keyboardListener                = EventListenerKeyboard::create();
+    _keyboardListener->onKeyPressed  = AX_CALLBACK_2(MainScene::onKeyPressed, this);
+    _keyboardListener->onKeyReleased = AX_CALLBACK_2(MainScene::onKeyReleased, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -77,59 +88,73 @@ bool MainScene::onMouseDown(Event* event)
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
         // Check which card was clicked (iterate in reverse for Z-order)
+        sortObjectsByZOrder(_cards);
         for (int i = _cards.size() - 1; i >= 0; i--)
         {
             auto card = _cards[i];
-            if (card->containsPoint(mousePos))
+            if (card->containsPoint(mousePos) && card->isDraggable())
             {
-                _draggedObject = card;
-
-                for (auto table : _tables)
+                if (!contains(_selectedObjects, card))
                 {
-                    if (table->containsPoint(_draggedObject->getPosition()))
+                    selectObjectsClear();
+                    if (initDrag(card, mousePos))
                     {
-                        table->removeCard(card);
-                        break;
+                        card->setLocalZOrder(_cardClickCount++);
+                    }
+                }
+                else
+                {
+                    sortObjectsByZOrder(_selectedObjects);
+                    for (auto selectedCard : _selectedObjects)
+                    {
+                        if (initDrag(selectedCard, mousePos))
+                        {
+                            selectedCard->setLocalZOrder(_cardClickCount++);
+                        }
                     }
                 }
 
-                // Calculate offset between mouse and card center
-                auto cardPos = card->getPosition();
-                card->setDragOffset(mousePos - cardPos);
-
-                // Store original position for snap-back
-                card->setOriginalPosition(cardPos);
-
-                card->setLocalZOrder(_cardClickCount++);
-
-                card->startDragging();
-
-                auto it = _cards.begin() + i;
-                _cards.erase(it);
-                _cards.push_back(card);
-                return true;  // Event handled
-            }
-        }
-
-        for (int i = _tables.size() - 1; i >= 0; i--)
-        {
-            auto table = _tables[i];
-            if (table->containsPoint(mousePos))
-            {
-                _draggedObject = table;
-
-                auto tablePos = table->getPosition();
-                table->setDragOffset(mousePos - tablePos);
-
-                table->setOriginalPosition(tablePos);
-
-                table->startDragging();
-
+                vector<Card*> _draggedCards;
+                for (auto obj : _draggedObjects)
+                {
+                    if (auto card = dynamic_cast<Card*>(obj))
+                    {
+                        _draggedCards.push_back(card);
+                    }
+                }
+                for (auto rack : _racks)
+                {
+                    rack->removeCard(_draggedCards);
+                }
+                for (auto deck: _decks)
+                {
+                    deck->removeCard(_draggedCards);
+                }
                 return true;
             }
         }
+        selectObjectsClear();
+        for (int i = _racks.size() - 1; i >= 0; i--)
+        {
+            auto rack = _racks[i];
+            if (rack->containsPoint(mousePos))
+            {
+                if (initDrag(rack, mousePos))
+                {
+                    return true;
+                }
+            }
+        }
+        for (auto deck : _decks)
+        {
+            if (deck->containsPoint(mousePos))
+            {
+                deck->shuffle();
+                return true;
+            }
+        }
+        _selectionStartPoint = mousePos;
     }
-
     // Right click for flipping
     else if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
@@ -138,7 +163,26 @@ bool MainScene::onMouseDown(Event* event)
             auto card = _cards[i];
             if (card->containsPoint(mousePos))
             {
-                card->flip();
+                if (!contains(_selectedObjects, card))
+                {
+                    card->flip();
+                    selectObjectsClear();
+                }
+                else
+                {
+                    for (auto selectedCard : _selectedObjects)
+                    {
+                        dynamic_cast<Card*>(selectedCard)->flip();
+                    }
+                }
+                return true;
+            }
+        }
+        for (auto deck: _decks)
+        {
+            if (deck->containsPoint(mousePos))
+            {
+                deck->deal(4, _racks);
                 return true;
             }
         }
@@ -150,22 +194,36 @@ bool MainScene::onMouseDown(Event* event)
 bool MainScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    if (_draggedObject)
+    auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+    vector<Card*> _draggedCards;
+    for (auto obj : _draggedObjects)
     {
-        Card* draggedCard = dynamic_cast<Card*>(_draggedObject);
-        if (draggedCard)
+        if (auto card = dynamic_cast<Card*>(obj))
         {
-            for (auto table : _tables)
-            {
-                if (table->containsPoint(_draggedObject->getPosition()))
-                {
-                    table->addCard(draggedCard);
-                    break;
-                }
-            }
+            _draggedCards.push_back(card);
         }
     }
-    _draggedObject = nullptr;
+    _draggedObjects.clear();
+    _selectionRectangle->clear();
+    _selectionStartPoint = Vec2::ZERO;
+    for (auto rack : _racks)
+    {
+        if (!_draggedCards.empty() && rack->containsPoint(mousePos))
+        {
+            rack->addCard(_draggedCards, mousePos);
+            return true;
+        }
+    }
+
+    for (auto deck: _decks)
+    {
+        if (deck->containsPoint(mousePos))
+        {
+            deck->addCard(_draggedCards);
+            return true;
+        }
+    }
+    
     return true;
 }
 
@@ -174,18 +232,22 @@ bool MainScene::onMouseMove(Event* event)
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
-    // If dragging a card, move it
-    if (_draggedObject != nullptr)
+    if (!_draggedObjects.empty())
     {
-        auto dragOffset = _draggedObject->getDragOffset();
-        _draggedObject->setPosition(mousePos - dragOffset);
-
-        // updateHoverStates(mousePos);
+        for (auto draggedObject : _draggedObjects)
+        {
+            auto dragOffset = draggedObject->getDragOffset();
+            draggedObject->setPosition(mousePos - dragOffset);
+        }
     }
     else
     {
-        // Update hover states for visual feedback
-        updateHoverStates(mousePos);
+        if (_selectionStartPoint != Vec2::ZERO)
+        {
+            updateSelectionRectangle(mousePos);
+        }
+        else
+            updateHoverStates(mousePos);
     }
 
     return true;
@@ -200,13 +262,68 @@ bool MainScene::onMouseScroll(Event* event)
 
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
-    AXLOGD("Scene: #{} onKeyPressed, keycode: {}", _sceneID, static_cast<int>(code));
+    switch (code)
+    {
+    case EventKeyboard::KeyCode::KEY_R:
+        // Reveal cards up
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->setFaceUp(true);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_H:
+        // Hide cards down
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->setFaceUp(false);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_Q:
+        // Rotate left
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotate(-90.0f);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_E:
+        // Roatate right
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotate(90.0f);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_U:
+        // Rotate left
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotateSmooth(-10.0f);
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_O:
+        // Roatate right
+        for (auto obj : _selectedObjects)
+        {
+            Card* card = dynamic_cast<Card*>(obj);
+            if (card)
+                card->rotateSmooth(10.0f);
+        }
+        break;
+    default:
+        break;
+    }
 }
 
-void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
-{
-    AXLOGD("onKeyReleased, keycode: {}", static_cast<int>(code));
-}
+void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 
 void MainScene::update(float delta)
 {
@@ -308,11 +425,11 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position)
         if (card->containsPoint(position))
             return card;
     }
-    for (int i = _tables.size() - 1; i >= 0; i--)
+    for (int i = _racks.size() - 1; i >= 0; i--)
     {
-        auto table = _tables[i];
-        if (table->containsPoint(position))
-            return table;
+        auto rack = _racks[i];
+        if (rack->containsPoint(position))
+            return rack;
     }
     return nullptr;
 }
@@ -360,40 +477,110 @@ void MainScene::loadCardsFromDirectory()
     }
 }
 
-void MainScene::loadTables()
+void MainScene::loadRacks()
 {
-    _tables.push_back(Table::create("tables/table_blue.png"));
-    _tables.push_back(Table::create("tables/table_red.png"));
-    _tables[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _tables[0]->getContentSize().y / 2));
-    _tables[1]->setPosition(
-        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _tables[1]->getContentSize().y / 2));
-    for (size_t i = 0; i < _tables.size(); i++)
+    _racks.push_back(Rack::create("racks/rack_blue.png"));
+    _racks.push_back(Rack::create("racks/rack_red.png"));
+    _racks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _racks[0]->getContentSize().y / 2));
+    _racks[1]->setPosition(
+        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
+    for (size_t i = 0; i < _racks.size(); i++)
     {
-        auto table = _tables[i];
-        if (!table)
+        auto rack = _racks[i];
+        if (!rack)
         {
-            problemLoading("table.png");
+            problemLoading("rack.png");
             continue;
         }
-        this->addChild(table, -1);
+        this->addChild(rack, -10);
     }
 }
 
-void MainScene::sortCardsByZOrder() {
-    std::sort(_cards.begin(), _cards.end(),
-              [](Card* a, Card* b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
+void MainScene::loadDecks()
+{
+    _decks.push_back(Deck::create());
+    _decks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    for (size_t i = 0; i < _decks.size(); i++)
+    {
+        auto deck = _decks[i];
+        if (!deck)
+        {
+            problemLoading("deck.png");
+            continue;
+        }
+        this->addChild(deck, -1);
+    }
 }
 
 void MainScene::updateHoverStates(const ax::Vec2& mousePos)
 {
-    sortCardsByZOrder();
-    DraggableObject* previousHoveredCard = _hoveredObject;
-    _hoveredObject                       = getObjectAtPosition(mousePos);
-    if (previousHoveredCard != _hoveredObject)
+    sortObjectsByZOrder(_cards);
+
+    DraggableObject* previousHovered = _hoveredObject;
+    _hoveredObject                   = getObjectAtPosition(mousePos);
+
+    if (previousHovered != _hoveredObject)
     {
-        if (previousHoveredCard)
-            previousHoveredCard->setHighlight(false);
+        if (previousHovered && !contains(_selectedObjects, previousHovered))
+            previousHovered->setHighlight(false);
         if (_hoveredObject)
             _hoveredObject->setHighlight(true);
+    }
+}
+
+bool MainScene::initDrag(DraggableObject* obj, const ax::Vec2& mousePos)
+{
+    if (!obj || !obj->isDraggable())
+        return false;
+
+    auto objPos = obj->getPosition();
+    obj->setDragOffset(mousePos - objPos);
+    obj->setOriginalPosition(objPos);
+    obj->startDragging();
+
+    _draggedObjects.push_back(obj);
+    return true;
+}
+
+void MainScene::updateSelectionRectangle(const ax::Vec2& currentPoint)
+{
+    _selectionRectangle->clear();
+    Vec2 corners[4] = {
+        _selectionStartPoint,
+        Vec2(currentPoint.x, _selectionStartPoint.y),
+        currentPoint,
+        Vec2(_selectionStartPoint.x, currentPoint.y),
+    };
+    _selectionRectangle->drawSolidPoly(corners, 4, Color4F(0, 0, 1, 0.3f));
+
+    for (auto card : _cards)
+    {
+        // Check if card's bounding box inside selection rectangle
+        Rect cardBox = card->getBoundingBox();
+        Rect selectionBox =
+            Rect(min(_selectionStartPoint.x, currentPoint.x), min(_selectionStartPoint.y, currentPoint.y),
+                 abs(currentPoint.x - _selectionStartPoint.x), abs(currentPoint.y - _selectionStartPoint.y));
+
+        if (selectionBox.containsPoint(Vec2(cardBox.getMinX(), cardBox.getMinY())) &&
+            selectionBox.containsPoint(Vec2(cardBox.getMaxX(), cardBox.getMinY())) &&
+            selectionBox.containsPoint(Vec2(cardBox.getMaxX(), cardBox.getMaxY())) &&
+            selectionBox.containsPoint(Vec2(cardBox.getMinX(), cardBox.getMaxY())))
+        {
+            card->setHighlight(true);
+            if (!contains(_selectedObjects, card))
+            {
+                _selectedObjects.push_back(card);
+            }
+        }
+        else
+        {
+            // Deselect the card
+            card->setHighlight(false);
+            if (contains(_selectedObjects, card))
+            {
+                auto it = std::find(_selectedObjects.begin(), _selectedObjects.end(), card);
+                _selectedObjects.erase(it);
+            }
+        }
     }
 }

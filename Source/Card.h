@@ -14,7 +14,7 @@ public:
     void setFaceUp(bool faceUp);
     bool isFaceUp() const { return _isFaceUp; }
 
-    inline static const ax::Vec2 CARD_SIZE{82, 127.5f};
+    static const ax::Vec2 CARD_SIZE;
 
 private:
     ax::Sprite* _frontSprite = nullptr;
