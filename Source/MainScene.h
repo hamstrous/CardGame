@@ -98,7 +98,7 @@ private:
         std::sort(objects.begin(), objects.end(), [](T a, T b) {
             ax::Vec2 posA = a->getPosition();
             ax::Vec2 posB = b->getPosition();
-            if (posA.y == posB.y)
+            if (posA.x != posB.x)
             {
                 return posA.x < posB.x;
             }
