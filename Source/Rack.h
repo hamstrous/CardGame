@@ -11,9 +11,9 @@ public:
 
     virtual bool init(const std::string& texture);
 
-    inline static const ax::Vec2 TABLE_SIZE{650, 170};
-    inline static const ax::Vec2 TABLE_OFFSET{250, 0};
+    static const ax::Vec2 DECK_SIZE;
+    static const ax::Vec2 DECK_OFFSET;
 
 private:
-    ax::Sprite* _tableSprite = nullptr;
+    ax::Sprite* _rackSprite = nullptr;
 };

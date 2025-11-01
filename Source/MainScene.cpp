@@ -59,6 +59,7 @@ bool MainScene::init()
 
     loadCardsFromDirectory();
     loadRacks();
+    loadDecks();
 
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
@@ -67,8 +68,8 @@ bool MainScene::init()
     _mouseListener->onMouseScroll = AX_CALLBACK_1(MainScene::onMouseScroll, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    _keyboardListener             = EventListenerKeyboard::create();
-    _keyboardListener->onKeyPressed = AX_CALLBACK_2(MainScene::onKeyPressed, this);
+    _keyboardListener                = EventListenerKeyboard::create();
+    _keyboardListener->onKeyPressed  = AX_CALLBACK_2(MainScene::onKeyPressed, this);
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(MainScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
 
@@ -125,6 +126,10 @@ bool MainScene::onMouseDown(Event* event)
                 {
                     rack->removeCard(_draggedCards);
                 }
+                for (auto deck: _decks)
+                {
+                    deck->removeCard(_draggedCards);
+                }
                 return true;
             }
         }
@@ -138,6 +143,14 @@ bool MainScene::onMouseDown(Event* event)
                 {
                     return true;
                 }
+            }
+        }
+        for (auto deck : _decks)
+        {
+            if (deck->containsPoint(mousePos))
+            {
+                deck->shuffle();
+                return true;
             }
         }
         _selectionStartPoint = mousePos;
@@ -165,6 +178,14 @@ bool MainScene::onMouseDown(Event* event)
                 return true;
             }
         }
+        for (auto deck: _decks)
+        {
+            if (deck->containsPoint(mousePos))
+            {
+                deck->deal(4, _racks);
+                return true;
+            }
+        }
     }
 
     return false;
@@ -182,17 +203,27 @@ bool MainScene::onMouseUp(Event* event)
             _draggedCards.push_back(card);
         }
     }
-    for (auto rack : _racks)
-    {
-        if (!_draggedObjects.empty() && rack->containsPoint(mousePos))
-        {
-            rack->addCard(_draggedCards, mousePos);
-            break;
-        }
-    }
     _draggedObjects.clear();
     _selectionRectangle->clear();
     _selectionStartPoint = Vec2::ZERO;
+    for (auto rack : _racks)
+    {
+        if (!_draggedCards.empty() && rack->containsPoint(mousePos))
+        {
+            rack->addCard(_draggedCards, mousePos);
+            return true;
+        }
+    }
+
+    for (auto deck: _decks)
+    {
+        if (deck->containsPoint(mousePos))
+        {
+            deck->addCard(_draggedCards);
+            return true;
+        }
+    }
+    
     return true;
 }
 
@@ -235,7 +266,8 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     {
     case EventKeyboard::KeyCode::KEY_R:
         // Reveal cards up
-        for (auto obj : _selectedObjects) {
+        for (auto obj : _selectedObjects)
+        {
             Card* card = dynamic_cast<Card*>(obj);
             if (card)
                 card->setFaceUp(true);
@@ -291,9 +323,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     }
 }
 
-void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
-{
-}
+void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 
 void MainScene::update(float delta)
 {
@@ -438,8 +468,6 @@ void MainScene::loadCardsFromDirectory()
                 Vec2(origin.x + (i + 1) * visibleSize.width / (numCards + 1), origin.y + visibleSize.height / 2));
             this->addChild(card, _cardClickCount++);
             _cards.push_back(card);
-            Vec2 cardWorld   = card->convertToWorldSpace(Vec2::ZERO);
-            Vec2 parentWorld = card->getParent()->convertToWorldSpace(card->getPosition());
         }
         else
         {
@@ -454,8 +482,8 @@ void MainScene::loadRacks()
     _racks.push_back(Rack::create("racks/rack_blue.png"));
     _racks.push_back(Rack::create("racks/rack_red.png"));
     _racks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _racks[0]->getContentSize().y / 2));
-    _racks[1]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
-    _racks[1]->rotate(90.0f);
+    _racks[1]->setPosition(
+        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
     for (size_t i = 0; i < _racks.size(); i++)
     {
         auto rack = _racks[i];
@@ -464,7 +492,23 @@ void MainScene::loadRacks()
             problemLoading("rack.png");
             continue;
         }
-        this->addChild(rack, -1);
+        this->addChild(rack, -10);
+    }
+}
+
+void MainScene::loadDecks()
+{
+    _decks.push_back(Deck::create());
+    _decks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    for (size_t i = 0; i < _decks.size(); i++)
+    {
+        auto deck = _decks[i];
+        if (!deck)
+        {
+            problemLoading("deck.png");
+            continue;
+        }
+        this->addChild(deck, -1);
     }
 }
 

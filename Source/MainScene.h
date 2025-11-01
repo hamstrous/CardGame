@@ -3,6 +3,7 @@
 #include "axmol.h"
 #include "Card.h"
 #include "Rack.h"
+#include "Deck.h"
 #include "DraggableObject.h"
 
 class MainScene : public ax::Scene
@@ -61,9 +62,11 @@ private:
     DraggableObject* _hoveredObject;
     std::vector<Card*> _cards;
     std::vector<Rack*> _racks;
+    std::vector<Deck*> _decks;
 
     void loadCardsFromDirectory();
     void loadRacks();
+    void loadDecks();
     const std::string cardTypeFolder = "uno/";
 
     int _cardClickCount = 0;  // For z-ordering cards on click

@@ -23,8 +23,8 @@ public:
 
 protected:
     std::vector<Card*> _cards;
-    float _cardSpacing    = Card::CARD_SIZE.x;
-    float _maxCardSpacing = Card::CARD_SIZE.x;
+    float _cardSpacing    = 82.0f;  // Default to Card::CARD_SIZE.x
+    float _maxCardSpacing = 82.0f;  // Default to Card::CARD_SIZE.x
     ax::Vec2 _holderOffset{250, 0};
 
     virtual ax::Vec2 getCardPosition(int index, int cardCount);
