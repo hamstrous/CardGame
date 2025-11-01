@@ -160,9 +160,22 @@ void Table::addCard(const std::vector<Card*>& cards, Vec2& mousePos)
 
 void Table::removeCard(const std::vector<Card*>& cards)
 {
+    if (cards.empty())
+        return;
+
     for (auto card : cards)
     {
-        removeCard(card);
+        auto it = std::find(_cards.begin(), _cards.end(), card);
+        if (it != _cards.end())
+        {
+            _cards.erase(it);
+        }
+    }
+    if (_cards.size() > 0)
+        setSpacing(_cards.size());
+    for (int i = 0; i < _cards.size(); i++)
+    {
+        moveCardToPosition(_cards[i], getCardPosition(i, _cards.size()));
     }
 }
 

@@ -107,13 +107,17 @@ bool MainScene::onMouseDown(Event* event)
                     }
                 }
 
+                vector<Card*> _draggedCards;
+                for (auto obj : _draggedObjects)
+                {
+                    if (auto card = dynamic_cast<Card*>(obj))
+                    {
+                        _draggedCards.push_back(card);
+                    }
+                }
                 for (auto table : _tables)
                 {
-                    for (auto draggedCard : _draggedObjects)
-                        if (table->containsPoint(draggedCard->getPosition()))
-                        {
-                            table->removeCard(dynamic_cast<Card*>(draggedCard));
-                        }
+                    table->removeCard(_draggedCards);
                 }
                 return true;
                         }
