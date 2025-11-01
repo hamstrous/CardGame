@@ -2,7 +2,7 @@
 
 #include "axmol.h"
 #include "Card.h"
-#include "Table.h"
+#include "Rack.h"
 #include "DraggableObject.h"
 
 class MainScene : public ax::Scene
@@ -60,10 +60,10 @@ private:
 
     DraggableObject* _hoveredObject;
     std::vector<Card*> _cards;
-    std::vector<Table*> _tables;
+    std::vector<Rack*> _racks;
 
     void loadCardsFromDirectory();
-    void loadTables();
+    void loadRacks();
     const std::string cardTypeFolder = "uno/";
 
     int _cardClickCount = 0;  // For z-ordering cards on click
@@ -90,19 +90,5 @@ private:
     void sortObjectsByZOrder(std::vector<T>& objects)
     {
         std::sort(objects.begin(), objects.end(), [](T a, T b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
-    }
-
-    template <typename T>
-    void sortObjectsByPosition(std::vector<T>& objects)
-    {
-        std::sort(objects.begin(), objects.end(), [](T a, T b) {
-            ax::Vec2 posA = a->getPosition();
-            ax::Vec2 posB = b->getPosition();
-            if (posA.x != posB.x)
-            {
-                return posA.x < posB.x;
-            }
-            return posA.y < posB.y;
-        });
     }
 };

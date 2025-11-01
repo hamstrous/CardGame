@@ -4,10 +4,10 @@
 #include "Card.h"
 #include "DraggableObject.h"
 
-class Table : public DraggableObject
+class Rack : public DraggableObject
 {
 public:
-    static Table* create(const std::string& texture);
+    static Rack* create(const std::string& texture);
 
     virtual bool init(const std::string& texture);
 
@@ -17,9 +17,9 @@ public:
     void moveCardToPosition(Card* card, const ax::Vec2& position);
 
     // Overloaded functions for vector of cards
-    void addCard(const std::vector<Card*>& cards, ax::Vec2& mousePos);
+    void addCard(std::vector<Card*>& cards, ax::Vec2& mousePos);
     void removeCard(const std::vector<Card*>& cards);
-    void addCardAt(const std::vector<Card*>& cards, int index);
+    void addCardAt(std::vector<Card*>& cards, int index);
 
     void setSpacing(int cardCount)
     {

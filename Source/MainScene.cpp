@@ -58,7 +58,7 @@ bool MainScene::init()
     _selectionStartPoint = Vec2::ZERO;
 
     loadCardsFromDirectory();
-    loadTables();
+    loadRacks();
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MainScene::onMouseUp, this);
@@ -115,20 +115,20 @@ bool MainScene::onMouseDown(Event* event)
                         _draggedCards.push_back(card);
                     }
                 }
-                for (auto table : _tables)
+                for (auto rack : _racks)
                 {
-                    table->removeCard(_draggedCards);
+                    rack->removeCard(_draggedCards);
                 }
                 return true;
-                        }
+            }
         }
         selectObjectsClear();
-        for (int i = _tables.size() - 1; i >= 0; i--)
+        for (int i = _racks.size() - 1; i >= 0; i--)
         {
-            auto table = _tables[i];
-            if (table->containsPoint(mousePos))
+            auto rack = _racks[i];
+            if (rack->containsPoint(mousePos))
             {
-                if (initDrag(table, mousePos))
+                if (initDrag(rack, mousePos))
                 {
                     return true;
                 }
@@ -143,7 +143,7 @@ bool MainScene::onMouseDown(Event* event)
         {
             auto card = _cards[i];
             if (card->containsPoint(mousePos))
-            { 
+            {
                 if (!contains(_selectedObjects, card))
                 {
                     card->flip();
@@ -169,7 +169,6 @@ bool MainScene::onMouseUp(Event* event)
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
     vector<Card*> _draggedCards;
-    sortObjectsByPosition(_draggedObjects);
     for (auto obj : _draggedObjects)
     {
         if (auto card = dynamic_cast<Card*>(obj))
@@ -177,11 +176,11 @@ bool MainScene::onMouseUp(Event* event)
             _draggedCards.push_back(card);
         }
     }
-    for (auto table : _tables)
+    for (auto rack : _racks)
     {
-        if (!_draggedObjects.empty() && table->containsPoint(mousePos))
+        if (!_draggedObjects.empty() && rack->containsPoint(mousePos))
         {
-            table->addCard(_draggedCards, mousePos);
+            rack->addCard(_draggedCards, mousePos);
             break;
         }
     }
@@ -227,6 +226,24 @@ bool MainScene::onMouseScroll(Event* event)
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
     AXLOGD("Scene: #{} onKeyPressed, keycode: {}", _sceneID, static_cast<int>(code));
+
+    switch (code)
+    {
+    case EventKeyboard::KeyCode::KEY_D:
+        // Go
+        break;
+    case EventKeyboard::KeyCode::KEY_S:
+        // A key pressed
+        break;
+    case EventKeyboard::KeyCode::KEY_F:
+        // S key pressed
+        break;
+    case EventKeyboard::KeyCode::KEY_U:
+        // D key pressed
+        break;
+    default:
+        break;
+    }
 }
 
 void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
@@ -334,11 +351,11 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position)
         if (card->containsPoint(position))
             return card;
     }
-    for (int i = _tables.size() - 1; i >= 0; i--)
+    for (int i = _racks.size() - 1; i >= 0; i--)
     {
-        auto table = _tables[i];
-        if (table->containsPoint(position))
-            return table;
+        auto rack = _racks[i];
+        if (rack->containsPoint(position))
+            return rack;
     }
     return nullptr;
 }
@@ -388,22 +405,22 @@ void MainScene::loadCardsFromDirectory()
     }
 }
 
-void MainScene::loadTables()
+void MainScene::loadRacks()
 {
-    _tables.push_back(Table::create("tables/table_blue.png"));
-    _tables.push_back(Table::create("tables/table_red.png"));
-    _tables[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _tables[0]->getContentSize().y / 2));
-    _tables[1]->setPosition(
-        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _tables[1]->getContentSize().y / 2));
-    for (size_t i = 0; i < _tables.size(); i++)
+    _racks.push_back(Rack::create("racks/rack_blue.png"));
+    _racks.push_back(Rack::create("racks/rack_red.png"));
+    _racks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + _racks[0]->getContentSize().y / 2));
+    _racks[1]->setPosition(
+        Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - _racks[1]->getContentSize().y / 2));
+    for (size_t i = 0; i < _racks.size(); i++)
     {
-        auto table = _tables[i];
-        if (!table)
+        auto rack = _racks[i];
+        if (!rack)
         {
-            problemLoading("table.png");
+            problemLoading("rack.png");
             continue;
         }
-        this->addChild(table, -1);
+        this->addChild(rack, -1);
     }
 }
 

@@ -1,11 +1,11 @@
-#include "Table.h"
+#include "Rack.h"
 #include <limits>
 #include <algorithm>
 using namespace ax;
 
-Table* Table::create(const std::string& texture)
+Rack* Rack::create(const std::string& texture)
 {
-    Table* table = new (std::nothrow) Table();
+    Rack* table = new (std::nothrow) Rack();
     if (table && table->init(texture))
     {
         table->autorelease();
@@ -15,7 +15,7 @@ Table* Table::create(const std::string& texture)
     return nullptr;
 }
 
-bool Table::init(const std::string& texture)
+bool Rack::init(const std::string& texture)
 {
     if (!Node::init())
         return false;
@@ -36,7 +36,7 @@ bool Table::init(const std::string& texture)
     return true;
 }
 
-void Table::addCard(Card* card)
+void Rack::addCard(Card* card)
 {
     if (!card)
         return;
@@ -74,7 +74,7 @@ void Table::addCard(Card* card)
     addCardAt(card, nearestIndex);
 }
 
-void Table::removeCard(Card* card)
+void Rack::removeCard(Card* card)
 {
     if (!card)
         return;
@@ -91,7 +91,7 @@ void Table::removeCard(Card* card)
     }
 }
 
-void Table::addCardAt(Card* card, int index)
+void Rack::addCardAt(Card* card, int index)
 {
     for (int i = 0; i < index; i++)
     {
@@ -107,7 +107,7 @@ void Table::addCardAt(Card* card, int index)
     moveCardToPosition(card, getCardPosition(index, _cards.size()));
 }
 
-void Table::moveCardToPosition(Card* card, const ax::Vec2& position)
+void Rack::moveCardToPosition(Card* card, const ax::Vec2& position)
 {
     card->stopAllActions();
     auto moveTo  = MoveTo::create(0.3f, position);
@@ -115,14 +115,15 @@ void Table::moveCardToPosition(Card* card, const ax::Vec2& position)
     card->runAction(easeOut);
 }
 
-void Table::startDragging()
+void Rack::startDragging()
 {
     _isDragging = true;
     _cards.clear();
 }
 
-void Table::addCard(const std::vector<Card*>& cards, Vec2& mousePos)
+void Rack::addCard(std::vector<Card*>& cards, Vec2& mousePos)
 {
+    DraggableObject::sortObjectsByPosition(cards);
     if (cards.empty())
         return;
     setSpacing(_cards.size() + cards.size());
@@ -158,7 +159,7 @@ void Table::addCard(const std::vector<Card*>& cards, Vec2& mousePos)
     addCardAt(cards, nearestIndex);
 }
 
-void Table::removeCard(const std::vector<Card*>& cards)
+void Rack::removeCard(const std::vector<Card*>& cards)
 {
     if (cards.empty())
         return;
@@ -179,7 +180,7 @@ void Table::removeCard(const std::vector<Card*>& cards)
     }
 }
 
-void Table::addCardAt(const std::vector<Card*>& cards, int index)
+void Rack::addCardAt(std::vector<Card*>& cards, int index)
 {
     int newSize = _cards.size() + cards.size();
     for (int i = 0; i < index; i++)
@@ -200,7 +201,7 @@ void Table::addCardAt(const std::vector<Card*>& cards, int index)
     }
 }
 
-ax::Vec2 Table::getCardPosition(int index, int cardCount)
+ax::Vec2 Rack::getCardPosition(int index, int cardCount)
 {
     float startX = this->getPosition().x - (cardCount - 1) * _cardSpacing / 2;
 
