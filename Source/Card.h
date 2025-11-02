@@ -15,6 +15,7 @@ public:
     bool isFaceUp() const { return _isFaceUp; }
 
     static const ax::Vec2 CARD_SIZE;
+    static const int MOVE_TO_HOLDER_TAG;
 
 private:
     ax::Sprite* _frontSprite = nullptr;

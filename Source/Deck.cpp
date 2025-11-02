@@ -52,6 +52,7 @@ bool Deck::init()
 
 void Deck::addCard(Card* card) {
     _cards.push_back(card);
+    card->setLocalZOrder(_cards.size());
     card->stopAllActions();
     auto moveTo   = MoveTo::create(0.1f, this->getPosition());
     auto easeOut  = EaseOut::create(moveTo, 1.0f);
@@ -108,7 +109,36 @@ void Deck::deal(int count, std::vector<Rack*>& racks) {
             }
             Card* card = _cards.back();
             _cards.pop_back();
-            rack->addCard(card);
+            rack->addCardToBack(card);
         }
+    }
+}
+
+void Deck::dealSmoothly(int count, std::vector<Rack*>& racks, float delayPerCard) {
+    float totalDelay = 0.0f;
+    for (int i = 0; i < count; ++i) {
+        for (auto& rack : racks) {
+            if (_cards.empty()) {
+                return; // No more cards to deal
+            }
+            Card* card = _cards.back();
+            _cards.pop_back();
+            auto delay = DelayTime::create(totalDelay);
+            auto dealAction = CallFunc::create([rack, card]() {
+                rack->addCardToBack(card);
+            });
+            auto seq = Sequence::create(delay, dealAction, nullptr);
+            this->runAction(seq);
+            totalDelay += delayPerCard;
+        }
+    }
+}
+
+void Deck::setColor(const ax::Color4F& color) {
+    if (_deckDrawNode) {
+        _deckDrawNode->clear();
+        Vec2 bottomLeft(-DECK_SIZE.x / 2, -DECK_SIZE.y / 2);
+        Vec2 topRight(DECK_SIZE.x / 2, DECK_SIZE.y / 2);
+        _deckDrawNode->drawSolidRect(bottomLeft, topRight, color);
     }
 }

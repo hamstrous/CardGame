@@ -4,6 +4,7 @@
 #include "Card.h"
 #include "Rack.h"
 #include "Deck.h"
+#include "Table.h"
 #include "DraggableObject.h"
 
 class MainScene : public ax::Scene
@@ -63,10 +64,12 @@ private:
     std::vector<Card*> _cards;
     std::vector<Rack*> _racks;
     std::vector<Deck*> _decks;
+    std::vector<Table*> _tables;
 
     void loadCardsFromDirectory();
     void loadRacks();
     void loadDecks();
+    void loadTables();
     const std::string cardTypeFolder = "uno/";
 
     int _cardClickCount = 0;  // For z-ordering cards on click

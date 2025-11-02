@@ -19,6 +19,9 @@ public:
 
     void shuffle();
     void deal(int count, std::vector<Rack*>& racks);
+    void dealSmoothly(int count, std::vector<Rack*>& racks, float delayPerCard = 0.2f);
+
+    void setColor(const ax::Color4F& color);
 
     static const ax::Vec2 DECK_OFFSET;
     static const ax::Vec2 DECK_SIZE;

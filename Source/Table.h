@@ -2,18 +2,26 @@
 
 #include "axmol.h"
 #include "Card.h"
+#include "Deck.h"
 #include "Holder.h"
+#
 
 class Table : public Holder
 {
 public:
-    static Table* create(const std::string& texture);
+    static Table* create();
 
-    virtual bool init(const std::string& texture);
+    virtual bool init();
 
+    void addCard(Card* card) override;
+    void addCard(std::vector<Card*>& cards, ax::Vec2& mousePos) override;
+    
     static const ax::Vec2 TABLE_SIZE;
     static const ax::Vec2 TABLE_OFFSET;
 
+    Deck* getDiscardDeck() const { return _deck; }
+
 private:
-    ax::Sprite* _tableSprite = nullptr;
+    ax::DrawNode* _deckDrawNode = nullptr;
+    Deck* _deck                 = nullptr; // discard deck
 };
