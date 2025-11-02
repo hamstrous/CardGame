@@ -42,3 +42,8 @@ bool Rack::init(const std::string& texture)
     setContentSize(DECK_SIZE);
     return true;
 }
+
+void Rack::addCardToBack(Card* card) {
+    setSpacing(_cards.size() + 1);
+    addCardAt(card, _cards.size());
+}

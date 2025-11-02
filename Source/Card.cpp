@@ -2,6 +2,7 @@
 using namespace ax;
 
 const ax::Vec2 Card::CARD_SIZE{82, 127.5f};
+const int Card::MOVE_TO_HOLDER_TAG = 10;
 
 Card* Card::create(const std::string& frontTexture, const std::string& backTexture)
 {

@@ -60,6 +60,7 @@ bool MainScene::init()
     loadCardsFromDirectory();
     loadRacks();
     loadDecks();
+    loadTables();
 
     _mouseListener                = EventListenerMouse::create();
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MainScene::onMouseMove, this);
@@ -130,6 +131,10 @@ bool MainScene::onMouseDown(Event* event)
                 {
                     deck->removeCard(_draggedCards);
                 }
+                for (auto table : _tables)
+                {
+                    table->removeCard(_draggedCards);
+                }
                 return true;
             }
         }
@@ -182,7 +187,7 @@ bool MainScene::onMouseDown(Event* event)
         {
             if (deck->containsPoint(mousePos))
             {
-                deck->deal(4, _racks);
+                deck->dealSmoothly(4, _racks);
                 return true;
             }
         }
@@ -217,9 +222,18 @@ bool MainScene::onMouseUp(Event* event)
 
     for (auto deck: _decks)
     {
-        if (deck->containsPoint(mousePos))
+        if (!_draggedCards.empty() && deck->containsPoint(mousePos))
         {
             deck->addCard(_draggedCards);
+            return true;
+        }
+    }
+
+    for (auto table : _tables)
+    {
+        if (!_draggedCards.empty() && table->containsPoint(mousePos))
+        {
+            table->addCard(_draggedCards, mousePos);
             return true;
         }
     }
@@ -499,7 +513,7 @@ void MainScene::loadRacks()
 void MainScene::loadDecks()
 {
     _decks.push_back(Deck::create());
-    _decks[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    _decks[0]->setPosition(Vec2(origin.x + visibleSize.width - 100, origin.y + visibleSize.height / 2));
     for (size_t i = 0; i < _decks.size(); i++)
     {
         auto deck = _decks[i];
@@ -509,6 +523,26 @@ void MainScene::loadDecks()
             continue;
         }
         this->addChild(deck, -1);
+    }
+}
+
+void MainScene::loadTables() {
+    _tables.push_back(Table::create());
+    _tables[0]->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    for (size_t i = 0; i < _tables.size(); i++)
+    {
+        auto table = _tables[i];
+        if (!table)
+        {
+            problemLoading("table.png");
+            continue;
+        }
+        auto deck = table->getDiscardDeck();
+        _decks.push_back(deck);
+        this->addChild(table, -20);
+        this->addChild(deck, -1);
+        deck->setPosition(Vec2(table->getPositionX() - table->getContentSize().x / 2 - 50, table->getPositionY()));
+
     }
 }
 

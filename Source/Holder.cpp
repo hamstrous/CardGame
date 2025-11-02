@@ -76,10 +76,12 @@ void Holder::addCardAt(Card* card, int index)
 
 void Holder::moveCardToPosition(Card* card, const ax::Vec2& position)
 {
-    card->stopAllActions();
+    card->stopAllActionsByTag(Card::MOVE_TO_HOLDER_TAG);
     auto moveTo   = MoveTo::create(0.3f, position);
     auto easeOut  = EaseOut::create(moveTo, 2.0f);
     auto rotateTo = RotateTo::create(0.3f, this->getRotation());
+    easeOut->setTag(Card::MOVE_TO_HOLDER_TAG);
+    rotateTo->setTag(Card::MOVE_TO_HOLDER_TAG);
     card->runAction(rotateTo);
     card->runAction(easeOut);
 }
