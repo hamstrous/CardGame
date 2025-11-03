@@ -52,11 +52,16 @@ bool Deck::init()
 
 void Deck::addCard(Card* card) {
     _cards.push_back(card);
-    card->setLocalZOrder(_cards.size());
-    card->stopAllActions();
+    for (int i = 0; i < _cards.size(); i++)
+    {
+        _cards[i]->setLocalZOrder(i);
+    }
+    card->stopAllActionsByTag(Card::MOVE_TO_HOLDER_TAG);
     auto moveTo   = MoveTo::create(0.1f, this->getPosition());
     auto easeOut  = EaseOut::create(moveTo, 1.0f);
     auto rotateTo = RotateTo::create(0.1f, this->getRotation());
+    easeOut->setTag(Card::MOVE_TO_HOLDER_TAG);
+    rotateTo->setTag(Card::MOVE_TO_HOLDER_TAG);
     card->runAction(rotateTo);
     card->runAction(easeOut);
 }

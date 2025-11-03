@@ -62,6 +62,7 @@ void Holder::addCardAt(Card* card, int index)
 {
     for (int i = 0; i < index; i++)
     {
+        _cards[i]->setLocalZOrder(i);
         moveCardToPosition(_cards[i], getCardPosition(i, _cards.size() + 1));
     }
     for (int i = index; i < _cards.size(); i++)
