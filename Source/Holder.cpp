@@ -189,7 +189,7 @@ ax::Vec2 Holder::getCardPosition(int index, int cardCount)
     float horizontalOffset = (index - (cardCount - 1) / 2.0f) * _cardSpacing;
 
     float rotationDegrees = this->getRotation();
-    float rotationRadians = AX_DEGREES_TO_RADIANS(rotationDegrees);
+    float rotationRadians = -AX_DEGREES_TO_RADIANS(rotationDegrees);
 
     float rotatedX = horizontalOffset * cos(rotationRadians);
     float rotatedY = horizontalOffset * sin(rotationRadians);
