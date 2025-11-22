@@ -6,6 +6,7 @@
 #include "Deck.h"
 #include "Table.h"
 #include "DraggableObject.h"
+#include "Counter.h"
 
 class MainScene : public ax::Scene
 {
@@ -44,6 +45,7 @@ public:
     ~MainScene() override;
 
     const int CARD_ZORDER_BASE  = 1000;
+    const int COUNTER_ZORDER_BASE  = 1500;
     const int RACK_ZORDER_BASE  = -500;
     const int DECK_ZORDER_BASE  = -200;
     const int TABLE_ZORDER_BASE = -1000;
@@ -78,12 +80,14 @@ private:
     std::vector<Rack*> _racks;
     std::vector<Deck*> _decks;
     std::vector<Table*> _tables;
+    std::vector<Counter*> _counters;
     void getAllObjects(std::vector<DraggableObject*>& outObjects);
 
     void loadCardsFromDirectory();
     void loadRacks();
     void loadDecks();
     void loadTables();
+    void loadCountersFromDirectory();
     const std::string cardTypeFolder = "uno/";
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position, bool all = false);

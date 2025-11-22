@@ -61,6 +61,7 @@ bool MainScene::init()
     loadRacks();
     loadDecks();
     loadTables();
+    loadCountersFromDirectory();
     getAllObjects(_objects);
 
     _mouseListener                = EventListenerMouse::create();
@@ -211,6 +212,8 @@ bool MainScene::onMouseUp(Event* event)
     _draggedObjects.clear();
     _selectionRectangle->clear();
     _selectionStartPoint = Vec2::ZERO;
+
+    //Add cards to holders
     for (auto rack : _racks)
     {
         if (!_draggedCards.empty() && rack->containsPoint(mousePos))
@@ -433,7 +436,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             {
                 obj->rotateSmooth(10.0f);
             }
-            {
+            else{
                 Card* card = dynamic_cast<Card*>(obj);
                 if (card)
                     card->rotateSmooth(10.0f);
@@ -449,6 +452,8 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             rack->enableDragging(isMoveMode);
         for (auto table : _tables)
             table->enableDragging(isMoveMode);
+        for (auto counter : _counters)
+            counter->enableDragging(isMoveMode);
         break;
     default:
         break;
@@ -559,6 +564,13 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position, bool a
     }
     if (!all)
         return nullptr;
+    for (int i = _counters.size() - 1; i >= 0; i--)
+    {
+        auto counter = _counters[i];
+        if (counter->containsPoint(position))
+            return counter;
+    }
+
     for (int i = _racks.size() - 1; i >= 0; i--)
     {
         auto rack = _racks[i];
@@ -577,7 +589,6 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position, bool a
         if (table->containsPoint(position))
             return table;
     }
-
     return nullptr;
 }
 
@@ -598,6 +609,8 @@ vector<string> split(const string& str, char delimiter)
 void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
 {
     outObjects.clear();
+    for (auto counter : _counters)
+        outObjects.push_back(counter);
     for (auto card : _cards)
         outObjects.push_back(card);
     for (auto rack : _racks)
@@ -690,6 +703,34 @@ void MainScene::loadTables()
         this->addChild(deck, DECK_ZORDER_BASE + _decks.size() + i);
         _decks.push_back(deck);
         deck->setPosition(Vec2(table->getPositionX() - table->getContentSize().x / 2 - 50, table->getPositionY()));
+    }
+}
+
+void MainScene::loadCountersFromDirectory() {
+    // Get all files in a folder
+    auto fileUtils = ax::FileUtils::getInstance();
+    vector<string> files;
+
+    string folderPath = "counters/";
+    files             = fileUtils->listFiles(folderPath);
+    int numCards      = static_cast<int>(files.size());
+    int i             = 0;
+    for (const auto& file : files)
+    {
+        vector<string> parts = split(file, '/');  // get filename from path
+        auto counter            = Counter::create(folderPath + parts.back());
+        if (counter)
+        {
+            counter->setPosition(
+                Vec2(origin.x + (i + 1) * visibleSize.width / (numCards + 1), origin.y + visibleSize.height / 2));
+            this->addChild(counter, COUNTER_ZORDER_BASE + i);
+            _counters.push_back(counter);
+        }
+        else
+        {
+            problemLoading("counter sprite");
+        }
+        i++;
     }
 }
 
