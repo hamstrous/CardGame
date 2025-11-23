@@ -83,6 +83,9 @@ private:
     std::vector<Counter*> _counters;
     void getAllObjects(std::vector<DraggableObject*>& outObjects);
 
+    ax::Menu * _addMenu = nullptr;
+    ax::Vector<ax::MenuItem*> _addMenuItems;
+
     void loadCardsFromDirectory();
     void loadRacks();
     void loadDecks();

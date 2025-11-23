@@ -14,6 +14,38 @@ static void problemLoading(const char* filename)
         "MainScene.cpp\n");
 }
 
+ax::MenuItem* createMenuEntry(const std::string& text, const ax::ccMenuCallback& callback)
+{
+    const ax::Vec2 CONTEXT_MENU_BUTTON_SIZE = ax::Vec2(150, 50);
+
+    auto bgNormal   = ax::Sprite::create("ui/button_background.png");
+    auto bgSelected = ax::Sprite::create("ui/button_background_selected.png");
+
+    // Scale the sprites to fit the target size
+    bgNormal->setScale(CONTEXT_MENU_BUTTON_SIZE.x / bgNormal->getContentSize().width,
+                       CONTEXT_MENU_BUTTON_SIZE.y / bgNormal->getContentSize().height);
+
+    bgSelected->setScale(CONTEXT_MENU_BUTTON_SIZE.x / bgSelected->getContentSize().width,
+                         CONTEXT_MENU_BUTTON_SIZE.y / bgSelected->getContentSize().height);
+
+    // Create the menu item with the scaled sprites
+    auto item = ax::MenuItemSprite::create(bgNormal, bgSelected, callback);
+    item->setContentSize(CONTEXT_MENU_BUTTON_SIZE);
+
+    // Label
+    auto label = ax::Label::createWithSystemFont(text, "Arial", 20);
+    label->setTextColor(ax::Color4B::BLACK);
+    // Align left, center vertically:
+    // reference point: left side + some padding
+    float padding = 10.0f;
+    label->setAnchorPoint({0, 0.5f});
+    label->setPosition({padding, CONTEXT_MENU_BUTTON_SIZE.y * 0.5f});
+
+    item->addChild(label);
+
+    return item;
+}
+
 // on "init" you need to initialize your instance
 bool MainScene::init()
 {
@@ -57,6 +89,25 @@ bool MainScene::init()
     this->addChild(_selectionRectangle, 1000);
     _selectionStartPoint = Vec2::ZERO;
 
+    auto _addMenuBackground = Sprite::create("ui/button_background.png");
+    auto _addCard           = createMenuEntry("Add Card", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addDeck           = createMenuEntry("Add Deck", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addTable          = createMenuEntry("Add Table", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addRack           = createMenuEntry("Add Rack", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addCounter        = createMenuEntry("Add Counter", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+
+    _addMenuItems.pushBack(_addCard);
+    _addMenuItems.pushBack(_addDeck);
+    _addMenuItems.pushBack(_addTable);
+    _addMenuItems.pushBack(_addRack);
+    _addMenuItems.pushBack(_addCounter);
+
+    _addMenu = ax::Menu::createWithArray(_addMenuItems);
+    _addMenu->alignItemsVerticallyWithPadding(0);
+    _addMenu->setVisible(false);
+    //_addMenu->setAnchorPoint(Vec2(0, 0));
+    this->addChild(_addMenu, 10000);
+
     loadCardsFromDirectory();
     loadRacks();
     loadDecks();
@@ -89,6 +140,8 @@ bool MainScene::onMouseDown(Event* event)
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
+    //_addMenu->setVisible(false);
+
     // Left click for dragging
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
@@ -103,7 +156,6 @@ bool MainScene::onMouseDown(Event* event)
                 {
                     clearSelectObjects();
                     _selectedObjects.push_back(card);
-                    
                 }
                 sortObjectsByZOrder(_selectedObjects);
                 for (auto selectedCard : _selectedObjects)
@@ -112,7 +164,7 @@ bool MainScene::onMouseDown(Event* event)
                     {
                         pushToTop(selectedCard);
                     }
-                }                
+                }
 
                 vector<Card*> _draggedCards;
                 for (auto obj : _draggedObjects)
@@ -159,7 +211,7 @@ bool MainScene::onMouseDown(Event* event)
         }
         _selectionStartPoint = mousePos;
     }
-    // Right click for flipping
+    // Right click
     else if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT)
     {
         for (int i = _cards.size() - 1; i >= 0; i--)
@@ -190,6 +242,10 @@ bool MainScene::onMouseDown(Event* event)
                 return true;
             }
         }
+
+        // Right click to create add menu pop up
+        _addMenu->setPosition(mousePos);
+        _addMenu->setVisible(true);
     }
 
     return false;
@@ -213,7 +269,7 @@ bool MainScene::onMouseUp(Event* event)
     _selectionRectangle->clear();
     _selectionStartPoint = Vec2::ZERO;
 
-    //Add cards to holders
+    // Add cards to holders
     for (auto rack : _racks)
     {
         if (!_draggedCards.empty() && rack->containsPoint(mousePos))
@@ -248,6 +304,29 @@ bool MainScene::onMouseMove(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    if (_addMenu && _addMenu->isVisible())
+    {
+        // iterate menu items and set selected/unselected based on mouse position
+        bool anySelected = false;
+        for (auto item : _addMenuItems)
+        {
+            // getBoundingBox() is in parent's coordinates (scene), mousePos is in world coords
+            // ensure mousePos is in same coordinate space (it is — screen coords used here)
+            if (item->getBoundingBox().containsPoint(mousePos))
+            {
+                item->selected();  // show selected sprite
+                anySelected = true;
+            }
+            else
+            {
+                item->unselected();  // show normal sprite
+            }
+            break;
+        }
+        if (anySelected)
+            return true;
+    }
 
     if (!_draggedObjects.empty())
     {
@@ -295,7 +374,6 @@ bool MainScene::onMoveModeMouseDown(ax::Event* event)
                 {
                     clearSelectObjects();
                     _selectedObjects.push_back(obj);
-                    
                 }
                 sortObjectsByZOrder(_selectedObjects);
                 for (auto selectedObject : _selectedObjects)
@@ -436,7 +514,8 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             {
                 obj->rotateSmooth(10.0f);
             }
-            else{
+            else
+            {
                 Card* card = dynamic_cast<Card*>(obj);
                 if (card)
                     card->rotateSmooth(10.0f);
@@ -706,7 +785,8 @@ void MainScene::loadTables()
     }
 }
 
-void MainScene::loadCountersFromDirectory() {
+void MainScene::loadCountersFromDirectory()
+{
     // Get all files in a folder
     auto fileUtils = ax::FileUtils::getInstance();
     vector<string> files;
@@ -718,7 +798,7 @@ void MainScene::loadCountersFromDirectory() {
     for (const auto& file : files)
     {
         vector<string> parts = split(file, '/');  // get filename from path
-        auto counter            = Counter::create(folderPath + parts.back());
+        auto counter         = Counter::create(folderPath + parts.back());
         if (counter)
         {
             counter->setPosition(
