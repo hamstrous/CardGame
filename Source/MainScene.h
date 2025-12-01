@@ -45,11 +45,11 @@ public:
     MainScene();
     ~MainScene() override;
 
-    const int CARD_ZORDER_BASE  = 1000;
-    const int COUNTER_ZORDER_BASE  = 1500;
-    const int RACK_ZORDER_BASE  = -500;
-    const int DECK_ZORDER_BASE  = -200;
-    const int TABLE_ZORDER_BASE = -1000;
+    const int CARD_ZORDER_BASE    = 1000;
+    const int COUNTER_ZORDER_BASE = 1500;
+    const int RACK_ZORDER_BASE    = -500;
+    const int DECK_ZORDER_BASE    = -200;
+    const int TABLE_ZORDER_BASE   = -1000;
 
 private:
     GameState _gameState                            = GameState::init;
@@ -84,15 +84,19 @@ private:
     std::vector<Counter*> _counters;
     void getAllObjects(std::vector<DraggableObject*>& outObjects);
 
-    ax::Menu * _addMenu = nullptr;
+    ax::Menu* _addMenu = nullptr;
     ax::Vector<ax::MenuItem*> _addMenuItems;
     ax::Menu* _addSpecificMenu = nullptr;
     ax::Vector<ax::MenuItem*> _addSpecificItems;
-    std::map<std::string, std::vector<std::string> > _subAddFolder; // if no subfolder, use the file to create object
+    std::map<std::string, std::vector<std::string>> _subAddFolder;  // if no subfolder, use the file to create object
 
     void createSpecificAddMenu(std::string folderName);
 
     void addCard(std::string cardName);
+    void addDeck(std::string deckName);
+    void addRack(std::string rackName);
+    void addTable(std::string tableName);
+    void addCounter(std::string counterName);
 
     void loadCardsFromDirectory();
     void loadRacks();

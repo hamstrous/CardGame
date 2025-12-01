@@ -90,13 +90,11 @@ bool MainScene::init()
     _selectionStartPoint = Vec2::ZERO;
 
     auto _addMenuBackground = Sprite::create("ui/button_background.png");
-    auto _addCard           = createMenuEntry("Add Card", [=](auto) {
-        createSpecificAddMenu("cards");
-    });
-    auto _addDeck           = createMenuEntry("Add Deck", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
-    auto _addTable          = createMenuEntry("Add Table", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
-    auto _addRack           = createMenuEntry("Add Rack", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
-    auto _addCounter        = createMenuEntry("Add Counter", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addCard           = createMenuEntry("Add Card", [=](auto) { createSpecificAddMenu("cards"); });
+    auto _addDeck           = createMenuEntry("Add Deck", [=](auto) { createSpecificAddMenu("decks"); });
+    auto _addTable          = createMenuEntry("Add Table", [=](auto) { createSpecificAddMenu("tables"); });
+    auto _addRack           = createMenuEntry("Add Rack", [=](auto) { createSpecificAddMenu("racks"); });
+    auto _addCounter        = createMenuEntry("Add Counter", [=](auto) { createSpecificAddMenu("counters"); });
 
     _addMenuItems.pushBack(_addCard);
     _addMenuItems.pushBack(_addDeck);
@@ -104,10 +102,10 @@ bool MainScene::init()
     _addMenuItems.pushBack(_addRack);
     _addMenuItems.pushBack(_addCounter);
 
-    _subAddFolder["cards"]   = {"uno/", "standard/"};
-    _subAddFolder["decks"]   = {};
-    _subAddFolder["tables"]  = {};
-    _subAddFolder["racks"]   = {};
+    _subAddFolder["cards"]    = {"uno/", "standard/"};
+    _subAddFolder["decks"]    = {};
+    _subAddFolder["tables"]   = {};
+    _subAddFolder["racks"]    = {};
     _subAddFolder["counters"] = {};
 
     _addMenu = ax::Menu::createWithArray(_addMenuItems);
@@ -755,56 +753,196 @@ void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
     sortObjectsByZOrder(outObjects);
 }
 
-void MainScene::createSpecificAddMenu(std::string folderName) {
+void MainScene::createSpecificAddMenu(std::string folderName)
+{
     if (_addSpecificMenu)
     {
         this->removeChild(_addSpecificMenu);
         _addSpecificMenu = nullptr;
     }
+
+    // Check if folder has subfolders defined
     if (_subAddFolder.find(folderName) == _subAddFolder.end() || _subAddFolder[folderName].empty())
     {
-        auto fileUtils = ax::FileUtils::getInstance();
-        vector<string> files;
-        files             = fileUtils->listFiles(folderName);
-        int num      = static_cast<int>(files.size());
-        int i             = 0;
+        auto fileUtils       = ax::FileUtils::getInstance();
+        vector<string> files = fileUtils->listFiles(folderName);
+
+        // Filter out directories and keep only .png files
+        vector<string> pngFiles;
         for (const auto& file : files)
         {
-            vector<string> parts = split(file, '/');  // get filename from path
-            auto _addFolder = createMenuEntry(parts.back(), [=](auto) { addCard(folderName + parts.back()); });
-            _addSpecificItems.pushBack(_addFolder);
+            if (file.find(".png") != string::npos || file.find(".jpg") != string::npos)
+            {
+                pngFiles.push_back(file);
+            }
         }
-        
+
+        // If no png files, add default element directly
+        if (pngFiles.empty())
+        {
+            if (folderName == "decks")
+                addDeck("");
+            else if (folderName == "racks")
+                addRack("");
+            else if (folderName == "tables")
+                addTable("");
+            else if (folderName == "counters")
+                addCounter("");
+            return;
+        }
+
+        // Create menu items for each file
+        for (const auto& file : pngFiles)
+        {
+            vector<string> parts = split(file, '/');  // get filename from path
+            string fileName      = parts.back();
+
+            // Determine which add function to call based on folder
+            if (folderName == "cards")
+            {
+                auto _addFolder = createMenuEntry(fileName, [=](auto) { addCard(folderName + "/" + fileName); });
+                _addSpecificItems.pushBack(_addFolder);
+            }
+            else if (folderName.find("cards") == 0)  // cards/subfolder/
+            {
+                auto _addFolder = createMenuEntry(fileName, [=](auto) { addCard(file); });
+                _addSpecificItems.pushBack(_addFolder);
+            }
+            else if (folderName == "racks")
+            {
+                auto _addFolder = createMenuEntry(fileName, [=](auto) { addRack(folderName + "/" + fileName); });
+                _addSpecificItems.pushBack(_addFolder);
+            }
+            else if (folderName == "counters")
+            {
+                auto _addFolder = createMenuEntry(fileName, [=](auto) { addCounter(folderName + "/" + fileName); });
+                _addSpecificItems.pushBack(_addFolder);
+            }
+        }
     }
     else
     {
+        // Has subfolders, create menu for each
         for (const auto& subFolder : _subAddFolder[folderName])
         {
-            auto _addFolder = createMenuEntry(subFolder, [=](auto) { createSpecificAddMenu(folderName + "/" + subFolder); });
+            auto _addFolder =
+                createMenuEntry(subFolder, [=](auto) { createSpecificAddMenu(folderName + "/" + subFolder); });
             _addSpecificItems.pushBack(_addFolder);
         }
     }
-    _addSpecificMenu = ax::Menu::createWithArray(_addSpecificItems);
-    this->addChild(_addSpecificMenu, 10001);
-    _addSpecificMenu->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
-    _addSpecificMenu->alignItemsVerticallyWithPadding(0);
-    _addSpecificItems.clear();
 
-    
+    // Only create menu if there are items
+    if (!_addSpecificItems.empty())
+    {
+        _addSpecificMenu = ax::Menu::createWithArray(_addSpecificItems);
+        this->addChild(_addSpecificMenu, 10001);
+        _addSpecificMenu->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        _addSpecificMenu->alignItemsVerticallyWithPadding(0);
+        _addSpecificItems.clear();
+    }
 }
 
-void MainScene::addCard(std::string cardName) {
+void MainScene::addCard(std::string cardName)
+{
     auto card = Card::create(cardName, "cards/Card Back 1.png");
     if (card)
     {
-        card->setPosition(
-            Vec2(origin.x + visibleSize.width, origin.y + visibleSize.height / 2));
+        card->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
         this->addChild(card, CARD_ZORDER_BASE + _cards.size());
         _cards.push_back(card);
     }
     else
     {
         problemLoading("card_front.png or card_back.png");
+    }
+}
+
+void MainScene::addDeck(std::string deckName)
+{
+    // Deck doesn't use texture - create default gray deck
+    auto deck = Deck::create();
+    if (deck)
+    {
+        deck->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        this->addChild(deck, DECK_ZORDER_BASE + _decks.size());
+        _decks.push_back(deck);
+    }
+    else
+    {
+        problemLoading("deck");
+    }
+}
+
+void MainScene::addRack(std::string rackName)
+{
+    Rack* rack = nullptr;
+    if (rackName.empty())
+    {
+        // No texture provided - need to handle default case
+        // For now, skip or use a placeholder
+        AXLOG("Warning: Rack requires a texture, none provided");
+        return;
+    }
+    else
+    {
+        rack = Rack::create(rackName);
+    }
+
+    if (rack)
+    {
+        rack->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        this->addChild(rack, RACK_ZORDER_BASE + _racks.size());
+        _racks.push_back(rack);
+    }
+    else
+    {
+        problemLoading(rackName.c_str());
+    }
+}
+
+void MainScene::addTable(std::string tableName)
+{
+    // Table doesn't use texture - create default table
+    auto table = Table::create();
+    if (table)
+    {
+        table->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        auto deck = table->getDiscardDeck();
+        this->addChild(table, TABLE_ZORDER_BASE + _tables.size());
+        this->addChild(deck, DECK_ZORDER_BASE + _decks.size());
+        _tables.push_back(table);
+        _decks.push_back(deck);
+        deck->setPosition(Vec2(table->getPositionX() - table->getContentSize().x / 2 - 50, table->getPositionY()));
+    }
+    else
+    {
+        problemLoading("table");
+    }
+}
+
+void MainScene::addCounter(std::string counterName)
+{
+    Counter* counter = nullptr;
+    if (counterName.empty())
+    {
+        // No texture provided
+        AXLOG("Warning: Counter requires a texture, none provided");
+        return;
+    }
+    else
+    {
+        counter = Counter::create(counterName);
+    }
+
+    if (counter)
+    {
+        counter->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        this->addChild(counter, COUNTER_ZORDER_BASE + _counters.size());
+        _counters.push_back(counter);
+    }
+    else
+    {
+        problemLoading(counterName.c_str());
     }
 }
 

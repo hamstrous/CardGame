@@ -11,7 +11,7 @@ class Deck : public Holder
 public:
     static Deck* create();
 
-    virtual bool init();
+    bool init(const ax::Color4F& color = ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f));
 
     void addCard(Card* card) override;
     void addCard(std::vector<Card*> cards);

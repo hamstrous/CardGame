@@ -19,7 +19,7 @@ Deck* Deck::create()
     return nullptr;
 }
 
-bool Deck::init()
+bool Deck::init(const ax::Color4F& color)
 {
     if (!Node::init())
         return false;
@@ -35,15 +35,12 @@ bool Deck::init()
         return false;
     }
 
-    // Draw a gray rectangle with transparency
+    // Draw a rectangle with the specified color
     // Position corners relative to center (since node position is center)
     Vec2 bottomLeft(-DECK_SIZE.x / 2, -DECK_SIZE.y / 2);
     Vec2 topRight(DECK_SIZE.x / 2, DECK_SIZE.y / 2);
 
-    // Gray color with 70% opacity (0.7 alpha)
-    Color4F fillColor(0.7f, 0.7f, 0.7f, 0.9f);
-
-    _deckDrawNode->drawSolidRect(bottomLeft, topRight, fillColor);
+    _deckDrawNode->drawSolidRect(bottomLeft, topRight, color);
 
     this->addChild(_deckDrawNode);
     setContentSize(DECK_SIZE);
