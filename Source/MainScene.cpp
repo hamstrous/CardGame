@@ -238,7 +238,7 @@ bool MainScene::onMouseDown(Event* event)
         {
             if (deck->containsPoint(mousePos))
             {
-                deck->dealSmoothly(4, _racks);
+                deck->dealSmoothly(_racks);
                 return true;
             }
         }
@@ -521,6 +521,50 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
                     card->rotateSmooth(10.0f);
             }
         }
+        break;
+    case EventKeyboard::KeyCode::KEY_D:
+        for (auto obj : _selectedObjects)
+        {
+            auto objIt = std::find(_objects.begin(), _objects.end(), obj);
+            _objects.erase(objIt);
+            if (dynamic_cast<Table*>(obj))
+            {
+                auto it = std::find(_tables.begin(), _tables.end(), dynamic_cast<Table*>(obj));
+                _tables.erase(it);
+            }
+            else if (dynamic_cast<Deck*>(obj))
+            {
+                auto it = std::find(_decks.begin(), _decks.end(), dynamic_cast<Deck*>(obj));
+                _decks.erase(it);
+            }
+            else if (dynamic_cast<Rack*>(obj))
+            {
+                auto it = std::find(_racks.begin(), _racks.end(), dynamic_cast<Rack*>(obj));
+                _racks.erase(it);
+            }
+            else if (dynamic_cast<Counter*>(obj))
+            {
+                auto it = std::find(_counters.begin(), _counters.end(), dynamic_cast<Counter*>(obj));
+                _counters.erase(it);
+            }
+            else if (dynamic_cast<Card*>(obj))
+            {
+                auto it = std::find(_cards.begin(), _cards.end(), dynamic_cast<Card*>(obj));
+                _cards.erase(it);
+            }
+
+            if (isMoveMode)
+            {
+                removeChild(obj);
+            }
+            else
+            {
+                Card* card = dynamic_cast<Card*>(obj);
+                if (card)
+                    removeChild(card);
+            }
+        }
+        _selectedObjects.clear();
         break;
     case EventKeyboard::KeyCode::KEY_M:
         isMoveMode = !isMoveMode;

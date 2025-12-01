@@ -4,6 +4,7 @@
 #include "Card.h"
 #include "Holder.h"
 #include "Rack.h"
+#include "ui/UIButton.h"
 
 class Deck : public Holder
 {
@@ -18,8 +19,8 @@ public:
     void removeCard(std::vector<Card*> card);
 
     void shuffle();
-    void deal(int count, std::vector<Rack*>& racks);
-    void dealSmoothly(int count, std::vector<Rack*>& racks, float delayPerCard = 0.2f);
+    void deal(std::vector<Rack*>& racks);
+    void dealSmoothly(std::vector<Rack*>& racks, float delayPerCard = 0.2f);
 
     void setColor(const ax::Color4F& color);
 
@@ -27,5 +28,10 @@ public:
     static const ax::Vec2 DECK_SIZE;
 
 private:
-    ax::DrawNode* _deckDrawNode = nullptr;
+    int _dealAmount                  = 1;
+    ax::DrawNode* _deckDrawNode      = nullptr;
+    ax::ui::Button* _incrementButton = nullptr;
+    ax::ui::Button* _decrementButton = nullptr;
+    ax::ui::Button* _resetButton     = nullptr;
+    ax::Label* _dealAmountLabel      = nullptr;
 };
