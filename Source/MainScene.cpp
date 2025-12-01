@@ -756,40 +756,56 @@ void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
 }
 
 void MainScene::createSpecificAddMenu(std::string folderName) {
+    if (_addSpecificMenu)
+    {
+        this->removeChild(_addSpecificMenu);
+        _addSpecificMenu = nullptr;
+    }
     if (_subAddFolder.find(folderName) == _subAddFolder.end() || _subAddFolder[folderName].empty())
     {
         auto fileUtils = ax::FileUtils::getInstance();
         vector<string> files;
-
-        string folderPath = "cards/" + cardTypeFolder;
-        files             = fileUtils->listFiles(folderPath);
-        int numCards      = static_cast<int>(files.size());
+        files             = fileUtils->listFiles(folderName);
+        int num      = static_cast<int>(files.size());
         int i             = 0;
         for (const auto& file : files)
         {
+            vector<string> parts = split(file, '/');  // get filename from path
+            auto _addFolder = createMenuEntry(parts.back(), [=](auto) { addCard(folderName + parts.back()); });
+            _addSpecificItems.pushBack(_addFolder);
         }
+        
     }
     else
     {
         for (const auto& subFolder : _subAddFolder[folderName])
         {
-            auto _addFolder    = createMenuEntry(subFolder, AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+            auto _addFolder = createMenuEntry(subFolder, [=](auto) { createSpecificAddMenu(folderName + "/" + subFolder); });
             _addSpecificItems.pushBack(_addFolder);
         }
-        if (_addSpecificMenu)
-        {
-            this->removeChild(_addSpecificMenu);
-            _addSpecificMenu = nullptr;
-        }
-        _addSpecificMenu = ax::Menu::createWithArray(_addSpecificItems);
-        this->addChild(_addSpecificMenu, 10001);
-        _addSpecificMenu->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
-        _addSpecificMenu->alignItemsVerticallyWithPadding(0);
-        //_addMenu->setAnchorPoint(Vec2(0, 0));
-        _addSpecificItems.clear();
     }
+    _addSpecificMenu = ax::Menu::createWithArray(_addSpecificItems);
+    this->addChild(_addSpecificMenu, 10001);
+    _addSpecificMenu->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+    _addSpecificMenu->alignItemsVerticallyWithPadding(0);
+    _addSpecificItems.clear();
 
     
+}
+
+void MainScene::addCard(std::string cardName) {
+    auto card = Card::create(cardName, "cards/Card Back 1.png");
+    if (card)
+    {
+        card->setPosition(
+            Vec2(origin.x + visibleSize.width, origin.y + visibleSize.height / 2));
+        this->addChild(card, CARD_ZORDER_BASE + _cards.size());
+        _cards.push_back(card);
+    }
+    else
+    {
+        problemLoading("card_front.png or card_back.png");
+    }
 }
 
 void MainScene::loadCardsFromDirectory()

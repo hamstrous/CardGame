@@ -92,6 +92,8 @@ private:
 
     void createSpecificAddMenu(std::string folderName);
 
+    void addCard(std::string cardName);
+
     void loadCardsFromDirectory();
     void loadRacks();
     void loadDecks();
