@@ -7,6 +7,7 @@
 #include "Table.h"
 #include "DraggableObject.h"
 #include "Counter.h"
+#include <map>
 
 class MainScene : public ax::Scene
 {
@@ -85,6 +86,11 @@ private:
 
     ax::Menu * _addMenu = nullptr;
     ax::Vector<ax::MenuItem*> _addMenuItems;
+    ax::Menu* _addSpecificMenu = nullptr;
+    ax::Vector<ax::MenuItem*> _addSpecificItems;
+    std::map<std::string, std::vector<std::string> > _subAddFolder; // if no subfolder, use the file to create object
+
+    void createSpecificAddMenu(std::string folderName);
 
     void loadCardsFromDirectory();
     void loadRacks();

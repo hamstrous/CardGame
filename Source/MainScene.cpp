@@ -16,7 +16,7 @@ static void problemLoading(const char* filename)
 
 ax::MenuItem* createMenuEntry(const std::string& text, const ax::ccMenuCallback& callback)
 {
-    const ax::Vec2 CONTEXT_MENU_BUTTON_SIZE = ax::Vec2(150, 50);
+    const ax::Vec2 CONTEXT_MENU_BUTTON_SIZE = ax::Vec2(130, 30);
 
     auto bgNormal   = ax::Sprite::create("ui/button_background.png");
     auto bgSelected = ax::Sprite::create("ui/button_background_selected.png");
@@ -90,7 +90,9 @@ bool MainScene::init()
     _selectionStartPoint = Vec2::ZERO;
 
     auto _addMenuBackground = Sprite::create("ui/button_background.png");
-    auto _addCard           = createMenuEntry("Add Card", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+    auto _addCard           = createMenuEntry("Add Card", [=](auto) {
+        createSpecificAddMenu("cards");
+    });
     auto _addDeck           = createMenuEntry("Add Deck", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
     auto _addTable          = createMenuEntry("Add Table", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
     auto _addRack           = createMenuEntry("Add Rack", AX_CALLBACK_1(MainScene::menuCloseCallback, this));
@@ -101,6 +103,12 @@ bool MainScene::init()
     _addMenuItems.pushBack(_addTable);
     _addMenuItems.pushBack(_addRack);
     _addMenuItems.pushBack(_addCounter);
+
+    _subAddFolder["cards"]   = {"uno/", "standard/"};
+    _subAddFolder["decks"]   = {};
+    _subAddFolder["tables"]  = {};
+    _subAddFolder["racks"]   = {};
+    _subAddFolder["counters"] = {};
 
     _addMenu = ax::Menu::createWithArray(_addMenuItems);
     _addMenu->alignItemsVerticallyWithPadding(0);
@@ -140,7 +148,9 @@ bool MainScene::onMouseDown(Event* event)
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
-    //_addMenu->setVisible(false);
+    _addMenu->setVisible(false);
+    if (_addSpecificMenu)
+        _addSpecificMenu->setVisible(false);
 
     // Left click for dragging
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
@@ -743,6 +753,43 @@ void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
     for (auto table : _tables)
         outObjects.push_back(table);
     sortObjectsByZOrder(outObjects);
+}
+
+void MainScene::createSpecificAddMenu(std::string folderName) {
+    if (_subAddFolder.find(folderName) == _subAddFolder.end() || _subAddFolder[folderName].empty())
+    {
+        auto fileUtils = ax::FileUtils::getInstance();
+        vector<string> files;
+
+        string folderPath = "cards/" + cardTypeFolder;
+        files             = fileUtils->listFiles(folderPath);
+        int numCards      = static_cast<int>(files.size());
+        int i             = 0;
+        for (const auto& file : files)
+        {
+        }
+    }
+    else
+    {
+        for (const auto& subFolder : _subAddFolder[folderName])
+        {
+            auto _addFolder    = createMenuEntry(subFolder, AX_CALLBACK_1(MainScene::menuCloseCallback, this));
+            _addSpecificItems.pushBack(_addFolder);
+        }
+        if (_addSpecificMenu)
+        {
+            this->removeChild(_addSpecificMenu);
+            _addSpecificMenu = nullptr;
+        }
+        _addSpecificMenu = ax::Menu::createWithArray(_addSpecificItems);
+        this->addChild(_addSpecificMenu, 10001);
+        _addSpecificMenu->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        _addSpecificMenu->alignItemsVerticallyWithPadding(0);
+        //_addMenu->setAnchorPoint(Vec2(0, 0));
+        _addSpecificItems.clear();
+    }
+
+    
 }
 
 void MainScene::loadCardsFromDirectory()
