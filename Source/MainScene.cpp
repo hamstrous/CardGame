@@ -155,15 +155,38 @@ bool MainScene::onMouseDown(Event* event)
     {
         // Check which card was clicked (iterate in reverse for Z-order)
         sortObjectsByZOrder(_cards);
+
         for (int i = _cards.size() - 1; i >= 0; i--)
         {
             auto card = _cards[i];
             if (card->containsPoint(mousePos) && card->isDraggable())
             {
-                if (!contains(_selectedObjects, card))
+                if (isCtrlPressed)
                 {
-                    clearSelectObjects();
-                    _selectedObjects.push_back(card);
+                    // Ctrl+Click: toggle selection
+                    if (contains(_selectedObjects, card))
+                    {
+                        // Remove from selection
+                        auto it = std::find(_selectedObjects.begin(), _selectedObjects.end(), card);
+                        _selectedObjects.erase(it);
+                        card->setHighlight(false);
+                        return true;
+                    }
+                    else
+                    {
+                        // Add to selection
+                        _selectedObjects.push_back(card);
+                        card->setHighlight(true);
+                    }
+                }
+                else
+                {
+                    // Normal click: replace selection
+                    if (!contains(_selectedObjects, card))
+                    {
+                        clearSelectObjects();
+                        _selectedObjects.push_back(card);
+                    }
                 }
                 sortObjectsByZOrder(_selectedObjects);
                 for (auto selectedCard : _selectedObjects)
@@ -372,16 +395,39 @@ bool MainScene::onMoveModeMouseDown(ax::Event* event)
     // Left click for dragging
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
     {
-        // Check which card was clicked (iterate in reverse for Z-order)
+
+        // Check which object was clicked (iterate in reverse for Z-order)
         for (int i = _objects.size() - 1; i >= 0; i--)
         {
             auto obj = _objects[i];
             if (obj->containsPoint(mousePos) && obj->isDraggable())
             {
-                if (!contains(_selectedObjects, obj))
+                if (isCtrlPressed)
                 {
-                    clearSelectObjects();
-                    _selectedObjects.push_back(obj);
+                    // Ctrl+Click: toggle selection
+                    if (contains(_selectedObjects, obj))
+                    {
+                        // Remove from selection
+                        auto it = std::find(_selectedObjects.begin(), _selectedObjects.end(), obj);
+                        _selectedObjects.erase(it);
+                        obj->setHighlight(false);
+                        return true;
+                    }
+                    else
+                    {
+                        // Add to selection
+                        _selectedObjects.push_back(obj);
+                        obj->setHighlight(true);
+                    }
+                }
+                else
+                {
+                    // Normal click: replace selection
+                    if (!contains(_selectedObjects, obj))
+                    {
+                        clearSelectObjects();
+                        _selectedObjects.push_back(obj);
+                    }
                 }
                 sortObjectsByZOrder(_selectedObjects);
                 for (auto selectedObject : _selectedObjects)
@@ -446,6 +492,13 @@ bool MainScene::onMoveModeMouseMove(ax::Event* event)
 
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
+    // Track Ctrl key state
+    if (code == EventKeyboard::KeyCode::KEY_CTRL || code == EventKeyboard::KeyCode::KEY_LEFT_CTRL ||
+        code == EventKeyboard::KeyCode::KEY_RIGHT_CTRL)
+    {
+        isCtrlPressed = true;
+    }
+
     switch (code)
     {
     case EventKeyboard::KeyCode::KEY_R:
@@ -591,7 +644,15 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     }
 }
 
-void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+void MainScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
+{
+    // Track Ctrl key state
+    if (code == EventKeyboard::KeyCode::KEY_CTRL || code == EventKeyboard::KeyCode::KEY_LEFT_CTRL ||
+        code == EventKeyboard::KeyCode::KEY_RIGHT_CTRL)
+    {
+        isCtrlPressed = false;
+    }
+}
 
 void MainScene::update(float delta)
 {

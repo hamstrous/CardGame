@@ -63,7 +63,8 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    bool isMoveMode = false;
+    bool isMoveMode    = false;
+    bool isCtrlPressed = false;
 
     std::vector<DraggableObject*> _draggedObjects;
 

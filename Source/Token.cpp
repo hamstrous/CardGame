@@ -1,7 +1,7 @@
 #include "Token.h"
 using namespace ax;
 
-const ax::Vec2 TOKEN_SIZE = ax::Vec2(64.0f, 64.0f);
+const ax::Vec2 Token::TOKEN_SIZE = ax::Vec2(64.0f, 64.0f);
 
 Token* Token::create(const std::string& texture)
 {

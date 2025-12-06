@@ -11,7 +11,6 @@ public:
     virtual bool init(const std::string& texture);
 
     static const ax::Vec2 TOKEN_SIZE;
-    static const int MOVE_TO_HOLDER_TAG;
 
 private:
     ax::Sprite* _sprite = nullptr;
