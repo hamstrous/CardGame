@@ -14,6 +14,9 @@ public:
     void setFaceUp(bool faceUp);
     bool isFaceUp() const { return _isFaceUp; }
 
+    void zoomToCenter(const ax::Vec2& screenCenter, float zoomScale = 5.0f, float duration = 0.3f);
+    void unzoom(float duration = 0.3f);
+
     static const ax::Vec2 CARD_SIZE;
     static const int MOVE_TO_HOLDER_TAG;
 

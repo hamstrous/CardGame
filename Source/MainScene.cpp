@@ -146,6 +146,14 @@ bool MainScene::onMouseDown(Event* event)
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
+    // Exit zoom mode on any mouse click
+    if (isZoomMode && _zoomedCard)
+    {
+        _zoomedCard->unzoom();
+        isZoomMode  = false;
+        _zoomedCard = nullptr;
+    }
+
     _addMenu->setVisible(false);
     if (_addSpecificMenu)
         _addSpecificMenu->setVisible(false);
@@ -391,6 +399,15 @@ bool MainScene::onMoveModeMouseDown(ax::Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // Exit zoom mode on any mouse click
+    if (isZoomMode && _zoomedCard)
+    {
+        _zoomedCard->unzoom();
+        isZoomMode  = false;
+        _zoomedCard = nullptr;
+    }
+
     getAllObjects(_objects);
     // Left click for dragging
     if (e->getMouseButton() == EventMouse::MouseButton::BUTTON_LEFT)
@@ -627,7 +644,35 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         }
         _selectedObjects.clear();
         break;
+    case EventKeyboard::KeyCode::KEY_Z:
+        // Zoom feature: only if exactly one card is selected and not in zoom mode
+        if (!isZoomMode && _selectedObjects.size() == 1)
+        {
+            Card* card = dynamic_cast<Card*>(_selectedObjects[0]);
+            if (card)
+            {
+                isZoomMode            = true;
+                _zoomedCard           = card;
+                ax::Vec2 screenCenter = ax::Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2);
+                card->zoomToCenter(screenCenter, 5.0f);
+            }
+        }
+        else if (isZoomMode && _zoomedCard)
+        {
+            // Exit zoom mode
+            _zoomedCard->unzoom();
+            isZoomMode  = false;
+            _zoomedCard = nullptr;
+        }
+        break;
     case EventKeyboard::KeyCode::KEY_M:
+        // Exit zoom mode if active
+        if (isZoomMode && _zoomedCard)
+        {
+            _zoomedCard->unzoom();
+            isZoomMode  = false;
+            _zoomedCard = nullptr;
+        }
         isMoveMode = !isMoveMode;
         clearSelectObjects();
         for (auto deck : _decks)
@@ -640,6 +685,13 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             counter->enableDragging(isMoveMode);
         break;
     default:
+        // Exit zoom mode on any other key
+        if (isZoomMode && _zoomedCard)
+        {
+            _zoomedCard->unzoom();
+            isZoomMode  = false;
+            _zoomedCard = nullptr;
+        }
         break;
     }
 }

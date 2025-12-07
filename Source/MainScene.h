@@ -65,6 +65,8 @@ private:
 
     bool isMoveMode    = false;
     bool isCtrlPressed = false;
+    bool isZoomMode    = false;
+    Card* _zoomedCard  = nullptr;
 
     std::vector<DraggableObject*> _draggedObjects;
 
