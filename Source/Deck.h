@@ -19,8 +19,14 @@ public:
     void removeCard(std::vector<Card*> card);
 
     void shuffle();
-    void deal(std::vector<Rack*>& racks);
-    void dealSmoothly(std::vector<Rack*>& racks, float delayPerCard = 0.2f);
+    void deal();
+    void dealSmoothly(float delayPerCard = 0.2f);
+    void connectHolder(Holder* holder);
+    void connectHolder(const std::vector<Holder*>& holders);
+    void disconnectHolder(Holder* holder);
+    void disconnectHolder(const std::vector<Holder*>& holders);
+    void setConnectedHolders(const std::vector<Holder*>& holders);
+    const std::vector<Holder*>& getConnectedHolders() const;
 
     void setColor(const ax::Color4F& color);
 
@@ -34,4 +40,5 @@ private:
     ax::ui::Button* _decrementButton = nullptr;
     ax::ui::Button* _resetButton     = nullptr;
     ax::Label* _dealAmountLabel      = nullptr;
+    std::vector<Holder*> _connectedHolders;
 };

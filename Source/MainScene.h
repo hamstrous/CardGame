@@ -63,14 +63,16 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    bool isMoveMode    = false;
-    bool isCtrlPressed = false;
-    bool isZoomMode    = false;
-    Card* _zoomedCard  = nullptr;
+    bool isMoveMode                = false;
+    bool isCtrlPressed             = false;
+    bool isZoomMode                = false;
+    bool isConnectMode             = false;
+    Card* _zoomedCard              = nullptr;
+    ax::DrawNode* _connectionLines = nullptr;
 
     std::vector<DraggableObject*> _draggedObjects;
-
     std::vector<DraggableObject*> _selectedObjects;
+
     void clearSelectObjects()
     {
         for (auto& obj : _selectedObjects)

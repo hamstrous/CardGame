@@ -187,11 +187,11 @@ void Deck::shuffle()
     }
 }
 
-void Deck::deal(std::vector<Rack*>& racks)
+void Deck::deal()
 {
     for (int i = 0; i < _dealAmount; ++i)
     {
-        for (auto& rack : racks)
+        for (auto& holder : _connectedHolders)
         {
             if (_cards.empty())
             {
@@ -199,17 +199,17 @@ void Deck::deal(std::vector<Rack*>& racks)
             }
             Card* card = _cards.back();
             _cards.pop_back();
-            rack->addCardToBack(card);
+            holder->addCardToBack(card);
         }
     }
 }
 
-void Deck::dealSmoothly(std::vector<Rack*>& racks, float delayPerCard)
+void Deck::dealSmoothly(float delayPerCard)
 {
     float totalDelay = 0.0f;
     for (int i = 0; i < _dealAmount; ++i)
     {
-        for (auto& rack : racks)
+        for (auto& holder : _connectedHolders)
         {
             if (_cards.empty())
             {
@@ -218,7 +218,7 @@ void Deck::dealSmoothly(std::vector<Rack*>& racks, float delayPerCard)
             Card* card = _cards.back();
             _cards.pop_back();
             auto delay      = DelayTime::create(totalDelay);
-            auto dealAction = CallFunc::create([rack, card]() { rack->addCardToBack(card); });
+            auto dealAction = CallFunc::create([holder, card]() { holder->addCardToBack(card); });
             auto seq        = Sequence::create(delay, dealAction, nullptr);
             this->runAction(seq);
             totalDelay += delayPerCard;
@@ -235,4 +235,47 @@ void Deck::setColor(const ax::Color4F& color)
         Vec2 topRight(DECK_SIZE.x / 2, DECK_SIZE.y / 2);
         _deckDrawNode->drawSolidRect(bottomLeft, topRight, color);
     }
+}
+
+void Deck::connectHolder(Holder* holder)
+{
+    if (holder && std::find(_connectedHolders.begin(), _connectedHolders.end(), holder) == _connectedHolders.end())
+    {
+        _connectedHolders.push_back(holder);
+    }
+}
+
+void Deck::connectHolder(const std::vector<Holder*>& holders)
+{
+    for (auto holder : holders)
+    {
+        connectHolder(holder);
+    }
+}
+
+void Deck::disconnectHolder(Holder* holder)
+{
+    auto it = std::find(_connectedHolders.begin(), _connectedHolders.end(), holder);
+    if (it != _connectedHolders.end())
+    {
+        _connectedHolders.erase(it);
+    }
+}
+
+void Deck::disconnectHolder(const std::vector<Holder*>& holders)
+{
+    for (auto holder : holders)
+    {
+        disconnectHolder(holder);
+    }
+}
+
+void Deck::setConnectedHolders(const std::vector<Holder*>& holders)
+{
+    _connectedHolders = holders;
+}
+
+const std::vector<Holder*>& Deck::getConnectedHolders() const
+{
+    return _connectedHolders;
 }

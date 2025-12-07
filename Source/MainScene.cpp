@@ -14,6 +14,18 @@ static void problemLoading(const char* filename)
         "MainScene.cpp\n");
 }
 
+ template <typename U, typename T>
+ std::vector<U*> castVector(const std::vector<T*>& src)
+{
+     std::vector<U*> result;
+     result.reserve(src.size());
+
+     for (T* item : src)
+         result.push_back(item);
+
+     return result;
+ }
+
 ax::MenuItem* createMenuEntry(const std::string& text, const ax::ccMenuCallback& callback)
 {
     const ax::Vec2 CONTEXT_MENU_BUTTON_SIZE = ax::Vec2(130, 30);
@@ -133,6 +145,13 @@ bool MainScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(MainScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
 
+    // Add custom event listener for window close event
+    auto closeListener = EventListenerCustom::create(EVENT_COME_TO_BACKGROUND, [this](EventCustom* event) {
+        AXLOGD("Window close event received, cleaning up...");
+        this->cleanup();
+    });
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(closeListener, this);
+
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
 
@@ -141,6 +160,8 @@ bool MainScene::init()
 
 bool MainScene::onMouseDown(Event* event)
 {
+    if (isConnectMode)
+        return true;
     if (isMoveMode)
         return onMoveModeMouseDown(event);
     EventMouse* e = static_cast<EventMouse*>(event);
@@ -277,7 +298,7 @@ bool MainScene::onMouseDown(Event* event)
         {
             if (deck->containsPoint(mousePos))
             {
-                deck->dealSmoothly(_racks);
+                deck->dealSmoothly();
                 return true;
             }
         }
@@ -397,6 +418,8 @@ bool MainScene::onMouseScroll(Event* event)
 
 bool MainScene::onMoveModeMouseDown(ax::Event* event)
 {
+    if (isConnectMode)
+        return true;
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
@@ -605,6 +628,17 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         {
             auto objIt = std::find(_objects.begin(), _objects.end(), obj);
             _objects.erase(objIt);
+
+            // Disconnect holder from all decks before deletion
+            Holder* holder = dynamic_cast<Holder*>(obj);
+            if (holder)
+            {
+                for (auto deck : _decks)
+                {
+                    deck->disconnectHolder(holder);
+                }
+            }
+
             if (dynamic_cast<Table*>(obj))
             {
                 auto it = std::find(_tables.begin(), _tables.end(), dynamic_cast<Table*>(obj));
@@ -663,6 +697,47 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             _zoomedCard->unzoom();
             isZoomMode  = false;
             _zoomedCard = nullptr;
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_C:
+        if (!isConnectMode)
+        {
+            isConnectMode = true;
+            if (!_connectionLines)
+            {
+                _connectionLines = ax::DrawNode::create();
+                this->addChild(_connectionLines, 10000);  // High z-order to draw on top
+            }
+
+            // Clear previous lines
+            _connectionLines->clear();
+
+            // Draw lines from each deck to its connected holders
+            for (auto deck : _decks)
+            {
+                const std::vector<Holder*>& connectedHolders = deck->getConnectedHolders();
+                ax::Vec2 deckPos                             = deck->getPosition();
+
+                for (auto holder : connectedHolders)
+                {
+                    ax::Vec2 holderPos = holder->getPosition();
+                    // Draw line with proper thickness parameter
+                    _connectionLines->drawLine(deckPos, holderPos, ax::Color4F::GREEN, 3.0f);
+                    _connectionLines->drawSolidCircle(deckPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+                    _connectionLines->drawSolidCircle(holderPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+                }
+            }
+        }
+        else
+        {
+            // Exit connect mode
+            isConnectMode = false;
+
+            // Clear connection lines
+            if (_connectionLines)
+            {
+                _connectionLines->clear();
+            }
         }
         break;
     case EventKeyboard::KeyCode::KEY_M:
@@ -788,6 +863,89 @@ MainScene::MainScene()
 MainScene::~MainScene()
 {
     AXLOGD("~Scene: dtor: #{}", _sceneID);
+
+    // Explicitly clean up game objects before scene destruction
+    for (auto card : _cards)
+    {
+        if (card)
+        {
+            card->removeFromParent();
+        }
+    }
+    _cards.clear();
+
+    for (auto counter : _counters)
+    {
+        if (counter)
+        {
+            counter->removeFromParent();
+        }
+    }
+    _counters.clear();
+
+    for (auto rack : _racks)
+    {
+        if (rack)
+        {
+            rack->removeFromParent();
+        }
+    }
+    _racks.clear();
+
+    for (auto deck : _decks)
+    {
+        if (deck)
+        {
+            deck->removeFromParent();
+        }
+    }
+    _decks.clear();
+
+    for (auto table : _tables)
+    {
+        if (table)
+        {
+            table->removeFromParent();
+        }
+    }
+    _tables.clear();
+
+    _objects.clear();
+    _selectedObjects.clear();
+    _draggedObjects.clear();
+
+    // Clean up zoom mode
+    if (isZoomMode && _zoomedCard)
+    {
+        _zoomedCard->unzoom();
+        isZoomMode  = false;
+        _zoomedCard = nullptr;
+    }
+
+    // Clean up connection lines
+    if (_connectionLines)
+    {
+        _connectionLines->removeFromParent();
+        _connectionLines = nullptr;
+    }
+
+    if (_selectionRectangle)
+    {
+        _selectionRectangle->removeFromParent();
+        _selectionRectangle = nullptr;
+    }
+
+    if (_addMenu)
+    {
+        _addMenu->removeFromParent();
+        _addMenu = nullptr;
+    }
+
+    if (_addSpecificMenu)
+    {
+        _addSpecificMenu->removeFromParent();
+        _addSpecificMenu = nullptr;
+    }
 
     if (_touchListener)
         _eventDispatcher->removeEventListener(_touchListener);
@@ -1119,6 +1277,7 @@ void MainScene::loadDecks()
             problemLoading("deck.png");
             continue;
         }
+        deck->setConnectedHolders(castVector<Holder>(_racks));
         this->addChild(deck, DECK_ZORDER_BASE + i);
     }
 }
