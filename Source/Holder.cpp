@@ -173,6 +173,12 @@ void Holder::addCardAt(std::vector<Card*>& cards, int index)
     }
 }
 
+void Holder::addCardToBack(Card* card)
+{
+    setSpacing(_cards.size() + 1);
+    addCardAt(card, _cards.size());
+}
+
 void Holder::setSpacing(int cardCount)
 {
     if (cardCount <= 1)
