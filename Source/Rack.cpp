@@ -43,4 +43,27 @@ bool Rack::init(const std::string& texture)
     return true;
 }
 
+Rack* Rack::clone() const
+{
+    Rack* newRack = new (std::nothrow) Rack();
+    newRack->autorelease();
+    if (newRack)
+    {
+        newRack->_objectSize    = this->_objectSize;
+        newRack->_isDraggable   = this->_isDraggable;
+        newRack->_holderOffset  = this->_holderOffset;
+        newRack->_maxCardSpacing = this->_maxCardSpacing;
+        newRack->_cardSpacing    = this->_cardSpacing;
+
+        // Clone the rack sprite
+        newRack->_rackSprite = Sprite::createWithTexture(_rackSprite->getTexture());
+        newRack->_rackSprite->setContentSize(DECK_SIZE);
+        newRack->addChild(newRack->_rackSprite);
+        newRack->setContentSize(DECK_SIZE);
+
+        return newRack;
+    }
+    return nullptr;
+}
+
 

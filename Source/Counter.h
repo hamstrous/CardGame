@@ -10,6 +10,7 @@ public:
     static Counter* create(const std::string& texture);
 
     virtual bool init(const std::string& texture);
+    Counter* clone() const;
 
     static const ax::Vec2 COUNTER_SIZE;
     static const ax::Vec2 COUNTER_BUTTON_SIZE_PERCENT;

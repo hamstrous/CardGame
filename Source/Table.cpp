@@ -48,6 +48,36 @@ bool Table::init()
     return true;
 }
 
+Table* Table::clone() const
+{
+    Table* newTable = new (std::nothrow) Table();
+    newTable->autorelease();
+    if (newTable)
+    {
+        newTable->_objectSize    = this->_objectSize;
+        newTable->_isDraggable   = this->_isDraggable;
+        newTable->_holderOffset  = this->_holderOffset;
+        newTable->_maxCardSpacing = this->_maxCardSpacing;
+        newTable->_cardSpacing   = this->_cardSpacing;
+
+        Vec2 bottomLeft(-TABLE_SIZE.x / 2, -TABLE_SIZE.y / 2);
+        Vec2 topRight(TABLE_SIZE.x / 2, TABLE_SIZE.y / 2);
+
+        Color4F fillColor(0.5686f, 0.9569f, 1.0f, 0.9f);
+        ;
+        newTable->_deckDrawNode = DrawNode::create();
+        newTable->_deckDrawNode->drawSolidRect(bottomLeft, topRight, fillColor);
+
+        newTable->addChild(newTable->_deckDrawNode);
+
+        newTable->_deck = this->_deck; // shallow copy, deck is shared
+        newTable->setContentSize(this->getContentSize());
+
+        return newTable;
+    }
+    return nullptr;
+}
+
 void Table::addCard(Card* card) {
     for (auto existingCard : _cards) {
         

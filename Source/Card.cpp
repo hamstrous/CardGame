@@ -47,7 +47,7 @@ Card* Card::clone() const
         newCard->_isFaceUp = _isFaceUp;
         newCard->setContentSize(CARD_SIZE);
 
-        //newCard->setPosition(this->getPosition());
+        //Do not set position
         return newCard;
     }
     return nullptr;

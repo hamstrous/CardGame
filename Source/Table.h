@@ -12,6 +12,7 @@ public:
     static Table* create();
 
     virtual bool init();
+    Table* clone() const;
 
     void addCard(Card* card) override;
     void addCard(std::vector<Card*>& cards, ax::Vec2& mousePos) override;

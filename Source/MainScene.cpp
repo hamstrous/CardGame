@@ -988,19 +988,35 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             }
             else if (auto deck = dynamic_cast<Deck*>(obj))
             {
-                _decks.push_back(deck);
+                Deck *newDeck = deck->clone();
+                newDeck->setPosition(deck->getPosition() + ax::Vec2(20, -20)); // Offset new deck position
+                this->addChild(newDeck, DECK_ZORDER_BASE + _decks.size());
+                _objects.push_back(newDeck);
+                _decks.push_back(newDeck);
             }
             else if (auto rack = dynamic_cast<Rack*>(obj))
             {
-                _racks.push_back(rack);
+                Rack *newRack = rack->clone();
+                newRack->setPosition(rack->getPosition() + ax::Vec2(20, -20)); // Offset new rack position
+                this->addChild(newRack, RACK_ZORDER_BASE + _racks.size());
+                _objects.push_back(newRack);
+                _racks.push_back(newRack);
             }
             else if (auto table = dynamic_cast<Table*>(obj))
             {
-                _tables.push_back(table);
+                Table *newTable = table->clone();
+                newTable->setPosition(table->getPosition() + ax::Vec2(20, -20)); // Offset new table position
+                this->addChild(newTable, TABLE_ZORDER_BASE + _tables.size());
+                _objects.push_back(newTable);
+                _tables.push_back(newTable);
             }
             else if (auto counter = dynamic_cast<Counter*>(obj))
             {
-                _counters.push_back(counter);
+                Counter* newCounter = counter->clone();
+                newCounter->setPosition(counter->getPosition() + ax::Vec2(20, -20)); // Offset new counter position
+                this->addChild(newCounter, COUNTER_ZORDER_BASE + _counters.size());
+                _objects.push_back(newCounter);
+                _counters.push_back(newCounter);
             }
             
         }

@@ -91,3 +91,45 @@ bool Counter::init(const std::string& texture)
 
     return true;
 }
+
+Counter* Counter::clone() const
+{
+    Counter* newCounter = new (std::nothrow) Counter();
+    newCounter->autorelease();
+    if (newCounter)
+    {
+        newCounter->_objectSize    = this->_objectSize;
+        newCounter->_isDraggable   = this->_isDraggable;
+
+        newCounter->_counterSprite = Sprite::createWithTexture(this->_counterSprite->getTexture());
+        newCounter->_counterSprite->setContentSize(this->_counterSprite->getContentSize());
+        newCounter->addChild(newCounter->_counterSprite);
+        newCounter->setContentSize(this->getContentSize());
+
+        newCounter->_incrementButton = ui::Button::create("ui/increase.png");
+        newCounter->_decrementButton = ui::Button::create("ui/decrease.png");
+        newCounter->_resetButton     = ui::Button::create("ui/reset.png");
+
+        ax::Vec2 buttonSize = COUNTER_SIZE * COUNTER_BUTTON_SIZE_PERCENT;
+        newCounter->_incrementButton->setScale9Enabled(true);
+        newCounter->_incrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newCounter->_decrementButton->setScale9Enabled(true);
+        newCounter->_decrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newCounter->_resetButton->setScale9Enabled(true);
+        newCounter->_resetButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+
+        newCounter->_incrementButton->setContentSize(buttonSize);
+        newCounter->_decrementButton->setContentSize(buttonSize);
+        newCounter->_resetButton->setContentSize(buttonSize);
+
+        // set all the button to the right of counter sprite
+        newCounter->_incrementButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2 * 5));
+        newCounter->_decrementButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2 * 3));
+        newCounter->_resetButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2));
+
+        newCounter->_counterSprite->addChild(newCounter->_incrementButton);
+        newCounter->_counterSprite->addChild(newCounter->_decrementButton);
+        newCounter->_counterSprite->addChild(newCounter->_resetButton);
+    }
+    return nullptr;
+}

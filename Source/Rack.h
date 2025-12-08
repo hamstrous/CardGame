@@ -10,6 +10,7 @@ public:
     static Rack* create(const std::string& texture);
 
     virtual bool init(const std::string& texture);
+    Rack* clone() const;
 
     static const ax::Vec2 DECK_SIZE;
     static const ax::Vec2 DECK_OFFSET;

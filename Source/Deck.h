@@ -12,6 +12,7 @@ public:
     static Deck* create();
 
     bool init(const ax::Color4F& color = ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f));
+    Deck* clone() const;
 
     void addCard(Card* card) override;
     void addCard(std::vector<Card*> cards);

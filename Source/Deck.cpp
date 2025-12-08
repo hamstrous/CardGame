@@ -123,6 +123,72 @@ bool Deck::init(const ax::Color4F& color)
     return true;
 }
 
+Deck* Deck::clone() const
+{
+    Deck* newDeck = new (std::nothrow) Deck();
+    newDeck->autorelease();
+    if (newDeck)
+    {
+        newDeck->_objectSize    = this->_objectSize;
+        newDeck->_isDraggable   = this->_isDraggable;
+        newDeck->_holderOffset  = this->_holderOffset;
+        newDeck->_dealAmount    = this->_dealAmount;
+        newDeck->_connectedHolders = this->_connectedHolders;
+
+        // Clone DrawNode
+        newDeck->_deckDrawNode = DrawNode::create();
+        if (newDeck->_deckDrawNode && this->_deckDrawNode)
+        {
+            // Redraw the rectangle with the same color
+            Vec2 bottomLeft(-DECK_SIZE.x / 2, -DECK_SIZE.y / 2);
+            Vec2 topRight(DECK_SIZE.x / 2, DECK_SIZE.y / 2);
+
+            // Assuming the original color is stored or can be retrieved
+            // Here we just use a default color for demonstration
+            ax::Color4F fillColor(0.7f, 0.7f, 0.7f, 0.9f);
+            newDeck->_deckDrawNode->drawSolidRect(bottomLeft, topRight, fillColor);
+            newDeck->addChild(newDeck->_deckDrawNode);
+        }
+
+        newDeck->setContentSize(this->getContentSize());
+
+        // Clone buttons
+        newDeck->_incrementButton = ax::ui::Button::create("ui/increase.png");
+        newDeck->_decrementButton = ax::ui::Button::create("ui/decrease.png");
+        newDeck->_resetButton     = ax::ui::Button::create("ui/reset.png");
+
+        ax::Vec2 buttonSize = ax::Vec2(DECK_SIZE.x * 0.25f, DECK_SIZE.x * 0.25f);
+        newDeck->_incrementButton->setScale9Enabled(true);
+        newDeck->_incrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newDeck->_decrementButton->setScale9Enabled(true);
+        newDeck->_decrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newDeck->_resetButton->setScale9Enabled(true);
+        newDeck->_resetButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+
+        newDeck->_incrementButton->setContentSize(buttonSize);
+        newDeck->_decrementButton->setContentSize(buttonSize);
+        newDeck->_resetButton->setContentSize(buttonSize);
+
+        float buttonX = -DECK_SIZE.x / 2 + buttonSize.x / 2;
+        newDeck->_incrementButton->setPosition(ax::Vec2(buttonX, buttonSize.y));
+        newDeck->_decrementButton->setPosition(ax::Vec2(buttonX, 0));
+        newDeck->_resetButton->setPosition(ax::Vec2(buttonX, -buttonSize.y));
+
+        newDeck->addChild(newDeck->_incrementButton);
+        newDeck->addChild(newDeck->_decrementButton);
+        newDeck->addChild(newDeck->_resetButton);
+
+        // Clone label
+        newDeck->_dealAmountLabel = ax::Label::createWithSystemFont(std::to_string(this->_dealAmount), "Arial", 20);
+        newDeck->_dealAmountLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+        newDeck->_dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 - 15));
+        newDeck->_dealAmountLabel->setTextColor(ax::Color4B::BLACK);
+        newDeck->addChild(newDeck->_dealAmountLabel);
+        return newDeck;
+    }
+    return nullptr;
+}
+
 void Deck::addCard(Card* card)
 {
     _cards.push_back(card);
