@@ -62,6 +62,7 @@ void Holder::addCardAt(Card* card, int index)
 {
     for (int i = 0; i < index; i++)
     {
+        _cards[i]->setLocalZOrder(i);
         moveCardToPosition(_cards[i], getCardPosition(i, _cards.size() + 1));
     }
     for (int i = index; i < _cards.size(); i++)
@@ -172,6 +173,12 @@ void Holder::addCardAt(std::vector<Card*>& cards, int index)
     }
 }
 
+void Holder::addCardToBack(Card* card)
+{
+    setSpacing(_cards.size() + 1);
+    addCardAt(card, _cards.size());
+}
+
 void Holder::setSpacing(int cardCount)
 {
     if (cardCount <= 1)
@@ -189,7 +196,7 @@ ax::Vec2 Holder::getCardPosition(int index, int cardCount)
     float horizontalOffset = (index - (cardCount - 1) / 2.0f) * _cardSpacing;
 
     float rotationDegrees = this->getRotation();
-    float rotationRadians = AX_DEGREES_TO_RADIANS(rotationDegrees);
+    float rotationRadians = -AX_DEGREES_TO_RADIANS(rotationDegrees);
 
     float rotatedX = horizontalOffset * cos(rotationRadians);
     float rotatedY = horizontalOffset * sin(rotationRadians);

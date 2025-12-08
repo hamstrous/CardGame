@@ -68,3 +68,32 @@ void Card::setFaceUp(bool faceUp)
         flip();
     }
 }
+
+void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float duration)
+{
+    // Store original position and scale
+    setOriginalPosition(getPosition());
+
+    // Create zoom and move actions
+    auto moveTo    = MoveTo::create(duration, screenCenter);
+    auto scaleTo   = ScaleTo::create(duration, zoomScale);
+    auto easeMove  = EaseOut::create(moveTo, 2.0f);
+    auto easeScale = EaseOut::create(scaleTo, 2.0f);
+
+    // Run actions in parallel
+    auto spawn = Spawn::create(easeMove, easeScale, nullptr);
+    this->runAction(spawn);
+}
+
+void Card::unzoom(float duration)
+{
+    // Return to original position and scale
+    auto moveTo    = MoveTo::create(duration, getOriginalPosition());
+    auto scaleTo   = ScaleTo::create(duration, 1.0f);
+    auto easeMove  = EaseOut::create(moveTo, 2.0f);
+    auto easeScale = EaseOut::create(scaleTo, 2.0f);
+
+    // Run actions in parallel
+    auto spawn = Spawn::create(easeMove, easeScale, nullptr);
+    this->runAction(spawn);
+}

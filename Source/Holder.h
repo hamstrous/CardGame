@@ -10,6 +10,7 @@ public:
     virtual void addCard(Card* card);
     virtual void removeCard(Card* card);
     virtual void addCardAt(Card* card, int index);
+    void addCardToBack(Card* card);
     virtual void moveCardToPosition(Card* card, const ax::Vec2& position);
 
     // Overloaded functions for vector of cards

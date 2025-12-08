@@ -35,6 +35,11 @@ using namespace ax;
 int axmol_main() {
     // create the application instance
     AppDelegate app;
+//#if defined(_DEBUG)
+//    int tmp = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+//    tmp |= _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF;
+//    _CrtSetDbgFlag(tmp);
+//#endif
     int ret = Application::getInstance()->run();
     return ret;
 }

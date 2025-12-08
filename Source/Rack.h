@@ -11,8 +11,6 @@ public:
 
     virtual bool init(const std::string& texture);
 
-    void addCardToBack(Card* card);
-
     static const ax::Vec2 DECK_SIZE;
     static const ax::Vec2 DECK_OFFSET;
 
