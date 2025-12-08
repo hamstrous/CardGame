@@ -93,6 +93,10 @@ void Holder::startDragging()
     _cards.clear();
 }
 
+void Holder::clearCards() {
+    _cards.clear();
+}
+
 void Holder::addCard(std::vector<Card*>& cards, Vec2& mousePos)
 {
     DraggableObject::sortObjectsByPosition(cards);

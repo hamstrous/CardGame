@@ -114,7 +114,7 @@ bool MainScene::init()
     _addMenuItems.pushBack(_addRack);
     _addMenuItems.pushBack(_addCounter);
 
-    _subAddFolder["cards"]    = {"uno/", "standard/"};
+    _subAddFolder["cards"]    = {"uno/", "standard/", "ascension/"};
     _subAddFolder["decks"]    = {};
     _subAddFolder["tables"]   = {};
     _subAddFolder["racks"]    = {};
@@ -805,11 +805,24 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 
             // Disconnect holder from all decks before deletion
             Holder* holder = dynamic_cast<Holder*>(obj);
+            Deck* deck = dynamic_cast<Deck*>(obj);
             if (holder)
             {
+                holder->clearCards();
                 for (auto deck : _decks)
                 {
                     deck->disconnectHolder(holder);
+                }
+            }
+
+            if (deck)
+            {
+                for (auto table : _tables)
+                {
+                    if (table->getDiscardDeck() == deck)
+                    {
+                        table->clearDiscardDeck();
+                    }
                 }
             }
 
@@ -851,6 +864,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             }
         }
         _selectedObjects.clear();
+        _hoveredObject = nullptr;
         break;
     case EventKeyboard::KeyCode::KEY_Z:
         // Exit connect mode if active
@@ -892,7 +906,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             _zoomedCard = nullptr;
         }
         break;
-    case EventKeyboard::KeyCode::KEY_C:
+    case EventKeyboard::KeyCode::KEY_B:
         // Exit zoom mode if active
         if (isZoomMode && _zoomedCard)
         {
@@ -957,6 +971,38 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             {
                 _connectDragLine->clear();
             }
+        }
+        break;
+    case EventKeyboard::KeyCode::KEY_C:
+        // Copy selected objects
+        for (auto obj : _selectedObjects)
+        {
+            // Add to appropriate lists
+            if (auto card = dynamic_cast<Card*>(obj))
+            {
+                Card *newCard = card->clone();
+                newCard->setPosition(card->getPosition() + ax::Vec2(20, -20)); // Offset new card position
+                this->addChild(newCard, CARD_ZORDER_BASE + _cards.size());
+                _objects.push_back(newCard);
+                _cards.push_back(newCard);
+            }
+            else if (auto deck = dynamic_cast<Deck*>(obj))
+            {
+                _decks.push_back(deck);
+            }
+            else if (auto rack = dynamic_cast<Rack*>(obj))
+            {
+                _racks.push_back(rack);
+            }
+            else if (auto table = dynamic_cast<Table*>(obj))
+            {
+                _tables.push_back(table);
+            }
+            else if (auto counter = dynamic_cast<Counter*>(obj))
+            {
+                _counters.push_back(counter);
+            }
+            
         }
         break;
     case EventKeyboard::KeyCode::KEY_M:

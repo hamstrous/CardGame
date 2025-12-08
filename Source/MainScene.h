@@ -123,7 +123,7 @@ private:
     void loadDecks();
     void loadTables();
     void loadCountersFromDirectory();
-    const std::string cardTypeFolder = "uno/";
+    const std::string cardTypeFolder = "ascension/";
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position, bool all = false);
     void updateHoverStates(const ax::Vec2& mousePos);

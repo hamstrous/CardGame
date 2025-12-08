@@ -16,6 +16,43 @@ Card* Card::create(const std::string& frontTexture, const std::string& backTextu
     return nullptr;
 }
 
+Card* Card::clone() const
+{
+    Card* newCard = new (std::nothrow) Card();
+    newCard->autorelease();
+    if (newCard)
+    {
+        // Copy front and back textures
+        newCard->_frontSprite = Sprite::createWithTexture(_frontSprite->getTexture());
+        newCard->_backSprite  = Sprite::createWithTexture(_backSprite->getTexture());
+
+        newCard->_frontSprite->setContentSize(CARD_SIZE);
+        newCard->_backSprite->setContentSize(CARD_SIZE);
+        newCard->addChild(newCard->_backSprite);
+        newCard->addChild(newCard->_frontSprite);
+
+        newCard->_objectSize = CARD_SIZE;
+
+        // Set visibility based on current card state
+        if (_isFaceUp)
+        {
+            newCard->_frontSprite->setVisible(true);
+            newCard->_backSprite->setVisible(false);
+        }
+        else
+        {
+            newCard->_frontSprite->setVisible(false);
+            newCard->_backSprite->setVisible(true);
+        }
+        newCard->_isFaceUp = _isFaceUp;
+        newCard->setContentSize(CARD_SIZE);
+
+        //newCard->setPosition(this->getPosition());
+        return newCard;
+    }
+    return nullptr;
+}
+
 bool Card::init(const std::string& frontTexture, const std::string& backTexture)
 {
     if (!Node::init())

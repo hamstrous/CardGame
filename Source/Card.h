@@ -7,6 +7,7 @@ class Card : public DraggableObject
 {
 public:
     static Card* create(const std::string& frontTexture, const std::string& backTexture);
+    Card* clone() const;
 
     virtual bool init(const std::string& frontTexture, const std::string& backTexture);
 

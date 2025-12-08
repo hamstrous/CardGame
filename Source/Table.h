@@ -20,6 +20,11 @@ public:
     static const ax::Vec2 TABLE_OFFSET;
 
     Deck* getDiscardDeck() const { return _deck; }
+    void clearDiscardDeck()
+    {
+        if (_deck)
+            _deck = nullptr;
+    };
 
 private:
     ax::DrawNode* _deckDrawNode = nullptr;
