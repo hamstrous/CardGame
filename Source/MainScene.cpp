@@ -5,6 +5,7 @@ using namespace std;
 
 static int s_sceneID = 1000;
 
+
 // Print useful error message instead of segfaulting when files are not there.
 static void problemLoading(const char* filename)
 {
@@ -154,6 +155,9 @@ bool MainScene::init()
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
+#if _DEBUG
+    _CrtCheckMemory();
+#endif
 
     return true;
 }
@@ -759,6 +763,9 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         for (auto counter : _counters)
             counter->enableDragging(isMoveMode);
         break;
+    //case EventKeyboard::KeyCode::KEY_ESCAPE:
+    //    Director::getInstance()->end();
+    //    break;
     default:
         // Exit zoom mode on any other key
         if (isZoomMode && _zoomedCard)
@@ -1296,7 +1303,7 @@ void MainScene::loadTables()
         }
         auto deck = table->getDiscardDeck();
         this->addChild(table, TABLE_ZORDER_BASE + i);
-        this->addChild(deck, DECK_ZORDER_BASE + _decks.size() + i);
+        this->addChild(deck, DECK_ZORDER_BASE + _decks.size());
         _decks.push_back(deck);
         deck->setPosition(Vec2(table->getPositionX() - table->getContentSize().x / 2 - 50, table->getPositionY()));
     }
