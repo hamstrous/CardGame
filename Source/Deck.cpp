@@ -64,7 +64,7 @@ bool Deck::init(const ax::Color4F& color)
     _resetButton->setContentSize(buttonSize);
 
     // Position buttons on the left side of the deck, vertically stacked
-    float buttonX = -DECK_SIZE.x / 2 + buttonSize.x / 2;
+    float buttonX = -DECK_SIZE.x / 2 - buttonSize.x / 2;
     _incrementButton->setPosition(ax::Vec2(buttonX, buttonSize.y));
     _decrementButton->setPosition(ax::Vec2(buttonX, 0));
     _resetButton->setPosition(ax::Vec2(buttonX, -buttonSize.y));
@@ -116,7 +116,7 @@ bool Deck::init(const ax::Color4F& color)
     // Create label at center top
     _dealAmountLabel = ax::Label::createWithSystemFont("1", "Arial", 20);
     _dealAmountLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    _dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 - 15));
+    _dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 + 15));
     _dealAmountLabel->setTextColor(ax::Color4B::BLACK);
     this->addChild(_dealAmountLabel);
 
@@ -169,7 +169,7 @@ Deck* Deck::clone() const
         newDeck->_decrementButton->setContentSize(buttonSize);
         newDeck->_resetButton->setContentSize(buttonSize);
 
-        float buttonX = -DECK_SIZE.x / 2 + buttonSize.x / 2;
+        float buttonX = -DECK_SIZE.x / 2 - buttonSize.x / 2;
         newDeck->_incrementButton->setPosition(ax::Vec2(buttonX, buttonSize.y));
         newDeck->_decrementButton->setPosition(ax::Vec2(buttonX, 0));
         newDeck->_resetButton->setPosition(ax::Vec2(buttonX, -buttonSize.y));
@@ -178,10 +178,29 @@ Deck* Deck::clone() const
         newDeck->addChild(newDeck->_decrementButton);
         newDeck->addChild(newDeck->_resetButton);
 
+        newDeck->_incrementButton->addClickEventListener([newDeck](auto) {
+            newDeck->_dealAmount += 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
+        newDeck->_decrementButton->addClickEventListener([newDeck](auto sender) {
+            if (newDeck->_dealAmount > 0)
+                newDeck->_dealAmount -= 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
+        _resetButton->addClickEventListener([newDeck](auto sender) {
+            newDeck->_dealAmount = 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
         // Clone label
         newDeck->_dealAmountLabel = ax::Label::createWithSystemFont(std::to_string(this->_dealAmount), "Arial", 20);
         newDeck->_dealAmountLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-        newDeck->_dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 - 15));
+        newDeck->_dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 + 15));
         newDeck->_dealAmountLabel->setTextColor(ax::Color4B::BLACK);
         newDeck->addChild(newDeck->_dealAmountLabel);
         return newDeck;

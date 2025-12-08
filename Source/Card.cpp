@@ -110,7 +110,8 @@ void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float dur
 {
     // Store original position and scale
     setOriginalPosition(getPosition());
-
+    setOriginalZOrder();
+    this->setLocalZOrder(10000); // Bring to front
     // Create zoom and move actions
     auto moveTo    = MoveTo::create(duration, screenCenter);
     auto scaleTo   = ScaleTo::create(duration, zoomScale);
@@ -125,6 +126,8 @@ void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float dur
 void Card::unzoom(float duration)
 {
     // Return to original position and scale
+    this->setLocalZOrder(getOriginalZOrder());
+
     auto moveTo    = MoveTo::create(duration, getOriginalPosition());
     auto scaleTo   = ScaleTo::create(duration, 1.0f);
     auto easeMove  = EaseOut::create(moveTo, 2.0f);

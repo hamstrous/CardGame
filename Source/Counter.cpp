@@ -130,6 +130,31 @@ Counter* Counter::clone() const
         newCounter->_counterSprite->addChild(newCounter->_incrementButton);
         newCounter->_counterSprite->addChild(newCounter->_decrementButton);
         newCounter->_counterSprite->addChild(newCounter->_resetButton);
+
+        // Use a generic lambda to avoid depending on `ax::Ref` type name
+        newCounter->_incrementButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count += 1;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+        newCounter->_decrementButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count -= 1;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+        newCounter->_resetButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count = 0;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+
+        newCounter->_countLabel = ax::Label::createWithSystemFont("0", "Arial", 24);
+        // center the label inside the sprite
+        newCounter->_countLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+        newCounter->_countLabel->setPosition(newCounter->_counterSprite->getContentSize() * 0.5f);
+        newCounter->_counterSprite->addChild(newCounter->_countLabel);
+
+        return newCounter;
     }
     return nullptr;
 }
