@@ -155,9 +155,9 @@ bool MainScene::init()
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
-#if _DEBUG
-    _CrtCheckMemory();
-#endif
+//#if _DEBUG
+//    _CrtCheckMemory();
+//#endif
 
     return true;
 }
