@@ -70,6 +70,21 @@ private:
     Card* _zoomedCard              = nullptr;
     ax::DrawNode* _connectionLines = nullptr;
 
+    // Structure to store connection information for each drawn line
+    struct ConnectionInfo
+    {
+        Deck* deck;
+        Holder* holder;
+        ax::Vec2 startPos;
+        ax::Vec2 endPos;
+    };
+    std::vector<ConnectionInfo> _connectionInfos;
+
+    // Connect mode drag state
+    bool _isConnectDragging        = false;
+    Deck* _connectSourceDeck       = nullptr;
+    ax::DrawNode* _connectDragLine = nullptr;
+
     std::vector<DraggableObject*> _draggedObjects;
     std::vector<DraggableObject*> _selectedObjects;
 
@@ -112,6 +127,9 @@ private:
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position, bool all = false);
     void updateHoverStates(const ax::Vec2& mousePos);
+
+    // Helper function to find connection at a given position
+    ConnectionInfo* getConnectionAtPosition(const ax::Vec2& position, float threshold = 10.0f);
 
     ax::DrawNode* _selectionRectangle = nullptr;
     ax::Vec2 _selectionStartPoint;

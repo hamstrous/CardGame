@@ -5,7 +5,6 @@ using namespace std;
 
 static int s_sceneID = 1000;
 
-
 // Print useful error message instead of segfaulting when files are not there.
 static void problemLoading(const char* filename)
 {
@@ -15,17 +14,17 @@ static void problemLoading(const char* filename)
         "MainScene.cpp\n");
 }
 
- template <typename U, typename T>
- std::vector<U*> castVector(const std::vector<T*>& src)
+template <typename U, typename T>
+std::vector<U*> castVector(const std::vector<T*>& src)
 {
-     std::vector<U*> result;
-     result.reserve(src.size());
+    std::vector<U*> result;
+    result.reserve(src.size());
 
-     for (T* item : src)
-         result.push_back(item);
+    for (T* item : src)
+        result.push_back(item);
 
-     return result;
- }
+    return result;
+}
 
 ax::MenuItem* createMenuEntry(const std::string& text, const ax::ccMenuCallback& callback)
 {
@@ -155,21 +154,78 @@ bool MainScene::init()
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
-//#if _DEBUG
-//    _CrtCheckMemory();
-//#endif
+    // #if _DEBUG
+    //     _CrtCheckMemory();
+    // #endif
 
     return true;
 }
 
 bool MainScene::onMouseDown(Event* event)
 {
-    if (isConnectMode)
-        return true;
     if (isMoveMode)
         return onMoveModeMouseDown(event);
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // In connect mode, check for connection line clicks to disconnect
+    if (isConnectMode)
+    {
+        ConnectionInfo* clickedConnection = getConnectionAtPosition(mousePos);
+        if (clickedConnection)
+        {
+            // Disconnect the holder from the deck
+            clickedConnection->deck->disconnectHolder(clickedConnection->holder);
+
+            // Redraw all connections
+            _connectionLines->clear();
+            _connectionInfos.clear();
+
+            for (auto deck : _decks)
+            {
+                const std::vector<Holder*>& connectedHolders = deck->getConnectedHolders();
+                ax::Vec2 deckPos                             = deck->getPosition();
+
+                for (auto holder : connectedHolders)
+                {
+                    ax::Vec2 holderPos = holder->getPosition();
+                    _connectionLines->drawLine(deckPos, holderPos, ax::Color4F::GREEN, 3.0f);
+                    _connectionLines->drawSolidCircle(deckPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+                    _connectionLines->drawSolidCircle(holderPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+
+                    ConnectionInfo connInfo;
+                    connInfo.deck     = deck;
+                    connInfo.holder   = holder;
+                    connInfo.startPos = deckPos;
+                    connInfo.endPos   = holderPos;
+                    _connectionInfos.push_back(connInfo);
+                }
+            }
+
+            return true;  // Consume the event, stay in connect mode
+        }
+
+        // Check if clicking on a deck to start connection drag
+        for (auto deck : _decks)
+        {
+            if (deck->containsPoint(mousePos))
+            {
+                _isConnectDragging = true;
+                _connectSourceDeck = deck;
+
+                // Create drag line if it doesn't exist
+                if (!_connectDragLine)
+                {
+                    _connectDragLine = ax::DrawNode::create();
+                    this->addChild(_connectDragLine, 10001);  // Above connection lines
+                }
+
+                return true;
+            }
+        }
+
+        return true;  // Consume the event, stay in connect mode
+    }
 
     // Exit zoom mode on any mouse click
     if (isZoomMode && _zoomedCard)
@@ -177,6 +233,7 @@ bool MainScene::onMouseDown(Event* event)
         _zoomedCard->unzoom();
         isZoomMode  = false;
         _zoomedCard = nullptr;
+        _connectionInfos.clear();
     }
 
     _addMenu->setVisible(false);
@@ -321,6 +378,92 @@ bool MainScene::onMouseUp(Event* event)
         return onMoveModeMouseUp(event);
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // Handle connect mode drag completion
+    if (_isConnectDragging && _connectSourceDeck)
+    {
+        _isConnectDragging = false;
+
+        // Clear the drag line
+        if (_connectDragLine)
+        {
+            _connectDragLine->clear();
+        }
+
+        // Check if mouse is over a holder
+        Holder* targetHolder = nullptr;
+
+        // Check racks
+        for (auto rack : _racks)
+        {
+            if (rack->containsPoint(mousePos))
+            {
+                targetHolder = rack;
+                break;
+            }
+        }
+
+        // Check decks (if not already found)
+        if (!targetHolder)
+        {
+            for (auto deck : _decks)
+            {
+                if (deck->containsPoint(mousePos) && deck != _connectSourceDeck)
+                {
+                    targetHolder = deck;
+                    break;
+                }
+            }
+        }
+
+        // Check tables (if not already found)
+        if (!targetHolder)
+        {
+            for (auto table : _tables)
+            {
+                if (table->containsPoint(mousePos))
+                {
+                    targetHolder = table;
+                    break;
+                }
+            }
+        }
+
+        // If we found a holder, connect it to the deck
+        if (targetHolder)
+        {
+            _connectSourceDeck->connectHolder(targetHolder);
+
+            // Redraw all connections
+            _connectionLines->clear();
+            _connectionInfos.clear();
+
+            for (auto deck : _decks)
+            {
+                const std::vector<Holder*>& connectedHolders = deck->getConnectedHolders();
+                ax::Vec2 deckPos                             = deck->getPosition();
+
+                for (auto holder : connectedHolders)
+                {
+                    ax::Vec2 holderPos = holder->getPosition();
+                    _connectionLines->drawLine(deckPos, holderPos, ax::Color4F::GREEN, 3.0f);
+                    _connectionLines->drawSolidCircle(deckPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+                    _connectionLines->drawSolidCircle(holderPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+
+                    ConnectionInfo connInfo;
+                    connInfo.deck     = deck;
+                    connInfo.holder   = holder;
+                    connInfo.startPos = deckPos;
+                    connInfo.endPos   = holderPos;
+                    _connectionInfos.push_back(connInfo);
+                }
+            }
+        }
+
+        _connectSourceDeck = nullptr;
+        return true;
+    }
+
     vector<Card*> _draggedCards;
     for (auto obj : _draggedObjects)
     {
@@ -368,6 +511,16 @@ bool MainScene::onMouseMove(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
+
+    // Handle connect mode dragging
+    if (_isConnectDragging && _connectSourceDeck && _connectDragLine)
+    {
+        _connectDragLine->clear();
+        ax::Vec2 deckPos = _connectSourceDeck->getPosition();
+        _connectDragLine->drawLine(deckPos, mousePos, ax::Color4F::YELLOW, 3.0f);
+        _connectDragLine->drawSolidCircle(deckPos, 5.0f, 0.0f, 16, ax::Color4F::YELLOW);
+        return true;
+    }
 
     if (_addMenu && _addMenu->isVisible())
     {
@@ -422,8 +575,6 @@ bool MainScene::onMouseScroll(Event* event)
 
 bool MainScene::onMoveModeMouseDown(ax::Event* event)
 {
-    if (isConnectMode)
-        return true;
     EventMouse* e = static_cast<EventMouse*>(event);
     auto mousePos = Vec2(e->getCursorX(), e->getCursorY());
 
@@ -433,6 +584,25 @@ bool MainScene::onMoveModeMouseDown(ax::Event* event)
         _zoomedCard->unzoom();
         isZoomMode  = false;
         _zoomedCard = nullptr;
+    }
+
+    // Exit connect mode on any mouse click
+    if (isConnectMode)
+    {
+        isConnectMode = false;
+        if (_connectionLines)
+        {
+            _connectionLines->clear();
+        }
+        _connectionInfos.clear();
+
+        // Clean up connect drag state
+        _isConnectDragging = false;
+        _connectSourceDeck = nullptr;
+        if (_connectDragLine)
+        {
+            _connectDragLine->clear();
+        }
     }
 
     getAllObjects(_objects);
@@ -683,6 +853,25 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         _selectedObjects.clear();
         break;
     case EventKeyboard::KeyCode::KEY_Z:
+        // Exit connect mode if active
+        if (isConnectMode)
+        {
+            isConnectMode = false;
+            if (_connectionLines)
+            {
+                _connectionLines->clear();
+            }
+            _connectionInfos.clear();
+
+            // Clean up connect drag state
+            _isConnectDragging = false;
+            _connectSourceDeck = nullptr;
+            if (_connectDragLine)
+            {
+                _connectDragLine->clear();
+            }
+        }
+
         // Zoom feature: only if exactly one card is selected and not in zoom mode
         if (!isZoomMode && _selectedObjects.size() == 1)
         {
@@ -704,6 +893,14 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         }
         break;
     case EventKeyboard::KeyCode::KEY_C:
+        // Exit zoom mode if active
+        if (isZoomMode && _zoomedCard)
+        {
+            _zoomedCard->unzoom();
+            isZoomMode  = false;
+            _zoomedCard = nullptr;
+        }
+
         if (!isConnectMode)
         {
             isConnectMode = true;
@@ -713,8 +910,9 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
                 this->addChild(_connectionLines, 10000);  // High z-order to draw on top
             }
 
-            // Clear previous lines
+            // Clear previous lines and connection info
             _connectionLines->clear();
+            _connectionInfos.clear();
 
             // Draw lines from each deck to its connected holders
             for (auto deck : _decks)
@@ -729,6 +927,14 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
                     _connectionLines->drawLine(deckPos, holderPos, ax::Color4F::GREEN, 3.0f);
                     _connectionLines->drawSolidCircle(deckPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
                     _connectionLines->drawSolidCircle(holderPos, 5.0f, 0.0f, 16, ax::Color4F::GREEN);
+
+                    // Store connection information
+                    ConnectionInfo connInfo;
+                    connInfo.deck     = deck;
+                    connInfo.holder   = holder;
+                    connInfo.startPos = deckPos;
+                    connInfo.endPos   = holderPos;
+                    _connectionInfos.push_back(connInfo);
                 }
             }
         }
@@ -737,10 +943,19 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             // Exit connect mode
             isConnectMode = false;
 
-            // Clear connection lines
+            // Clear connection lines and info
             if (_connectionLines)
             {
                 _connectionLines->clear();
+            }
+            _connectionInfos.clear();
+
+            // Clean up connect drag state
+            _isConnectDragging = false;
+            _connectSourceDeck = nullptr;
+            if (_connectDragLine)
+            {
+                _connectDragLine->clear();
             }
         }
         break;
@@ -752,6 +967,26 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             isZoomMode  = false;
             _zoomedCard = nullptr;
         }
+
+        // Exit connect mode if active
+        if (isConnectMode)
+        {
+            isConnectMode = false;
+            if (_connectionLines)
+            {
+                _connectionLines->clear();
+            }
+            _connectionInfos.clear();
+
+            // Clean up connect drag state
+            _isConnectDragging = false;
+            _connectSourceDeck = nullptr;
+            if (_connectDragLine)
+            {
+                _connectDragLine->clear();
+            }
+        }
+
         isMoveMode = !isMoveMode;
         clearSelectObjects();
         for (auto deck : _decks)
@@ -763,9 +998,9 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
         for (auto counter : _counters)
             counter->enableDragging(isMoveMode);
         break;
-    //case EventKeyboard::KeyCode::KEY_ESCAPE:
-    //    Director::getInstance()->end();
-    //    break;
+    // case EventKeyboard::KeyCode::KEY_ESCAPE:
+    //     Director::getInstance()->end();
+    //     break;
     default:
         // Exit zoom mode on any other key
         if (isZoomMode && _zoomedCard)
@@ -934,6 +1169,13 @@ MainScene::~MainScene()
     {
         _connectionLines->removeFromParent();
         _connectionLines = nullptr;
+    }
+
+    // Clean up connect drag line
+    if (_connectDragLine)
+    {
+        _connectDragLine->removeFromParent();
+        _connectDragLine = nullptr;
     }
 
     if (_selectionRectangle)
@@ -1411,4 +1653,31 @@ void MainScene::updateSelectionRectangle(const ax::Vec2& currentPoint)
             }
         }
     }
+}
+
+MainScene::ConnectionInfo* MainScene::getConnectionAtPosition(const ax::Vec2& position, float threshold)
+{
+    for (auto& connInfo : _connectionInfos)
+    {
+        // Calculate distance from point to line segment
+        ax::Vec2 lineVec  = connInfo.endPos - connInfo.startPos;
+        ax::Vec2 pointVec = position - connInfo.startPos;
+
+        float lineLength = lineVec.length();
+        if (lineLength < 0.001f)
+            continue;
+
+        // Project point onto line
+        float t = pointVec.dot(lineVec) / (lineLength * lineLength);
+        t       = std::max(0.0f, std::min(1.0f, t));  // Clamp to line segment
+
+        ax::Vec2 projection = connInfo.startPos + lineVec * t;
+        float distance      = position.distance(projection);
+
+        if (distance <= threshold)
+        {
+            return &connInfo;
+        }
+    }
+    return nullptr;
 }
