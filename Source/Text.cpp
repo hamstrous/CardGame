@@ -110,6 +110,9 @@ void Text::setText(const std::string& text)
         // Add padding around the text
         float padding = 10.0f;
         _objectSize   = ax::Vec2(labelSize.width + padding * 2, labelSize.height + padding * 2);
+        //Reset highlight box
+        setHighlight(false); 
+        setHighlight(true);
         setContentSize(_objectSize);
     }
 }
@@ -133,43 +136,3 @@ void Text::updateLabel()
         setContentSize(_objectSize);
     }
 }
-
-// void Text::setHighlight(bool highlight)
-// {
-//     // Remove old highlight if exists
-//     if (_highlightNode)
-//     {
-//         this->removeChild(_highlightNode);
-//         _highlightNode = nullptr;
-//         this->setScale(_originalScale);
-//     }
-
-//     // Add new highlight with current size
-//     if (highlight)
-//     {
-//         _highlightNode = ax::DrawNode::create();
-//         Vec2 rect[4];
-//         float w = _objectSize.x;
-//         float h = _objectSize.y;
-//         rect[0] = Vec2(-w / 2, -h / 2);
-//         rect[1] = Vec2(w / 2, -h / 2);
-//         rect[2] = Vec2(w / 2, h / 2);
-//         rect[3] = Vec2(-w / 2, h / 2);
-//         _highlightNode->drawPoly(rect, 4, true, Color4F::YELLOW);
-//         this->addChild(_highlightNode, 100);
-//         this->setScale(_originalScale * 1.05f);
-//     }
-
-//     // Also change text color to blue when highlighted during editing
-//     if (_textLabel && _isEditing)
-//     {
-//         if (highlight)
-//         {
-//             _textLabel->setTextColor(ax::Color4B::BLUE);
-//         }
-//         else
-//         {
-//             _textLabel->setTextColor(ax::Color4B::BLACK);
-//         }
-//     }
-// }

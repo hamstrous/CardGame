@@ -1825,6 +1825,8 @@ void MainScene::updateSelectionRectangle(const ax::Vec2& currentPoint)
     };
     _selectionRectangle->drawSolidPoly(corners, 4, Color4F(0, 0, 1, 0.3f));
 
+    getAllObjects(_objects);
+
     for (auto obj : _objects)
     {
         if (!dynamic_cast<Card*>(obj) && !isMoveMode)
