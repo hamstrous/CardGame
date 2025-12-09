@@ -107,12 +107,14 @@ bool MainScene::init()
     auto _addTable          = createMenuEntry("Add Table", [=](auto) { createSpecificAddMenu("tables"); });
     auto _addRack           = createMenuEntry("Add Rack", [=](auto) { createSpecificAddMenu("racks"); });
     auto _addCounter        = createMenuEntry("Add Counter", [=](auto) { createSpecificAddMenu("counters"); });
+    auto _addText           = createMenuEntry("Add Text", [=](auto) { addText(); });
 
     _addMenuItems.pushBack(_addCard);
     _addMenuItems.pushBack(_addDeck);
     _addMenuItems.pushBack(_addTable);
     _addMenuItems.pushBack(_addRack);
     _addMenuItems.pushBack(_addCounter);
+    _addMenuItems.pushBack(_addText);
 
     _subAddFolder["cards"]    = {"uno/", "standard/", "ascension/"};
     _subAddFolder["decks"]    = {};
@@ -311,6 +313,37 @@ bool MainScene::onMouseDown(Event* event)
             }
         }
         clearSelectObjects();
+
+        // Check for text objects (handle before racks for proper z-order)
+        for (int i = _texts.size() - 1; i >= 0; i--)
+        {
+            auto text = _texts[i];
+            if (text->containsPoint(mousePos))
+            {
+                // Stop editing previous text if any
+                if (_editingText && _editingText != text)
+                {
+                    _editingText->stopEditing();
+                }
+
+                // Start editing the text
+                _editingText = text;
+                text->startEditing();
+                if (initDrag(text, mousePos))
+                {
+                    pushToTop(text);
+                }
+                return true;
+            }
+        }
+
+        // If clicking outside of text, stop editing
+        if (_editingText)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+        }
+
         for (int i = _racks.size() - 1; i >= 0; i--)
         {
             auto rack = _racks[i];
@@ -706,6 +739,75 @@ bool MainScene::onMoveModeMouseMove(ax::Event* event)
 
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
+    // Handle text editing first
+    if (_editingText && _editingText->isEditing())
+    {
+        std::string currentText = _editingText->getText();
+
+        // Handle backspace
+        if (code == EventKeyboard::KeyCode::KEY_BACKSPACE || code == EventKeyboard::KeyCode::KEY_DELETE)
+        {
+            if (!currentText.empty() && currentText != "Text")
+            {
+                currentText = currentText.substr(0, currentText.length() - 1);
+                _editingText->setText(currentText);
+            }
+            return;
+        }
+        // Handle enter to finish editing
+        else if (code == EventKeyboard::KeyCode::KEY_ENTER || code == EventKeyboard::KeyCode::KEY_KP_ENTER)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+            return;
+        }
+        // Handle escape to cancel editing
+        else if (code == EventKeyboard::KeyCode::KEY_ESCAPE)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+            return;
+        }
+        // Handle space
+        else if (code == EventKeyboard::KeyCode::KEY_SPACE)
+        {
+            if (currentText == "Text")
+                currentText = " ";
+            else
+                currentText += " ";
+            _editingText->setText(currentText);
+            return;
+        }
+        // Handle alphanumeric keys
+        else
+        {
+            char inputChar = '\0';
+            bool isShift   = false;  // You might want to track shift state similarly to Ctrl
+
+            // Convert key code to character
+            if (code >= EventKeyboard::KeyCode::KEY_A && code <= EventKeyboard::KeyCode::KEY_Z)
+            {
+                inputChar = 'a' + (int)code - (int)EventKeyboard::KeyCode::KEY_A;
+                if (isShift || isCtrlPressed)  // Using Ctrl as shift for now
+                    inputChar = toupper(inputChar);
+            }
+            else if (code >= EventKeyboard::KeyCode::KEY_0 && code <= EventKeyboard::KeyCode::KEY_9)
+            {
+                inputChar = '0' + (int)code - (int)EventKeyboard::KeyCode::KEY_0;
+            }
+
+            if (inputChar != '\0')
+            {
+                if (currentText == "Text")
+                    currentText = std::string(1, inputChar);
+                else
+                    currentText += inputChar;
+                _editingText->setText(currentText);
+                return;
+            }
+        }
+    }
+
     // Track Ctrl key state
     if (code == EventKeyboard::KeyCode::KEY_CTRL || code == EventKeyboard::KeyCode::KEY_LEFT_CTRL ||
         code == EventKeyboard::KeyCode::KEY_RIGHT_CTRL)
@@ -805,7 +907,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 
             // Disconnect holder from all decks before deletion
             Holder* holder = dynamic_cast<Holder*>(obj);
-            Deck* deck = dynamic_cast<Deck*>(obj);
+            Deck* deck     = dynamic_cast<Deck*>(obj);
             if (holder)
             {
                 holder->clearCards();
@@ -845,6 +947,11 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             {
                 auto it = std::find(_counters.begin(), _counters.end(), dynamic_cast<Counter*>(obj));
                 _counters.erase(it);
+            }
+            else if (dynamic_cast<Text*>(obj))
+            {
+                auto it = std::find(_texts.begin(), _texts.end(), dynamic_cast<Text*>(obj));
+                _texts.erase(it);
             }
             else if (dynamic_cast<Card*>(obj))
             {
@@ -980,32 +1087,32 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             // Add to appropriate lists
             if (auto card = dynamic_cast<Card*>(obj))
             {
-                Card *newCard = card->clone();
-                newCard->setPosition(card->getPosition() + ax::Vec2(20, -20)); // Offset new card position
+                Card* newCard = card->clone();
+                newCard->setPosition(card->getPosition() + ax::Vec2(20, -20));  // Offset new card position
                 this->addChild(newCard, CARD_ZORDER_BASE + _cards.size());
                 _objects.push_back(newCard);
                 _cards.push_back(newCard);
             }
             else if (auto deck = dynamic_cast<Deck*>(obj))
             {
-                Deck *newDeck = deck->clone();
-                newDeck->setPosition(deck->getPosition() + ax::Vec2(20, -20)); // Offset new deck position
+                Deck* newDeck = deck->clone();
+                newDeck->setPosition(deck->getPosition() + ax::Vec2(20, -20));  // Offset new deck position
                 this->addChild(newDeck, DECK_ZORDER_BASE + _decks.size());
                 _objects.push_back(newDeck);
                 _decks.push_back(newDeck);
             }
             else if (auto rack = dynamic_cast<Rack*>(obj))
             {
-                Rack *newRack = rack->clone();
-                newRack->setPosition(rack->getPosition() + ax::Vec2(20, -20)); // Offset new rack position
+                Rack* newRack = rack->clone();
+                newRack->setPosition(rack->getPosition() + ax::Vec2(20, -20));  // Offset new rack position
                 this->addChild(newRack, RACK_ZORDER_BASE + _racks.size());
                 _objects.push_back(newRack);
                 _racks.push_back(newRack);
             }
             else if (auto table = dynamic_cast<Table*>(obj))
             {
-                Table *newTable = table->clone();
-                newTable->setPosition(table->getPosition() + ax::Vec2(20, -20)); // Offset new table position
+                Table* newTable = table->clone();
+                newTable->setPosition(table->getPosition() + ax::Vec2(20, -20));  // Offset new table position
                 this->addChild(newTable, TABLE_ZORDER_BASE + _tables.size());
                 _objects.push_back(newTable);
                 _tables.push_back(newTable);
@@ -1013,12 +1120,19 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             else if (auto counter = dynamic_cast<Counter*>(obj))
             {
                 Counter* newCounter = counter->clone();
-                newCounter->setPosition(counter->getPosition() + ax::Vec2(20, -20)); // Offset new counter position
+                newCounter->setPosition(counter->getPosition() + ax::Vec2(20, -20));  // Offset new counter position
                 this->addChild(newCounter, COUNTER_ZORDER_BASE + _counters.size());
                 _objects.push_back(newCounter);
                 _counters.push_back(newCounter);
             }
-            
+            else if (auto text = dynamic_cast<Text*>(obj))
+            {
+                Text* newText = text->clone();
+                newText->setPosition(text->getPosition() + ax::Vec2(20, -20));  // Offset new text position
+                this->addChild(newText, TEXT_ZORDER_BASE + _texts.size());
+                _objects.push_back(newText);
+                _texts.push_back(newText);
+            }
         }
         break;
     case EventKeyboard::KeyCode::KEY_M:
@@ -1059,6 +1173,8 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             table->enableDragging(isMoveMode);
         for (auto counter : _counters)
             counter->enableDragging(isMoveMode);
+        for (auto text : _texts)
+            text->enableDragging(isMoveMode);
         break;
     // case EventKeyboard::KeyCode::KEY_ESCAPE:
     //     Director::getInstance()->end();
@@ -1275,6 +1391,14 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position, bool a
         if (card->containsPoint(position))
             return card;
     }
+
+    for (int i = _texts.size() - 1; i >= 0; i--)
+    {
+        auto text = _texts[i];
+        if (text->containsPoint(position))
+            return text;
+    }
+
     if (!all)
         return nullptr;
     for (int i = _counters.size() - 1; i >= 0; i--)
@@ -1324,6 +1448,8 @@ void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
     outObjects.clear();
     for (auto counter : _counters)
         outObjects.push_back(counter);
+    for (auto text : _texts)
+        outObjects.push_back(text);
     for (auto card : _cards)
         outObjects.push_back(card);
     for (auto rack : _racks)
@@ -1525,6 +1651,22 @@ void MainScene::addCounter(std::string counterName)
     else
     {
         problemLoading(counterName.c_str());
+    }
+}
+
+void MainScene::addText()
+{
+    Text* text = Text::create();
+
+    if (text)
+    {
+        text->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        this->addChild(text, TEXT_ZORDER_BASE + _texts.size());
+        _texts.push_back(text);
+    }
+    else
+    {
+        AXLOG("Failed to create text object");
     }
 }
 
