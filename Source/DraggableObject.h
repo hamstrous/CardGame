@@ -61,7 +61,12 @@ public:
         this->runAction(rotateBy);
     }
 
+    void setId(int id) { _id = id; }
+    int getId() const { return _id; }
+
 protected:
+    int _id = 0;
+
     ax::Vec2 _objectSize;
 
     bool _isDraggable = true;

@@ -47,7 +47,7 @@ Card* Card::clone() const
         newCard->_isFaceUp = _isFaceUp;
         newCard->setContentSize(CARD_SIZE);
 
-        //Do not set position
+        // Do not set position
         return newCard;
     }
     return nullptr;
@@ -111,7 +111,7 @@ void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float dur
     // Store original position and scale
     setOriginalPosition(getPosition());
     setOriginalZOrder();
-    this->setLocalZOrder(10000); // Bring to front
+    this->setLocalZOrder(10000);  // Bring to front
     // Create zoom and move actions
     auto moveTo    = MoveTo::create(duration, screenCenter);
     auto scaleTo   = ScaleTo::create(duration, zoomScale);
@@ -136,4 +136,21 @@ void Card::unzoom(float duration)
     // Run actions in parallel
     auto spawn = Spawn::create(easeMove, easeScale, nullptr);
     this->runAction(spawn);
+}
+
+void Card::setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+    if (_frontSprite)
+        _frontSprite->setContentSize(ax::Size(sizeX, sizeY));
+    if (_backSprite)
+        _backSprite->setContentSize(ax::Size(sizeX, sizeY));
+
+    this->setRotation(rotation);
 }

@@ -49,9 +49,9 @@ Rack* Rack::clone() const
     newRack->autorelease();
     if (newRack)
     {
-        newRack->_objectSize    = this->_objectSize;
-        newRack->_isDraggable   = this->_isDraggable;
-        newRack->_holderOffset  = this->_holderOffset;
+        newRack->_objectSize     = this->_objectSize;
+        newRack->_isDraggable    = this->_isDraggable;
+        newRack->_holderOffset   = this->_holderOffset;
         newRack->_maxCardSpacing = this->_maxCardSpacing;
         newRack->_cardSpacing    = this->_cardSpacing;
 
@@ -66,4 +66,17 @@ Rack* Rack::clone() const
     return nullptr;
 }
 
+void Rack::setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
 
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+    if (_rackSprite)
+        _rackSprite->setContentSize(ax::Size(sizeX, sizeY));
+
+    this->setRotation(rotation);
+}

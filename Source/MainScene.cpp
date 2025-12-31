@@ -128,11 +128,12 @@ bool MainScene::init()
     //_addMenu->setAnchorPoint(Vec2(0, 0));
     this->addChild(_addMenu, 10000);
 
-    loadCardsFromDirectory();
-    loadRacks();
-    loadDecks();
-    loadTables();
-    loadCountersFromDirectory();
+    // loadCardsFromDirectory();
+    // loadRacks();
+    // loadDecks();
+    // loadTables();
+    // loadCountersFromDirectory();
+    loadConfig("configs/ascension.txt");
     getAllObjects(_objects);
 
     _mouseListener                = EventListenerMouse::create();
@@ -1696,6 +1697,377 @@ void MainScene::loadCardsFromDirectory()
             problemLoading("card_front.png or card_back.png");
         }
         i++;
+    }
+}
+
+DraggableObject* MainScene::getObjectById(int id)
+{
+    for (auto obj : _objects)
+    {
+        if (obj->getId() == id)
+            return obj;
+    }
+    return nullptr;
+}
+
+void MainScene::loadConfig(const std::string& configFileName)
+{
+    enum class ConfigSection
+    {
+        NONE,
+        CARD,
+        RACK,
+        TABLE,
+        DECK,
+        COUNTER,
+        CARD_IN_HOLDER,
+        DECK_CONNECTION
+    };
+
+    auto fileUtils       = ax::FileUtils::getInstance();
+    std::string fullPath = fileUtils->fullPathForFilename(configFileName);
+    std::string content  = fileUtils->getStringFromFile(fullPath);
+
+    if (content.empty())
+    {
+        problemLoading(configFileName.c_str());
+        return;
+    }
+
+    ConfigSection currentSection = ConfigSection::NONE;
+    std::istringstream stream(content);
+    std::string line;
+
+    while (std::getline(stream, line))
+    {
+        // Skip empty lines and comments
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        // Trim whitespace
+        size_t start = line.find_first_not_of(" \t\r\n");
+        size_t end   = line.find_last_not_of(" \t\r\n");
+        if (start == std::string::npos)
+            continue;
+        line = line.substr(start, end - start + 1);
+
+        // Check for section headers
+        if (line[0] == '[')
+        {
+            if (line == "[CARD]")
+                currentSection = ConfigSection::CARD;
+            else if (line == "[RACK]")
+                currentSection = ConfigSection::RACK;
+            else if (line == "[TABLE]")
+                currentSection = ConfigSection::TABLE;
+            else if (line == "[DECK]")
+                currentSection = ConfigSection::DECK;
+            else if (line == "[COUNTER]")
+                currentSection = ConfigSection::COUNTER;
+            else if (line == "[CARD_IN_HOLDER]")
+                currentSection = ConfigSection::CARD_IN_HOLDER;
+            else if (line == "[DECK_CONECTION]")
+                currentSection = ConfigSection::DECK_CONNECTION;
+            else
+                currentSection = ConfigSection::NONE;
+            continue;
+        }
+
+        // Parse line based on current section
+        if (currentSection == ConfigSection::CARD)
+            loadCardConfig(line);
+        else if (currentSection == ConfigSection::RACK)
+            loadRackConfig(line);
+        else if (currentSection == ConfigSection::DECK)
+            loadDeckConfig(line);
+        else if (currentSection == ConfigSection::TABLE)
+            loadTableConfig(line);
+        else if (currentSection == ConfigSection::COUNTER)
+            loadCounterConfig(line);
+        else if (currentSection == ConfigSection::CARD_IN_HOLDER)
+            loadCardInHolderConfig(line);
+        else if (currentSection == ConfigSection::DECK_CONNECTION)
+            loadDeckConnectionConfig(line);
+    }
+
+    // Update the _objects list after loading
+    getAllObjects(_objects);
+}
+
+void MainScene::loadCardConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y front_sprite back_sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string frontSprite, backSprite;
+
+    if (lineStream >> id >> posX >> posY >> frontSprite >> backSprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto card = Card::create(frontSprite, backSprite);
+            if (card)
+            {
+                int cardId = id + i;
+                card->setConfig(cardId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(card, CARD_ZORDER_BASE + static_cast<int>(_cards.size()));
+                _cards.push_back(card);
+            }
+            else
+            {
+                problemLoading(frontSprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadRackConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto rack = Rack::create(sprite);
+            if (rack)
+            {
+                int rackId = id + i;
+                rack->setConfig(rackId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(rack, RACK_ZORDER_BASE + static_cast<int>(_racks.size()));
+                _racks.push_back(rack);
+            }
+            else
+            {
+                problemLoading(sprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadDeckConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y color size_x size_y rotation deal_amount amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int dealAmount, amount;
+    std::string color;
+
+    if (lineStream >> id >> posX >> posY >> color >> sizeX >> sizeY >> rotation >> dealAmount >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto deck = Deck::create();
+            if (deck)
+            {
+                int deckId = id + i;
+                deck->setConfig(deckId, posX, posY, color, sizeX, sizeY, rotation, dealAmount);
+                this->addChild(deck, DECK_ZORDER_BASE + static_cast<int>(_decks.size()));
+                _decks.push_back(deck);
+            }
+            else
+            {
+                problemLoading("Deck creation failed");
+            }
+        }
+    }
+}
+
+void MainScene::loadTableConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto table = Table::create();
+            if (table)
+            {
+                int tableId = id + i;
+                table->setConfig(tableId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(table, TABLE_ZORDER_BASE + static_cast<int>(_tables.size()));
+                _tables.push_back(table);
+
+                // Add the discard deck to the scene
+                auto discardDeck = table->getDiscardDeck();
+                if (discardDeck)
+                {
+                    discardDeck->setPosition(ax::Vec2(posX + sizeX / 2 + 50, posY));
+                    this->addChild(discardDeck, DECK_ZORDER_BASE + static_cast<int>(_decks.size()));
+                    _decks.push_back(discardDeck);
+                }
+            }
+            else
+            {
+                problemLoading("Table creation failed");
+            }
+        }
+    }
+}
+
+void MainScene::loadCounterConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation starting_value amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int startingValue, amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> startingValue >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto counter = Counter::create(sprite);
+            if (counter)
+            {
+                int counterId = id + i;
+                counter->setConfig(counterId, posX, posY, sizeX, sizeY, rotation, startingValue);
+                this->addChild(counter, COUNTER_ZORDER_BASE + static_cast<int>(_counters.size()));
+                _counters.push_back(counter);
+            }
+            else
+            {
+                problemLoading(sprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadCardInHolderConfig(const std::string& line)
+{
+    // Parse: card_min_id card_max_id holder_id
+    std::istringstream lineStream(line);
+    int cardMinId, cardMaxId, holderId;
+
+    if (lineStream >> cardMinId >> cardMaxId >> holderId)
+    {
+        // Find the holder by id (could be rack, deck, or table)
+        Holder* holder = nullptr;
+        for (auto r : _racks)
+        {
+            if (r->getId() == holderId)
+            {
+                holder = r;
+                break;
+            }
+        }
+        if (!holder)
+        {
+            for (auto d : _decks)
+            {
+                if (d->getId() == holderId)
+                {
+                    holder = d;
+                    break;
+                }
+            }
+        }
+        if (!holder)
+        {
+            for (auto t : _tables)
+            {
+                if (t->getId() == holderId)
+                {
+                    holder = t;
+                    break;
+                }
+            }
+        }
+
+        if (!holder)
+            return;
+
+        // Find all cards in the id range and add them to the holder
+        for (auto card : _cards)
+        {
+            int cardId = card->getId();
+            if (cardId >= cardMinId && cardId <= cardMaxId)
+            {
+                holder->addCard(card);
+            }
+        }
+    }
+}
+
+void MainScene::loadDeckConnectionConfig(const std::string& line)
+{
+    // Parse: deck_id holder_id1 holder_id2 holder_id3 ...
+    std::istringstream lineStream(line);
+    int deckId;
+
+    if (!(lineStream >> deckId))
+        return;
+
+    // Find the deck by id
+    Deck* deck = nullptr;
+    for (auto d : _decks)
+    {
+        if (d->getId() == deckId)
+        {
+            deck = d;
+            break;
+        }
+    }
+
+    if (!deck)
+        return;
+
+    // Read all holder ids and connect them
+    int holderId;
+    while (lineStream >> holderId)
+    {
+        // Find the holder by id (could be rack, deck, or table)
+        Holder* holder = nullptr;
+        for (auto r : _racks)
+        {
+            if (r->getId() == holderId)
+            {
+                holder = r;
+                break;
+            }
+        }
+        if (!holder)
+        {
+            for (auto d : _decks)
+            {
+                if (d->getId() == holderId)
+                {
+                    holder = d;
+                    break;
+                }
+            }
+        }
+        if (!holder)
+        {
+            for (auto t : _tables)
+            {
+                if (t->getId() == holderId)
+                {
+                    holder = t;
+                    break;
+                }
+            }
+        }
+
+        if (holder)
+        {
+            deck->connectHolder(holder);
+        }
     }
 }
 

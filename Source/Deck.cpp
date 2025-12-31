@@ -5,7 +5,7 @@ using namespace ax;
 
 // Define DECK_SIZE in cpp file to avoid inline static initialization issues
 const ax::Vec2 Deck::DECK_OFFSET{30, 30};
-const ax::Vec2 Deck::DECK_SIZE = Card::CARD_SIZE + Deck::DECK_OFFSET;
+const ax::Vec2 Deck::DECK_SIZE{150, 200};
 
 Deck* Deck::create()
 {
@@ -129,10 +129,10 @@ Deck* Deck::clone() const
     newDeck->autorelease();
     if (newDeck)
     {
-        newDeck->_objectSize    = this->_objectSize;
-        newDeck->_isDraggable   = this->_isDraggable;
-        newDeck->_holderOffset  = this->_holderOffset;
-        newDeck->_dealAmount    = this->_dealAmount;
+        newDeck->_objectSize       = this->_objectSize;
+        newDeck->_isDraggable      = this->_isDraggable;
+        newDeck->_holderOffset     = this->_holderOffset;
+        newDeck->_dealAmount       = this->_dealAmount;
         newDeck->_connectedHolders = this->_connectedHolders;
 
         // Clone DrawNode
@@ -363,4 +363,63 @@ void Deck::setConnectedHolders(const std::vector<Holder*>& holders)
 const std::vector<Holder*>& Deck::getConnectedHolders() const
 {
     return _connectedHolders;
+}
+
+void Deck::setConfig(int id,
+                     float posX,
+                     float posY,
+                     const std::string& colorName,
+                     float sizeX,
+                     float sizeY,
+                     float rotation,
+                     int dealAmount)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+
+    // Get color from name and redraw
+    ax::Color4F color = getColorFromName(colorName);
+
+    // Redraw the deck rectangle with new size and color
+    if (_deckDrawNode)
+    {
+        _deckDrawNode->clear();
+        ax::Vec2 bottomLeft(-sizeX / 2, -sizeY / 2);
+        ax::Vec2 topRight(sizeX / 2, sizeY / 2);
+        _deckDrawNode->drawSolidRect(bottomLeft, topRight, color);
+    }
+
+    this->setRotation(rotation);
+    _dealAmount = dealAmount;
+    if (_dealAmountLabel)
+        _dealAmountLabel->setString(std::to_string(_dealAmount));
+}
+
+ax::Color4F Deck::getColorFromName(const std::string& colorName)
+{
+    if (colorName == "blue")
+        return ax::Color4F(0.2f, 0.4f, 0.8f, 0.9f);
+    else if (colorName == "green")
+        return ax::Color4F(0.2f, 0.7f, 0.3f, 0.9f);
+    else if (colorName == "red")
+        return ax::Color4F(0.8f, 0.2f, 0.2f, 0.9f);
+    else if (colorName == "purple")
+        return ax::Color4F(0.6f, 0.2f, 0.8f, 0.9f);
+    else if (colorName == "yellow")
+        return ax::Color4F(0.9f, 0.8f, 0.2f, 0.9f);
+    else if (colorName == "orange")
+        return ax::Color4F(0.9f, 0.5f, 0.1f, 0.9f);
+    else if (colorName == "gray" || colorName == "grey")
+        return ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f);
+    else if (colorName == "white")
+        return ax::Color4F(1.0f, 1.0f, 1.0f, 0.9f);
+    else if (colorName == "black")
+        return ax::Color4F(0.1f, 0.1f, 0.1f, 0.9f);
+    else
+        return ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f);  // default gray
 }

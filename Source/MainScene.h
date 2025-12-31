@@ -9,6 +9,7 @@
 #include "Counter.h"
 #include "Text.h"
 #include <map>
+#include <sstream>
 
 class MainScene : public ax::Scene
 {
@@ -128,9 +129,18 @@ private:
     void loadDecks();
     void loadTables();
     void loadCountersFromDirectory();
+    void loadConfig(const std::string& configFileName);
+    void loadCardConfig(const std::string& line);
+    void loadRackConfig(const std::string& line);
+    void loadDeckConfig(const std::string& line);
+    void loadTableConfig(const std::string& line);
+    void loadCounterConfig(const std::string& line);
+    void loadCardInHolderConfig(const std::string& line);
+    void loadDeckConnectionConfig(const std::string& line);
     const std::string cardTypeFolder = "ascension/";
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position, bool all = false);
+    DraggableObject* getObjectById(int id);
     void updateHoverStates(const ax::Vec2& mousePos);
 
     // Helper function to find connection at a given position

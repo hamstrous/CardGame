@@ -12,6 +12,9 @@ public:
     virtual bool init(const std::string& texture);
     Rack* clone() const;
 
+    // Set rack configuration from config file
+    void setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation);
+
     static const ax::Vec2 DECK_SIZE;
     static const ax::Vec2 DECK_OFFSET;
 

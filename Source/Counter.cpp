@@ -98,8 +98,8 @@ Counter* Counter::clone() const
     newCounter->autorelease();
     if (newCounter)
     {
-        newCounter->_objectSize    = this->_objectSize;
-        newCounter->_isDraggable   = this->_isDraggable;
+        newCounter->_objectSize  = this->_objectSize;
+        newCounter->_isDraggable = this->_isDraggable;
 
         newCounter->_counterSprite = Sprite::createWithTexture(this->_counterSprite->getTexture());
         newCounter->_counterSprite->setContentSize(this->_counterSprite->getContentSize());
@@ -157,4 +157,22 @@ Counter* Counter::clone() const
         return newCounter;
     }
     return nullptr;
+}
+
+void Counter::setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation, int startingValue)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+    if (_counterSprite)
+        _counterSprite->setContentSize(ax::Size(sizeX, sizeY));
+
+    this->setRotation(rotation);
+    _count = startingValue;
+    if (_countLabel)
+        _countLabel->setString(std::to_string(_count));
 }

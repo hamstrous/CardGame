@@ -18,6 +18,9 @@ public:
     void zoomToCenter(const ax::Vec2& screenCenter, float zoomScale = 5.0f, float duration = 0.3f);
     void unzoom(float duration = 0.3f);
 
+    // Set card configuration from config file
+    void setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation);
+
     static const ax::Vec2 CARD_SIZE;
     static const int MOVE_TO_HOLDER_TAG;
 

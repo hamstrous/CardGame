@@ -14,6 +14,19 @@ public:
     bool init(const ax::Color4F& color = ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f));
     Deck* clone() const;
 
+    // Set deck configuration from config file
+    void setConfig(int id,
+                   float posX,
+                   float posY,
+                   const std::string& colorName,
+                   float sizeX,
+                   float sizeY,
+                   float rotation,
+                   int dealAmount);
+
+    // Convert color name to Color4F
+    static ax::Color4F getColorFromName(const std::string& colorName);
+
     void addCard(Card* card) override;
     void addCard(std::vector<Card*> cards);
     void removeCard(Card* card) override;
