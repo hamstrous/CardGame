@@ -21,6 +21,7 @@ public:
     virtual void setSpacing(int cardCount);
 
     void startDragging() override;
+    void clearCards();
 
 protected:
     std::vector<Card*> _cards;

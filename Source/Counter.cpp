@@ -91,3 +91,88 @@ bool Counter::init(const std::string& texture)
 
     return true;
 }
+
+Counter* Counter::clone() const
+{
+    Counter* newCounter = new (std::nothrow) Counter();
+    newCounter->autorelease();
+    if (newCounter)
+    {
+        newCounter->_objectSize  = this->_objectSize;
+        newCounter->_isDraggable = this->_isDraggable;
+
+        newCounter->_counterSprite = Sprite::createWithTexture(this->_counterSprite->getTexture());
+        newCounter->_counterSprite->setContentSize(this->_counterSprite->getContentSize());
+        newCounter->addChild(newCounter->_counterSprite);
+        newCounter->setContentSize(this->getContentSize());
+
+        newCounter->_incrementButton = ui::Button::create("ui/increase.png");
+        newCounter->_decrementButton = ui::Button::create("ui/decrease.png");
+        newCounter->_resetButton     = ui::Button::create("ui/reset.png");
+
+        ax::Vec2 buttonSize = COUNTER_SIZE * COUNTER_BUTTON_SIZE_PERCENT;
+        newCounter->_incrementButton->setScale9Enabled(true);
+        newCounter->_incrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newCounter->_decrementButton->setScale9Enabled(true);
+        newCounter->_decrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newCounter->_resetButton->setScale9Enabled(true);
+        newCounter->_resetButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+
+        newCounter->_incrementButton->setContentSize(buttonSize);
+        newCounter->_decrementButton->setContentSize(buttonSize);
+        newCounter->_resetButton->setContentSize(buttonSize);
+
+        // set all the button to the right of counter sprite
+        newCounter->_incrementButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2 * 5));
+        newCounter->_decrementButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2 * 3));
+        newCounter->_resetButton->setPosition(ax::Vec2(COUNTER_SIZE.x + buttonSize.x / 2, buttonSize.y / 2));
+
+        newCounter->_counterSprite->addChild(newCounter->_incrementButton);
+        newCounter->_counterSprite->addChild(newCounter->_decrementButton);
+        newCounter->_counterSprite->addChild(newCounter->_resetButton);
+
+        // Use a generic lambda to avoid depending on `ax::Ref` type name
+        newCounter->_incrementButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count += 1;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+        newCounter->_decrementButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count -= 1;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+        newCounter->_resetButton->addClickEventListener([newCounter](auto /* sender */) {
+            newCounter->_count = 0;
+            if (newCounter->_countLabel)
+                newCounter->_countLabel->setString(std::to_string(newCounter->_count));
+        });
+
+        newCounter->_countLabel = ax::Label::createWithSystemFont("0", "Arial", 24);
+        // center the label inside the sprite
+        newCounter->_countLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+        newCounter->_countLabel->setPosition(newCounter->_counterSprite->getContentSize() * 0.5f);
+        newCounter->_counterSprite->addChild(newCounter->_countLabel);
+
+        return newCounter;
+    }
+    return nullptr;
+}
+
+void Counter::setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation, int startingValue)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+    if (_counterSprite)
+        _counterSprite->setContentSize(ax::Size(sizeX, sizeY));
+
+    this->setRotation(rotation);
+    _count = startingValue;
+    if (_countLabel)
+        _countLabel->setString(std::to_string(_count));
+}

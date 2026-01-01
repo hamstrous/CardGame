@@ -7,7 +7,9 @@
 #include "Table.h"
 #include "DraggableObject.h"
 #include "Counter.h"
+#include "Text.h"
 #include <map>
+#include <sstream>
 
 class MainScene : public ax::Scene
 {
@@ -47,6 +49,7 @@ public:
 
     const int CARD_ZORDER_BASE    = 1000;
     const int COUNTER_ZORDER_BASE = 1500;
+    const int TEXT_ZORDER_BASE    = 1600;
     const int RACK_ZORDER_BASE    = -500;
     const int DECK_ZORDER_BASE    = -200;
     const int TABLE_ZORDER_BASE   = -1000;
@@ -69,6 +72,7 @@ private:
     bool isConnectMode             = false;
     Card* _zoomedCard              = nullptr;
     ax::DrawNode* _connectionLines = nullptr;
+    Text* _editingText             = nullptr;
 
     // Structure to store connection information for each drawn line
     struct ConnectionInfo
@@ -102,6 +106,7 @@ private:
     std::vector<Deck*> _decks;
     std::vector<Table*> _tables;
     std::vector<Counter*> _counters;
+    std::vector<Text*> _texts;
     void getAllObjects(std::vector<DraggableObject*>& outObjects);
 
     ax::Menu* _addMenu = nullptr;
@@ -117,15 +122,25 @@ private:
     void addRack(std::string rackName);
     void addTable(std::string tableName);
     void addCounter(std::string counterName);
+    void addText();
 
     void loadCardsFromDirectory();
     void loadRacks();
     void loadDecks();
     void loadTables();
     void loadCountersFromDirectory();
-    const std::string cardTypeFolder = "uno/";
+    void loadConfig(const std::string& configFileName);
+    void loadCardConfig(const std::string& line);
+    void loadRackConfig(const std::string& line);
+    void loadDeckConfig(const std::string& line);
+    void loadTableConfig(const std::string& line);
+    void loadCounterConfig(const std::string& line);
+    void loadCardInHolderConfig(const std::string& line);
+    void loadDeckConnectionConfig(const std::string& line);
+    const std::string cardTypeFolder = "ascension/";
 
     DraggableObject* getObjectAtPosition(const ax::Vec2& position, bool all = false);
+    DraggableObject* getObjectById(int id);
     void updateHoverStates(const ax::Vec2& mousePos);
 
     // Helper function to find connection at a given position
@@ -181,6 +196,24 @@ private:
             {
                 int index = std::distance(_tables.begin(), it);
                 return pushToTop(_tables, index, TABLE_ZORDER_BASE);
+            }
+        }
+        else if (auto counter = dynamic_cast<Counter*>(obj))
+        {
+            auto it = std::find(_counters.begin(), _counters.end(), counter);
+            if (it != _counters.end())
+            {
+                int index = std::distance(_counters.begin(), it);
+                return pushToTop(_counters, index, COUNTER_ZORDER_BASE);
+            }
+        }
+        else if (auto text = dynamic_cast<Text*>(obj))
+        {
+            auto it = std::find(_texts.begin(), _texts.end(), text);
+            if (it != _texts.end())
+            {
+                int index = std::distance(_texts.begin(), it);
+                return pushToTop(_texts, index, TEXT_ZORDER_BASE);
             }
         }
 

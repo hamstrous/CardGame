@@ -5,7 +5,7 @@ using namespace ax;
 
 // Define DECK_SIZE in cpp file to avoid inline static initialization issues
 const ax::Vec2 Deck::DECK_OFFSET{30, 30};
-const ax::Vec2 Deck::DECK_SIZE = Card::CARD_SIZE + Deck::DECK_OFFSET;
+const ax::Vec2 Deck::DECK_SIZE{150, 200};
 
 Deck* Deck::create()
 {
@@ -64,7 +64,7 @@ bool Deck::init(const ax::Color4F& color)
     _resetButton->setContentSize(buttonSize);
 
     // Position buttons on the left side of the deck, vertically stacked
-    float buttonX = -DECK_SIZE.x / 2 + buttonSize.x / 2;
+    float buttonX = -DECK_SIZE.x / 2 - buttonSize.x / 2;
     _incrementButton->setPosition(ax::Vec2(buttonX, buttonSize.y));
     _decrementButton->setPosition(ax::Vec2(buttonX, 0));
     _resetButton->setPosition(ax::Vec2(buttonX, -buttonSize.y));
@@ -116,11 +116,96 @@ bool Deck::init(const ax::Color4F& color)
     // Create label at center top
     _dealAmountLabel = ax::Label::createWithSystemFont("1", "Arial", 20);
     _dealAmountLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    _dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 - 15));
+    _dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 + 15));
     _dealAmountLabel->setTextColor(ax::Color4B::BLACK);
     this->addChild(_dealAmountLabel);
 
     return true;
+}
+
+Deck* Deck::clone() const
+{
+    Deck* newDeck = new (std::nothrow) Deck();
+    newDeck->autorelease();
+    if (newDeck)
+    {
+        newDeck->_objectSize       = this->_objectSize;
+        newDeck->_isDraggable      = this->_isDraggable;
+        newDeck->_holderOffset     = this->_holderOffset;
+        newDeck->_dealAmount       = this->_dealAmount;
+        newDeck->_connectedHolders = this->_connectedHolders;
+
+        // Clone DrawNode
+        newDeck->_deckDrawNode = DrawNode::create();
+        if (newDeck->_deckDrawNode && this->_deckDrawNode)
+        {
+            // Redraw the rectangle with the same color
+            Vec2 bottomLeft(-DECK_SIZE.x / 2, -DECK_SIZE.y / 2);
+            Vec2 topRight(DECK_SIZE.x / 2, DECK_SIZE.y / 2);
+
+            // Assuming the original color is stored or can be retrieved
+            // Here we just use a default color for demonstration
+            ax::Color4F fillColor(0.7f, 0.7f, 0.7f, 0.9f);
+            newDeck->_deckDrawNode->drawSolidRect(bottomLeft, topRight, fillColor);
+            newDeck->addChild(newDeck->_deckDrawNode);
+        }
+
+        newDeck->setContentSize(this->getContentSize());
+
+        // Clone buttons
+        newDeck->_incrementButton = ax::ui::Button::create("ui/increase.png");
+        newDeck->_decrementButton = ax::ui::Button::create("ui/decrease.png");
+        newDeck->_resetButton     = ax::ui::Button::create("ui/reset.png");
+
+        ax::Vec2 buttonSize = ax::Vec2(DECK_SIZE.x * 0.25f, DECK_SIZE.x * 0.25f);
+        newDeck->_incrementButton->setScale9Enabled(true);
+        newDeck->_incrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newDeck->_decrementButton->setScale9Enabled(true);
+        newDeck->_decrementButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+        newDeck->_resetButton->setScale9Enabled(true);
+        newDeck->_resetButton->setCapInsets(ax::Rect(0, 0, 16, 16));
+
+        newDeck->_incrementButton->setContentSize(buttonSize);
+        newDeck->_decrementButton->setContentSize(buttonSize);
+        newDeck->_resetButton->setContentSize(buttonSize);
+
+        float buttonX = -DECK_SIZE.x / 2 - buttonSize.x / 2;
+        newDeck->_incrementButton->setPosition(ax::Vec2(buttonX, buttonSize.y));
+        newDeck->_decrementButton->setPosition(ax::Vec2(buttonX, 0));
+        newDeck->_resetButton->setPosition(ax::Vec2(buttonX, -buttonSize.y));
+
+        newDeck->addChild(newDeck->_incrementButton);
+        newDeck->addChild(newDeck->_decrementButton);
+        newDeck->addChild(newDeck->_resetButton);
+
+        newDeck->_incrementButton->addClickEventListener([newDeck](auto) {
+            newDeck->_dealAmount += 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
+        newDeck->_decrementButton->addClickEventListener([newDeck](auto sender) {
+            if (newDeck->_dealAmount > 0)
+                newDeck->_dealAmount -= 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
+        _resetButton->addClickEventListener([newDeck](auto sender) {
+            newDeck->_dealAmount = 1;
+            if (newDeck->_dealAmountLabel)
+                newDeck->_dealAmountLabel->setString(std::to_string(newDeck->_dealAmount));
+        });
+
+        // Clone label
+        newDeck->_dealAmountLabel = ax::Label::createWithSystemFont(std::to_string(this->_dealAmount), "Arial", 20);
+        newDeck->_dealAmountLabel->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+        newDeck->_dealAmountLabel->setPosition(ax::Vec2(0, DECK_SIZE.y / 2 + 15));
+        newDeck->_dealAmountLabel->setTextColor(ax::Color4B::BLACK);
+        newDeck->addChild(newDeck->_dealAmountLabel);
+        return newDeck;
+    }
+    return nullptr;
 }
 
 void Deck::addCard(Card* card)
@@ -278,4 +363,63 @@ void Deck::setConnectedHolders(const std::vector<Holder*>& holders)
 const std::vector<Holder*>& Deck::getConnectedHolders() const
 {
     return _connectedHolders;
+}
+
+void Deck::setConfig(int id,
+                     float posX,
+                     float posY,
+                     const std::string& colorName,
+                     float sizeX,
+                     float sizeY,
+                     float rotation,
+                     int dealAmount)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+
+    // Get color from name and redraw
+    ax::Color4F color = getColorFromName(colorName);
+
+    // Redraw the deck rectangle with new size and color
+    if (_deckDrawNode)
+    {
+        _deckDrawNode->clear();
+        ax::Vec2 bottomLeft(-sizeX / 2, -sizeY / 2);
+        ax::Vec2 topRight(sizeX / 2, sizeY / 2);
+        _deckDrawNode->drawSolidRect(bottomLeft, topRight, color);
+    }
+
+    this->setRotation(rotation);
+    _dealAmount = dealAmount;
+    if (_dealAmountLabel)
+        _dealAmountLabel->setString(std::to_string(_dealAmount));
+}
+
+ax::Color4F Deck::getColorFromName(const std::string& colorName)
+{
+    if (colorName == "blue")
+        return ax::Color4F(0.2f, 0.4f, 0.8f, 0.9f);
+    else if (colorName == "green")
+        return ax::Color4F(0.2f, 0.7f, 0.3f, 0.9f);
+    else if (colorName == "red")
+        return ax::Color4F(0.8f, 0.2f, 0.2f, 0.9f);
+    else if (colorName == "purple")
+        return ax::Color4F(0.6f, 0.2f, 0.8f, 0.9f);
+    else if (colorName == "yellow")
+        return ax::Color4F(0.9f, 0.8f, 0.2f, 0.9f);
+    else if (colorName == "orange")
+        return ax::Color4F(0.9f, 0.5f, 0.1f, 0.9f);
+    else if (colorName == "gray" || colorName == "grey")
+        return ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f);
+    else if (colorName == "white")
+        return ax::Color4F(1.0f, 1.0f, 1.0f, 0.9f);
+    else if (colorName == "black")
+        return ax::Color4F(0.1f, 0.1f, 0.1f, 0.9f);
+    else
+        return ax::Color4F(0.7f, 0.7f, 0.7f, 0.9f);  // default gray
 }

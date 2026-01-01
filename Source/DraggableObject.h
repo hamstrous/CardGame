@@ -16,6 +16,9 @@ public:
     void setOriginalPosition(const ax::Vec2& pos) { _originalPosition = pos; }
     ax::Vec2 getOriginalPosition() const { return _originalPosition; }
 
+    void setOriginalZOrder() { _originalZOrder = this->getLocalZOrder(); }
+    int getOriginalZOrder() const { return _originalZOrder; }
+
     virtual void startDragging() { _isDragging = true; }
     void stopDragging() { _isDragging = false; }
 
@@ -58,7 +61,12 @@ public:
         this->runAction(rotateBy);
     }
 
+    void setId(int id) { _id = id; }
+    int getId() const { return _id; }
+
 protected:
+    int _id = 0;
+
     ax::Vec2 _objectSize;
 
     bool _isDraggable = true;
@@ -67,6 +75,7 @@ protected:
     ax::Vec2 _dragOffset;
     ax::Vec2 _mouseDownPosition;
     ax::Vec2 _originalPosition;
+    int _originalZOrder = 0;
 
     float _originalScale         = 1.0f;
     ax::DrawNode* _highlightNode = nullptr;

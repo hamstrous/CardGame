@@ -107,14 +107,16 @@ bool MainScene::init()
     auto _addTable          = createMenuEntry("Add Table", [=](auto) { createSpecificAddMenu("tables"); });
     auto _addRack           = createMenuEntry("Add Rack", [=](auto) { createSpecificAddMenu("racks"); });
     auto _addCounter        = createMenuEntry("Add Counter", [=](auto) { createSpecificAddMenu("counters"); });
+    auto _addText           = createMenuEntry("Add Text", [=](auto) { addText(); });
 
     _addMenuItems.pushBack(_addCard);
     _addMenuItems.pushBack(_addDeck);
     _addMenuItems.pushBack(_addTable);
     _addMenuItems.pushBack(_addRack);
     _addMenuItems.pushBack(_addCounter);
+    _addMenuItems.pushBack(_addText);
 
-    _subAddFolder["cards"]    = {"uno/", "standard/"};
+    _subAddFolder["cards"]    = {"uno/", "standard/", "ascension/"};
     _subAddFolder["decks"]    = {};
     _subAddFolder["tables"]   = {};
     _subAddFolder["racks"]    = {};
@@ -126,11 +128,12 @@ bool MainScene::init()
     //_addMenu->setAnchorPoint(Vec2(0, 0));
     this->addChild(_addMenu, 10000);
 
-    loadCardsFromDirectory();
-    loadRacks();
-    loadDecks();
-    loadTables();
-    loadCountersFromDirectory();
+    // loadCardsFromDirectory();
+    // loadRacks();
+    // loadDecks();
+    // loadTables();
+    // loadCountersFromDirectory();
+    loadConfig("configs/ascension.txt");
     getAllObjects(_objects);
 
     _mouseListener                = EventListenerMouse::create();
@@ -311,6 +314,37 @@ bool MainScene::onMouseDown(Event* event)
             }
         }
         clearSelectObjects();
+
+        // Check for text objects (handle before racks for proper z-order)
+        for (int i = _texts.size() - 1; i >= 0; i--)
+        {
+            auto text = _texts[i];
+            if (text->containsPoint(mousePos))
+            {
+                // Stop editing previous text if any
+                if (_editingText && _editingText != text)
+                {
+                    _editingText->stopEditing();
+                }
+
+                // Start editing the text
+                _editingText = text;
+                text->startEditing();
+                if (initDrag(text, mousePos))
+                {
+                    pushToTop(text);
+                }
+                return true;
+            }
+        }
+
+        // If clicking outside of text, stop editing
+        if (_editingText)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+        }
+
         for (int i = _racks.size() - 1; i >= 0; i--)
         {
             auto rack = _racks[i];
@@ -706,6 +740,75 @@ bool MainScene::onMoveModeMouseMove(ax::Event* event)
 
 void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
+    // Handle text editing first
+    if (_editingText && _editingText->isEditing())
+    {
+        std::string currentText = _editingText->getText();
+
+        // Handle backspace
+        if (code == EventKeyboard::KeyCode::KEY_BACKSPACE || code == EventKeyboard::KeyCode::KEY_DELETE)
+        {
+            if (!currentText.empty() && currentText != "Text")
+            {
+                currentText = currentText.substr(0, currentText.length() - 1);
+                _editingText->setText(currentText);
+            }
+            return;
+        }
+        // Handle enter to finish editing
+        else if (code == EventKeyboard::KeyCode::KEY_ENTER || code == EventKeyboard::KeyCode::KEY_KP_ENTER)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+            return;
+        }
+        // Handle escape to cancel editing
+        else if (code == EventKeyboard::KeyCode::KEY_ESCAPE)
+        {
+            _editingText->stopEditing();
+            _editingText = nullptr;
+            return;
+        }
+        // Handle space
+        else if (code == EventKeyboard::KeyCode::KEY_SPACE)
+        {
+            if (currentText == "Text")
+                currentText = " ";
+            else
+                currentText += " ";
+            _editingText->setText(currentText);
+            return;
+        }
+        // Handle alphanumeric keys
+        else
+        {
+            char inputChar = '\0';
+            bool isShift   = false;  // You might want to track shift state similarly to Ctrl
+
+            // Convert key code to character
+            if (code >= EventKeyboard::KeyCode::KEY_A && code <= EventKeyboard::KeyCode::KEY_Z)
+            {
+                inputChar = 'a' + (int)code - (int)EventKeyboard::KeyCode::KEY_A;
+                if (isShift || isCtrlPressed)  // Using Ctrl as shift for now
+                    inputChar = toupper(inputChar);
+            }
+            else if (code >= EventKeyboard::KeyCode::KEY_0 && code <= EventKeyboard::KeyCode::KEY_9)
+            {
+                inputChar = '0' + (int)code - (int)EventKeyboard::KeyCode::KEY_0;
+            }
+
+            if (inputChar != '\0')
+            {
+                if (currentText == "Text")
+                    currentText = std::string(1, inputChar);
+                else
+                    currentText += inputChar;
+                _editingText->setText(currentText);
+                return;
+            }
+        }
+    }
+
     // Track Ctrl key state
     if (code == EventKeyboard::KeyCode::KEY_CTRL || code == EventKeyboard::KeyCode::KEY_LEFT_CTRL ||
         code == EventKeyboard::KeyCode::KEY_RIGHT_CTRL)
@@ -805,11 +908,24 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 
             // Disconnect holder from all decks before deletion
             Holder* holder = dynamic_cast<Holder*>(obj);
+            Deck* deck     = dynamic_cast<Deck*>(obj);
             if (holder)
             {
+                holder->clearCards();
                 for (auto deck : _decks)
                 {
                     deck->disconnectHolder(holder);
+                }
+            }
+
+            if (deck)
+            {
+                for (auto table : _tables)
+                {
+                    if (table->getDiscardDeck() == deck)
+                    {
+                        table->clearDiscardDeck();
+                    }
                 }
             }
 
@@ -833,6 +949,11 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
                 auto it = std::find(_counters.begin(), _counters.end(), dynamic_cast<Counter*>(obj));
                 _counters.erase(it);
             }
+            else if (dynamic_cast<Text*>(obj))
+            {
+                auto it = std::find(_texts.begin(), _texts.end(), dynamic_cast<Text*>(obj));
+                _texts.erase(it);
+            }
             else if (dynamic_cast<Card*>(obj))
             {
                 auto it = std::find(_cards.begin(), _cards.end(), dynamic_cast<Card*>(obj));
@@ -851,6 +972,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             }
         }
         _selectedObjects.clear();
+        _hoveredObject = nullptr;
         break;
     case EventKeyboard::KeyCode::KEY_Z:
         // Exit connect mode if active
@@ -892,7 +1014,7 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             _zoomedCard = nullptr;
         }
         break;
-    case EventKeyboard::KeyCode::KEY_C:
+    case EventKeyboard::KeyCode::KEY_B:
         // Exit zoom mode if active
         if (isZoomMode && _zoomedCard)
         {
@@ -959,6 +1081,61 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             }
         }
         break;
+    case EventKeyboard::KeyCode::KEY_C:
+        // Copy selected objects
+        for (auto obj : _selectedObjects)
+        {
+            // Add to appropriate lists
+            if (auto card = dynamic_cast<Card*>(obj))
+            {
+                Card* newCard = card->clone();
+                newCard->setPosition(card->getPosition() + ax::Vec2(20, -20));  // Offset new card position
+                this->addChild(newCard, CARD_ZORDER_BASE + _cards.size());
+                _objects.push_back(newCard);
+                _cards.push_back(newCard);
+            }
+            else if (auto deck = dynamic_cast<Deck*>(obj))
+            {
+                Deck* newDeck = deck->clone();
+                newDeck->setPosition(deck->getPosition() + ax::Vec2(20, -20));  // Offset new deck position
+                this->addChild(newDeck, DECK_ZORDER_BASE + _decks.size());
+                _objects.push_back(newDeck);
+                _decks.push_back(newDeck);
+            }
+            else if (auto rack = dynamic_cast<Rack*>(obj))
+            {
+                Rack* newRack = rack->clone();
+                newRack->setPosition(rack->getPosition() + ax::Vec2(20, -20));  // Offset new rack position
+                this->addChild(newRack, RACK_ZORDER_BASE + _racks.size());
+                _objects.push_back(newRack);
+                _racks.push_back(newRack);
+            }
+            else if (auto table = dynamic_cast<Table*>(obj))
+            {
+                Table* newTable = table->clone();
+                newTable->setPosition(table->getPosition() + ax::Vec2(20, -20));  // Offset new table position
+                this->addChild(newTable, TABLE_ZORDER_BASE + _tables.size());
+                _objects.push_back(newTable);
+                _tables.push_back(newTable);
+            }
+            else if (auto counter = dynamic_cast<Counter*>(obj))
+            {
+                Counter* newCounter = counter->clone();
+                newCounter->setPosition(counter->getPosition() + ax::Vec2(20, -20));  // Offset new counter position
+                this->addChild(newCounter, COUNTER_ZORDER_BASE + _counters.size());
+                _objects.push_back(newCounter);
+                _counters.push_back(newCounter);
+            }
+            else if (auto text = dynamic_cast<Text*>(obj))
+            {
+                Text* newText = text->clone();
+                newText->setPosition(text->getPosition() + ax::Vec2(20, -20));  // Offset new text position
+                this->addChild(newText, TEXT_ZORDER_BASE + _texts.size());
+                _objects.push_back(newText);
+                _texts.push_back(newText);
+            }
+        }
+        break;
     case EventKeyboard::KeyCode::KEY_M:
         // Exit zoom mode if active
         if (isZoomMode && _zoomedCard)
@@ -997,6 +1174,8 @@ void MainScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
             table->enableDragging(isMoveMode);
         for (auto counter : _counters)
             counter->enableDragging(isMoveMode);
+        for (auto text : _texts)
+            text->enableDragging(isMoveMode);
         break;
     // case EventKeyboard::KeyCode::KEY_ESCAPE:
     //     Director::getInstance()->end();
@@ -1213,6 +1392,14 @@ DraggableObject* MainScene::getObjectAtPosition(const ax::Vec2& position, bool a
         if (card->containsPoint(position))
             return card;
     }
+
+    for (int i = _texts.size() - 1; i >= 0; i--)
+    {
+        auto text = _texts[i];
+        if (text->containsPoint(position))
+            return text;
+    }
+
     if (!all)
         return nullptr;
     for (int i = _counters.size() - 1; i >= 0; i--)
@@ -1262,6 +1449,8 @@ void MainScene::getAllObjects(std::vector<DraggableObject*>& outObjects)
     outObjects.clear();
     for (auto counter : _counters)
         outObjects.push_back(counter);
+    for (auto text : _texts)
+        outObjects.push_back(text);
     for (auto card : _cards)
         outObjects.push_back(card);
     for (auto rack : _racks)
@@ -1466,6 +1655,22 @@ void MainScene::addCounter(std::string counterName)
     }
 }
 
+void MainScene::addText()
+{
+    Text* text = Text::create();
+
+    if (text)
+    {
+        text->setPosition(Vec2(_addMenu->getPositionX(), _addMenu->getPositionY()));
+        this->addChild(text, TEXT_ZORDER_BASE + _texts.size());
+        _texts.push_back(text);
+    }
+    else
+    {
+        AXLOG("Failed to create text object");
+    }
+}
+
 void MainScene::loadCardsFromDirectory()
 {
     // Get all files in a folder
@@ -1492,6 +1697,377 @@ void MainScene::loadCardsFromDirectory()
             problemLoading("card_front.png or card_back.png");
         }
         i++;
+    }
+}
+
+DraggableObject* MainScene::getObjectById(int id)
+{
+    for (auto obj : _objects)
+    {
+        if (obj->getId() == id)
+            return obj;
+    }
+    return nullptr;
+}
+
+void MainScene::loadConfig(const std::string& configFileName)
+{
+    enum class ConfigSection
+    {
+        NONE,
+        CARD,
+        RACK,
+        TABLE,
+        DECK,
+        COUNTER,
+        CARD_IN_HOLDER,
+        DECK_CONNECTION
+    };
+
+    auto fileUtils       = ax::FileUtils::getInstance();
+    std::string fullPath = fileUtils->fullPathForFilename(configFileName);
+    std::string content  = fileUtils->getStringFromFile(fullPath);
+
+    if (content.empty())
+    {
+        problemLoading(configFileName.c_str());
+        return;
+    }
+
+    ConfigSection currentSection = ConfigSection::NONE;
+    std::istringstream stream(content);
+    std::string line;
+
+    while (std::getline(stream, line))
+    {
+        // Skip empty lines and comments
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        // Trim whitespace
+        size_t start = line.find_first_not_of(" \t\r\n");
+        size_t end   = line.find_last_not_of(" \t\r\n");
+        if (start == std::string::npos)
+            continue;
+        line = line.substr(start, end - start + 1);
+
+        // Check for section headers
+        if (line[0] == '[')
+        {
+            if (line == "[CARD]")
+                currentSection = ConfigSection::CARD;
+            else if (line == "[RACK]")
+                currentSection = ConfigSection::RACK;
+            else if (line == "[TABLE]")
+                currentSection = ConfigSection::TABLE;
+            else if (line == "[DECK]")
+                currentSection = ConfigSection::DECK;
+            else if (line == "[COUNTER]")
+                currentSection = ConfigSection::COUNTER;
+            else if (line == "[CARD_IN_HOLDER]")
+                currentSection = ConfigSection::CARD_IN_HOLDER;
+            else if (line == "[DECK_CONECTION]")
+                currentSection = ConfigSection::DECK_CONNECTION;
+            else
+                currentSection = ConfigSection::NONE;
+            continue;
+        }
+
+        // Parse line based on current section
+        if (currentSection == ConfigSection::CARD)
+            loadCardConfig(line);
+        else if (currentSection == ConfigSection::RACK)
+            loadRackConfig(line);
+        else if (currentSection == ConfigSection::DECK)
+            loadDeckConfig(line);
+        else if (currentSection == ConfigSection::TABLE)
+            loadTableConfig(line);
+        else if (currentSection == ConfigSection::COUNTER)
+            loadCounterConfig(line);
+        else if (currentSection == ConfigSection::CARD_IN_HOLDER)
+            loadCardInHolderConfig(line);
+        else if (currentSection == ConfigSection::DECK_CONNECTION)
+            loadDeckConnectionConfig(line);
+    }
+
+    // Update the _objects list after loading
+    getAllObjects(_objects);
+}
+
+void MainScene::loadCardConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y front_sprite back_sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string frontSprite, backSprite;
+
+    if (lineStream >> id >> posX >> posY >> frontSprite >> backSprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto card = Card::create(frontSprite, backSprite);
+            if (card)
+            {
+                int cardId = id + i;
+                card->setConfig(cardId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(card, CARD_ZORDER_BASE + static_cast<int>(_cards.size()));
+                _cards.push_back(card);
+            }
+            else
+            {
+                problemLoading(frontSprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadRackConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto rack = Rack::create(sprite);
+            if (rack)
+            {
+                int rackId = id + i;
+                rack->setConfig(rackId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(rack, RACK_ZORDER_BASE + static_cast<int>(_racks.size()));
+                _racks.push_back(rack);
+            }
+            else
+            {
+                problemLoading(sprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadDeckConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y color size_x size_y rotation deal_amount amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int dealAmount, amount;
+    std::string color;
+
+    if (lineStream >> id >> posX >> posY >> color >> sizeX >> sizeY >> rotation >> dealAmount >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto deck = Deck::create();
+            if (deck)
+            {
+                int deckId = id + i;
+                deck->setConfig(deckId, posX, posY, color, sizeX, sizeY, rotation, dealAmount);
+                this->addChild(deck, DECK_ZORDER_BASE + static_cast<int>(_decks.size()));
+                _decks.push_back(deck);
+            }
+            else
+            {
+                problemLoading("Deck creation failed");
+            }
+        }
+    }
+}
+
+void MainScene::loadTableConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto table = Table::create();
+            if (table)
+            {
+                int tableId = id + i;
+                table->setConfig(tableId, posX, posY, sizeX, sizeY, rotation);
+                this->addChild(table, TABLE_ZORDER_BASE + static_cast<int>(_tables.size()));
+                _tables.push_back(table);
+
+                // Add the discard deck to the scene
+                auto discardDeck = table->getDiscardDeck();
+                if (discardDeck)
+                {
+                    discardDeck->setPosition(ax::Vec2(posX + sizeX / 2 + 50, posY));
+                    this->addChild(discardDeck, DECK_ZORDER_BASE + static_cast<int>(_decks.size()));
+                    _decks.push_back(discardDeck);
+                }
+            }
+            else
+            {
+                problemLoading("Table creation failed");
+            }
+        }
+    }
+}
+
+void MainScene::loadCounterConfig(const std::string& line)
+{
+    // Parse: id pos_x pos_y sprite size_x size_y rotation starting_value amount
+    std::istringstream lineStream(line);
+    int id;
+    float posX, posY, sizeX, sizeY, rotation;
+    int startingValue, amount;
+    std::string sprite;
+
+    if (lineStream >> id >> posX >> posY >> sprite >> sizeX >> sizeY >> rotation >> startingValue >> amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            auto counter = Counter::create(sprite);
+            if (counter)
+            {
+                int counterId = id + i;
+                counter->setConfig(counterId, posX, posY, sizeX, sizeY, rotation, startingValue);
+                this->addChild(counter, COUNTER_ZORDER_BASE + static_cast<int>(_counters.size()));
+                _counters.push_back(counter);
+            }
+            else
+            {
+                problemLoading(sprite.c_str());
+            }
+        }
+    }
+}
+
+void MainScene::loadCardInHolderConfig(const std::string& line)
+{
+    // Parse: card_min_id card_max_id holder_id
+    std::istringstream lineStream(line);
+    int cardMinId, cardMaxId, holderId;
+
+    if (lineStream >> cardMinId >> cardMaxId >> holderId)
+    {
+        // Find the holder by id (could be rack, deck, or table)
+        Holder* holder = nullptr;
+        for (auto r : _racks)
+        {
+            if (r->getId() == holderId)
+            {
+                holder = r;
+                break;
+            }
+        }
+        if (!holder)
+        {
+            for (auto d : _decks)
+            {
+                if (d->getId() == holderId)
+                {
+                    holder = d;
+                    break;
+                }
+            }
+        }
+        if (!holder)
+        {
+            for (auto t : _tables)
+            {
+                if (t->getId() == holderId)
+                {
+                    holder = t;
+                    break;
+                }
+            }
+        }
+
+        if (!holder)
+            return;
+
+        // Find all cards in the id range and add them to the holder
+        for (auto card : _cards)
+        {
+            int cardId = card->getId();
+            if (cardId >= cardMinId && cardId <= cardMaxId)
+            {
+                holder->addCard(card);
+            }
+        }
+    }
+}
+
+void MainScene::loadDeckConnectionConfig(const std::string& line)
+{
+    // Parse: deck_id holder_id1 holder_id2 holder_id3 ...
+    std::istringstream lineStream(line);
+    int deckId;
+
+    if (!(lineStream >> deckId))
+        return;
+
+    // Find the deck by id
+    Deck* deck = nullptr;
+    for (auto d : _decks)
+    {
+        if (d->getId() == deckId)
+        {
+            deck = d;
+            break;
+        }
+    }
+
+    if (!deck)
+        return;
+
+    // Read all holder ids and connect them
+    int holderId;
+    while (lineStream >> holderId)
+    {
+        // Find the holder by id (could be rack, deck, or table)
+        Holder* holder = nullptr;
+        for (auto r : _racks)
+        {
+            if (r->getId() == holderId)
+            {
+                holder = r;
+                break;
+            }
+        }
+        if (!holder)
+        {
+            for (auto d : _decks)
+            {
+                if (d->getId() == holderId)
+                {
+                    holder = d;
+                    break;
+                }
+            }
+        }
+        if (!holder)
+        {
+            for (auto t : _tables)
+            {
+                if (t->getId() == holderId)
+                {
+                    holder = t;
+                    break;
+                }
+            }
+        }
+
+        if (holder)
+        {
+            deck->connectHolder(holder);
+        }
     }
 }
 
@@ -1620,6 +2196,8 @@ void MainScene::updateSelectionRectangle(const ax::Vec2& currentPoint)
         Vec2(_selectionStartPoint.x, currentPoint.y),
     };
     _selectionRectangle->drawSolidPoly(corners, 4, Color4F(0, 0, 1, 0.3f));
+
+    getAllObjects(_objects);
 
     for (auto obj : _objects)
     {

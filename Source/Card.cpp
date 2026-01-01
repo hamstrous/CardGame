@@ -16,6 +16,43 @@ Card* Card::create(const std::string& frontTexture, const std::string& backTextu
     return nullptr;
 }
 
+Card* Card::clone() const
+{
+    Card* newCard = new (std::nothrow) Card();
+    newCard->autorelease();
+    if (newCard)
+    {
+        // Copy front and back textures
+        newCard->_frontSprite = Sprite::createWithTexture(_frontSprite->getTexture());
+        newCard->_backSprite  = Sprite::createWithTexture(_backSprite->getTexture());
+
+        newCard->_frontSprite->setContentSize(CARD_SIZE);
+        newCard->_backSprite->setContentSize(CARD_SIZE);
+        newCard->addChild(newCard->_backSprite);
+        newCard->addChild(newCard->_frontSprite);
+
+        newCard->_objectSize = CARD_SIZE;
+
+        // Set visibility based on current card state
+        if (_isFaceUp)
+        {
+            newCard->_frontSprite->setVisible(true);
+            newCard->_backSprite->setVisible(false);
+        }
+        else
+        {
+            newCard->_frontSprite->setVisible(false);
+            newCard->_backSprite->setVisible(true);
+        }
+        newCard->_isFaceUp = _isFaceUp;
+        newCard->setContentSize(CARD_SIZE);
+
+        // Do not set position
+        return newCard;
+    }
+    return nullptr;
+}
+
 bool Card::init(const std::string& frontTexture, const std::string& backTexture)
 {
     if (!Node::init())
@@ -73,7 +110,8 @@ void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float dur
 {
     // Store original position and scale
     setOriginalPosition(getPosition());
-
+    setOriginalZOrder();
+    this->setLocalZOrder(10000);  // Bring to front
     // Create zoom and move actions
     auto moveTo    = MoveTo::create(duration, screenCenter);
     auto scaleTo   = ScaleTo::create(duration, zoomScale);
@@ -88,6 +126,8 @@ void Card::zoomToCenter(const ax::Vec2& screenCenter, float zoomScale, float dur
 void Card::unzoom(float duration)
 {
     // Return to original position and scale
+    this->setLocalZOrder(getOriginalZOrder());
+
     auto moveTo    = MoveTo::create(duration, getOriginalPosition());
     auto scaleTo   = ScaleTo::create(duration, 1.0f);
     auto easeMove  = EaseOut::create(moveTo, 2.0f);
@@ -96,4 +136,21 @@ void Card::unzoom(float duration)
     // Run actions in parallel
     auto spawn = Spawn::create(easeMove, easeScale, nullptr);
     this->runAction(spawn);
+}
+
+void Card::setConfig(int id, float posX, float posY, float sizeX, float sizeY, float rotation)
+{
+    _id = id;
+    this->setPosition(ax::Vec2(posX, posY));
+
+    // Update size
+    ax::Vec2 newSize(sizeX, sizeY);
+    _objectSize = newSize;
+    this->setContentSize(ax::Size(sizeX, sizeY));
+    if (_frontSprite)
+        _frontSprite->setContentSize(ax::Size(sizeX, sizeY));
+    if (_backSprite)
+        _backSprite->setContentSize(ax::Size(sizeX, sizeY));
+
+    this->setRotation(rotation);
 }
