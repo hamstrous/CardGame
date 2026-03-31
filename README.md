@@ -56,17 +56,18 @@ Download [Axmol](https://github.com/axmolengine/axmol), follow the steps in the 
    git clone https://github.com/hamstrous/CardGame.git
    ```
 2. Make sure build will success
-Go to VS2026 -> Options -> Projects and Solutions -> Build and Run 
+    Go to VS2026 -> Options -> Projects and Solutions -> Build and Run 
    ```sh
    Set maximum number of parallel projects builds to 2 (you can test to see how many build will suit your machine)
-   After build complete you can set it back to the original value
    ```
-In projects folder -> open cmake -> AXGameEngineOptions.txt
+   After build complete you can set it back to the original value
+   
+   In projects folder -> open cmake -> AXGameEngineOptions.txt\
+   Make sure AX_EXT_HINT is set to OFF
    ```sh
    set(AX_EXT_HINT OFF CACHE BOOL "The default extensions hint" FORCE)
-   Make sure set AX_EXT_HINT to OFF
    ```
-3. Run the solution
+4. Run the solution
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
