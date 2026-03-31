@@ -32,8 +32,11 @@ Of course, this is just the beginning for this project. So I'll be adding more f
 
 
 ### Built With
-
-* [![Axmol][Axmol]][Axmol-url]
+<p align="center">
+    <a href="https://axmol.dev" >
+      <img src="https://axmol.dev/assets/img/logo.png" alt="Axmol" width="200"/>
+    </a>
+</p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -48,18 +51,18 @@ Download [Axmol](https://github.com/axmolengine/axmol), follow the steps in the 
 
 ### Installation
 
-2. Clone the repo
+1. Clone the repo
    ```sh
    git clone https://github.com/hamstrous/CardGame.git
    ```
-The steps below will specifically for building in VS2026 (ram of my development machine is 8GB)
-3. Go to VS2026 -> Options -> Projects and Solutions -> Build and Run 
+2. Go to VS2026 -> Options -> Projects and Solutions -> Build and Run 
    ```sh
    Set maximum number of parallel projects builds to 2 (you can test to see how many build will suit your machine)
    ```
-Or disable exernal tool to lighten up the build in the CMake file
-This step will make sure that error C1060 compiler out of heap space does not occur
-4. Run the solution
+Or disable exernal tool to lighten up the build in the CMake file\
+This step will make sure that error C1060 compiler out of heap space does not occur for weaker machine (mine is 8gb ram)<br>
+
+3. Run the solution
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
