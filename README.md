@@ -52,45 +52,25 @@ Download [Axmol](https://github.com/axmolengine/axmol), follow the steps in the 
    ```sh
    git clone https://github.com/hamstrous/CardGame.git
    ```
-The steps below will specifically for building in VS2026, ram of development machine lower than 8GB
-3. Go to VS2026 
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
+The steps below will specifically for building in VS2026 (ram of my development machine is 8GB)
+3. Go to VS2026 -> Options -> Projects and Solutions -> Build and Run 
    ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
+   Set maximum number of parallel projects builds to 2 (you can test to see how many build will suit your machine)
    ```
+Or disable exernal tool to lighten up the build in the CMake file
+This step will make sure that error C1060 compiler out of heap space does not occur
+4. Run the solution
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+I will try to write a detail documentation on how to use this engine in the future.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
 [Axmol]: https://axmol.dev/assets/img/logo.png
 [Axmol-url]: https://axmol.dev
