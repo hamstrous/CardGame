@@ -2,6 +2,8 @@
 
 #include "axmol.h"
 
+#include "core/menu/MenuButton.h"
+
 class MenuScene : public ax::Scene
 {
     enum class GameState
@@ -41,9 +43,10 @@ public:
 
 private:
     GameState _gameState                            = GameState::init;
-    ax::EventListenerTouchAllAtOnce* _touchListener = nullptr;
     ax::EventListenerKeyboard* _keyboardListener    = nullptr;
     ax::EventListenerMouse* _mouseListener          = nullptr;
     int _sceneID                                    = 0;
+
+    MenuButton* _menuButton1 = nullptr;
 };
 

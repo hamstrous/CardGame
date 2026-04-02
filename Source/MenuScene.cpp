@@ -56,18 +56,13 @@ bool MenuScene::init()
     // 3. add your codes below...
 
     // Some templates (uncomment what you  need)
-    _touchListener                 = EventListenerTouchAllAtOnce::create();
-    _touchListener->onTouchesBegan = AX_CALLBACK_2(MenuScene::onTouchesBegan, this);
-    _touchListener->onTouchesMoved = AX_CALLBACK_2(MenuScene::onTouchesMoved, this);
-    _touchListener->onTouchesEnded = AX_CALLBACK_2(MenuScene::onTouchesEnded, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, this);
 
-    //_mouseListener                = EventListenerMouse::create();
-    //_mouseListener->onMouseMove   = AX_CALLBACK_1(MenuScene::onMouseMove, this);
-    //_mouseListener->onMouseUp     = AX_CALLBACK_1(MenuScene::onMouseUp, this);
-    //_mouseListener->onMouseDown   = AX_CALLBACK_1(MenuScene::onMouseDown, this);
-    //_mouseListener->onMouseScroll = AX_CALLBACK_1(MenuScene::onMouseScroll, this);
-    //_eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+    _mouseListener                = EventListenerMouse::create();
+    _mouseListener->onMouseMove   = AX_CALLBACK_1(MenuScene::onMouseMove, this);
+    _mouseListener->onMouseUp     = AX_CALLBACK_1(MenuScene::onMouseUp, this);
+    _mouseListener->onMouseDown   = AX_CALLBACK_1(MenuScene::onMouseDown, this);
+    _mouseListener->onMouseScroll = AX_CALLBACK_1(MenuScene::onMouseScroll, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
     _keyboardListener                = EventListenerKeyboard::create();
     _keyboardListener->onKeyPressed  = AX_CALLBACK_2(MenuScene::onKeyPressed, this);
@@ -110,6 +105,12 @@ bool MenuScene::init()
 
         drawNode->drawRect(safeArea.origin + Vec2(1, 1), safeArea.origin + safeArea.size, Color4F::BLUE);
     }
+
+    _menuButton1 = MenuButton::create("CloseNormal.png", "Menu Button 1");
+    if (_menuButton1)
+        this->addChild(_menuButton1);
+    _menuButton1->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 100));
+    _menuButton1->setContentSize(Size(1000, 50));
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -244,12 +245,6 @@ void MenuScene::menuCloseCallback(ax::Object* sender)
     // Close the axmol game scene and quit the application
     _director->end();
 
-    /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use
-     * _director->end() as given above,instead trigger a custom event created in RootViewController.mm
-     * as below*/
-
-    // EventCustom customEndEvent("game_scene_close_event");
-    //_eventDispatcher->dispatchEvent(&customEndEvent);
 }
 
 MenuScene::MenuScene()
@@ -262,8 +257,6 @@ MenuScene::~MenuScene()
 {
     AXLOGD("~Scene: dtor: #{}", _sceneID);
 
-    if (_touchListener)
-        _eventDispatcher->removeEventListener(_touchListener);
     if (_keyboardListener)
         _eventDispatcher->removeEventListener(_keyboardListener);
     if (_mouseListener)
