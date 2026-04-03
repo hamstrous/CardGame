@@ -38,13 +38,8 @@ bool MenuScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(MenuScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
- 
-
-    _menuButton1 = MenuButton::create("CloseNormal.png", "Menu Button 1");
-    if (_menuButton1)
-        this->addChild(_menuButton1);
-    _menuButton1->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 100));
-    _menuButton1->setContentSize(Size(1000, 50));
+    processStartFile();
+    setUpButtonsPanel();
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -179,6 +174,44 @@ void MenuScene::menuCloseCallback(ax::Object* sender)
     // Close the axmol game scene and quit the application
     _director->end();
 
+}
+
+void MenuScene::processStartFile() {
+    std::string content = getTextFileContent(START_FILE);
+    AXLOG(content.c_str());
+
+    std::istringstream stream(content);
+
+    std::string gameTitle;
+    while (stream >> gameTitle)
+    {
+        MenuButton* button = MenuButton::create("icon/" + gameTitle + ".png", gameTitle);
+        if (button)
+        {
+            //button->setScale9Enabled(true);
+            button->setContentSize(Size(100, 50));
+            _menuButtonList.pushBack(button);
+        }
+    }
+
+}
+
+void MenuScene::setUpButtonsPanel() {
+    int size = _menuButtonList.size();
+    const int rowMax = 9;
+
+    for (int i = 0; i < size; ++i)
+    {
+        MenuButton* button = _menuButtonList.at(i);
+        if (button)
+        {
+            this->addChild(button);
+            int row = i / rowMax;
+            int col = i % rowMax;
+            button->setPosition(Vec2(100 + col * 110, 400 - row * 60));
+            button->setContentSize(Size(1000, 50));
+        }
+    }
 }
 
 MenuScene::MenuScene()

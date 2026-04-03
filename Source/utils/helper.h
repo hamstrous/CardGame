@@ -28,3 +28,10 @@ static std::vector<std::string> split(const std::string& str, char delimiter = '
     }
     return tokens;
 }
+
+static std::string getTextFileContent(const std::string& filePath)
+{
+    auto fileUtils = ax::FileUtils::getInstance();
+    std::string content = fileUtils->getStringFromFile(filePath);
+    return content;
+}

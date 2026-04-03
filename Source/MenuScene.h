@@ -45,6 +45,7 @@ public:
 
     // start.txt file reader
     void processStartFile();
+    void setUpButtonsPanel();
 
 
     MenuScene();
@@ -56,6 +57,6 @@ private:
     ax::EventListenerMouse* _mouseListener          = nullptr;
     int _sceneID                                    = 0;
 
-    MenuButton* _menuButton1 = nullptr;
+    ax::Vector<MenuButton*> _menuButtonList;
 };
 

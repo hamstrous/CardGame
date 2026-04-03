@@ -1,2 +1,0 @@
-[UNO] 
-name uno
