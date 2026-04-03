@@ -1,7 +1,10 @@
 #pragma once
 
 #include "axmol.h"
+#include <string>
+#include <vector>
 
+#include "utils/helper.h"
 #include "core/menu/MenuButton.h"
 
 class MenuScene : public ax::Scene
@@ -15,6 +18,8 @@ class MenuScene : public ax::Scene
         menu1,
         menu2,
     };
+
+    const std::string START_FILE = "start.txt";
 
 public:
     bool init() override;
@@ -37,6 +42,10 @@ public:
 
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
+
+    // start.txt file reader
+    void processStartFile();
+
 
     MenuScene();
     ~MenuScene() override;
