@@ -2,49 +2,29 @@
 
 #include "axmol.h"
 
-class GameScene : public ax::Scene
+#include <string>
+
+#include "CardProperty.h"
+
+class Card : public ax::Node
 {
-    enum class GameState
-    {
-        init = 0,
-        update,
-        pause,
-        end,
-        menu1,
-        menu2,
-    };
-
-
 public:
-    bool init() override;
-    void update(float delta) override;
 
-    // touch
-    void onTouchesBegan(const std::vector<ax::Touch*>& touches, ax::Event* event);
-    void onTouchesMoved(const std::vector<ax::Touch*>& touches, ax::Event* event);
-    void onTouchesEnded(const std::vector<ax::Touch*>& touches, ax::Event* event);
+    static Card* create(const CardProperty* property);
+    bool init(const CardProperty* property);
 
-    // mouse
-    bool onMouseDown(ax::Event* event);
-    bool onMouseUp(ax::Event* event);
-    bool onMouseMove(ax::Event* event);
-    bool onMouseScroll(ax::Event* event);
+    void setContentSize(const ax::Size& contentSize) override;
 
-    // Keyboard
-    void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
-    void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
-    // a selector callback
-    void menuCloseCallback(ax::Object* sender);
-
-    GameScene();
-    ~GameScene() override;
+    ~Card() override;
 
 protected:
-    GameState _gameState                         = GameState::init;
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
-    int _sceneID                                 = 0;
+    CardProperty* _property;
 
+    ax::Sprite* _frontSprite;
+    ax::Sprite* _backSprite;
     
 };
+

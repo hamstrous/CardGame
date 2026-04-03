@@ -1,0 +1,1 @@
+#include "CardProperty.h"
