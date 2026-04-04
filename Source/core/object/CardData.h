@@ -2,9 +2,11 @@
 
 #include <string>
 
-class CardProperty
+class CardData
 {
 public:
     std::string frontImagePath;
     std::string backImagePath;
+    bool isFaceUp = true;
+    bool isDraggable = true;
 };

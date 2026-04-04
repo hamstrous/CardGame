@@ -1,5 +1,7 @@
 #pragma once
 
+#include <axmol.h>
+
 #include <vector>
 #include <string>
 
@@ -34,4 +36,12 @@ static std::string getTextFileContent(const std::string& filePath)
     auto fileUtils = ax::FileUtils::getInstance();
     std::string content = fileUtils->getStringFromFile(filePath);
     return content;
+}
+
+static bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint)
+{
+    ax::Vec2 localPoint = node->convertToNodeSpace(worldPoint);
+    ax::Vec2 nodeSize   = node->getContentSize();
+    ax::Rect bbox           = ax::Rect(-nodeSize.x / 2, -nodeSize.y / 2, nodeSize.x, nodeSize.y);
+    return bbox.containsPoint(localPoint);
 }

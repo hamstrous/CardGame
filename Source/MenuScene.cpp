@@ -38,6 +38,12 @@ bool MenuScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(MenuScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
+    Card* card = Card::create(new CardData("card/uno/0_blue.png", "card/Card Back 1.png"));
+
+    this->addChild(card);
+    card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    card->setContentSize(Size(100, 150));
+
     processStartFile();
     setUpButtonsPanel();
 
@@ -81,7 +87,7 @@ bool MenuScene::onMouseDown(Event* event)
 bool MenuScene::onMouseUp(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
-    AXLOGD("onMouseUp detected, button: {}", static_cast<int>(e->getMouseButton()));
+    //AXLOGD("onMouseUp detected, button: {}", static_cast<int>(e->getMouseButton()));
     return true;
 }
 
@@ -101,12 +107,10 @@ bool MenuScene::onMouseScroll(Event* event)
 
 void MenuScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
-    AXLOGD("Scene: #{} onKeyPressed, keycode: {}", _sceneID, static_cast<int>(code));
 }
 
 void MenuScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event)
 {
-    AXLOGD("onKeyReleased, keycode: {}", static_cast<int>(code));
 }
 
 void MenuScene::update(float delta)

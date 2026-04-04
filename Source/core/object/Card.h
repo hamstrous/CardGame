@@ -4,27 +4,46 @@
 
 #include <string>
 
-#include "CardProperty.h"
+#include "CardData.h"
+
+#include "utils/helper.h"
 
 class Card : public ax::Node
 {
+
 public:
 
-    static Card* create(const CardProperty* property);
-    bool init(const CardProperty* property);
+    static Card* create(CardData* property);
+    bool init(CardData* property);
+
+    bool onMouseDown(ax::Event* event);
 
     void setContentSize(const ax::Size& contentSize) override;
 
+    virtual void flip(float duration = 1.f);
+    virtual void reveal();
+    virtual void hide();
+
+    void setDraggable(bool draggable);
+    bool getDraggable();
+    void setFaceUp(bool faceUp);
+    bool getFaceUp();
 
     ~Card() override;
 
 protected:
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
-    CardProperty* _property;
 
-    ax::Sprite* _frontSprite;
-    ax::Sprite* _backSprite;
+    CardData* _property = new CardData();
+    ax::Sprite* _frontSprite = nullptr;
+    ax::Sprite* _backSprite = nullptr;
+
+    //alias for property
+    bool& _isFaceUp = _property->isFaceUp;
+    bool& _isDraggable = _property->isDraggable;
+
+    const int FLIP_ACTION_TAG = 1001;
     
 };
 

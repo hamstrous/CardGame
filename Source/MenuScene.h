@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "core/object/Card.h"
+
 #include "utils/helper.h"
 #include "core/menu/MenuButton.h"
 
