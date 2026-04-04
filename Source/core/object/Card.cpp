@@ -19,6 +19,8 @@ bool Card::init(CardData* property)
         return false;
     }
 
+    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f)); 
+
     _property = property;
 
     _frontSprite = ax::Sprite::create(property->frontImagePath);
@@ -27,10 +29,28 @@ bool Card::init(CardData* property)
     {
         return false;
     }
+
     this->addChild(_frontSprite);
-    _frontSprite->setAnchorPoint(ax::Vec2(0.5f,0.5f));
     this->addChild(_backSprite);
+    _frontSprite->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+    _backSprite->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+    _frontSprite->setPosition(0,0);
+    _backSprite->setPosition(0,0);
+
     _backSprite->setVisible(false);
+
+    this->setContentSize(_frontSprite->getContentSize());
+
+    auto drawNode = ax::DrawNode::create();
+    auto cardSize = this->getContentSize();
+    // Draw rectangle showing the bounding box of the Card itself
+    drawNode->drawRect(ax::Vec2(0, 0), ax::Vec2(cardSize.width, cardSize.height), ax::Color4F::RED);
+
+    // Display anchor point of the card and positions of its sprites
+    drawNode->drawDot(ax::Vec2(cardSize.width * getAnchorPoint().x, cardSize.height * getAnchorPoint().y), 5, ax::Color4F::RED);
+    drawNode->drawDot(_frontSprite->getPosition(), 5, ax::Color4F::GREEN);
+    drawNode->drawDot(_backSprite->getPosition(), 5, ax::Color4F::BLUE);
+    this->addChild(drawNode, 100);
 
     // init for event
     _mouseListener                = ax::EventListenerMouse::create();
@@ -52,13 +72,13 @@ bool Card::onMouseDown(ax::Event* event)
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
 
-    if (containPoint(this,mousePos))
+    if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
     {
         flip();
-        return true; // Event handled
+        return true; // Event swallowed
     }
 
-    return false;
+    return false;  // Propagate to other listeners
 }
 
 void Card::setContentSize(const ax::Size& contentSize) {
@@ -73,7 +93,7 @@ void Card::flip(float duration) {
     this->stopActionByTag(FLIP_ACTION_TAG); 
 
     _isFaceUp        = !_isFaceUp;
-    auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);
+    auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 0.0f);
     auto scaleUp     = ax::ScaleTo::create(duration / 2, 1.0f, 1.0f);
     auto swapSprites = ax::CallFunc::create([this]() {
         if (_isFaceUp)
