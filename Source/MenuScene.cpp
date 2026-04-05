@@ -30,7 +30,6 @@ bool MenuScene::init()
     _mouseListener->onMouseMove   = AX_CALLBACK_1(MenuScene::onMouseMove, this);
     _mouseListener->onMouseUp     = AX_CALLBACK_1(MenuScene::onMouseUp, this);
     _mouseListener->onMouseDown   = AX_CALLBACK_1(MenuScene::onMouseDown, this);
-    _mouseListener->onMouseScroll = AX_CALLBACK_1(MenuScene::onMouseScroll, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
     _keyboardListener                = EventListenerKeyboard::create();
@@ -53,30 +52,6 @@ bool MenuScene::init()
     return true;
 }
 
-void MenuScene::onTouchesBegan(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesBegan detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
-void MenuScene::onTouchesMoved(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesMoved detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
-void MenuScene::onTouchesEnded(const std::vector<ax::Touch*>& touches, ax::Event* event)
-{
-    for (auto&& t : touches)
-    {
-        // AXLOGD("onTouchesEnded detected, X:{}  Y:{}", t->getLocation().x, t->getLocation().y);
-    }
-}
-
 bool MenuScene::onMouseDown(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
@@ -95,13 +70,6 @@ bool MenuScene::onMouseMove(Event* event)
 {
     EventMouse* e = static_cast<EventMouse*>(event);
     // AXLOGD("onMouseMove detected, X:{}  Y:{}", e->getLocation().x, e->getLocation().y);
-    return true;
-}
-
-bool MenuScene::onMouseScroll(Event* event)
-{
-    EventMouse* e = static_cast<EventMouse*>(event);
-    // AXLOGD("onMouseScroll detected, X:{}  Y:{}", e->getScrollX(), e->getScrollY());
     return true;
 }
 

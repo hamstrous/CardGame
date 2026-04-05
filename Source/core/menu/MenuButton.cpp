@@ -27,10 +27,10 @@ bool MenuButton::init(const std::string& imagePath, const std::string& buttonNam
     addChild(_buttonSprite);*/
     this->setTitleLabel(_buttonLabel);
     //addChild(_buttonLabel);
+    this->setSwallowMouse(true);
     this->addClickEventListener([this](ax::Object* sender) {
-        // Handle button click event here
-        // For example, you can print a message to the console
-        AXLOG("Button '%s' clicked!", _buttonLabel->getString());
+        AXLOG("%s selected", _buttonLabel->getString().data());
+        return true;
     });
     return true;
 }

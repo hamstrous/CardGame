@@ -19,7 +19,7 @@ bool Card::init(CardData* property)
         return false;
     }
 
-    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f)); 
+    //this->setAnchorPoint(ax::Vec2(0.5f, 0.5f)); 
 
     _property = property;
 
@@ -47,9 +47,7 @@ bool Card::init(CardData* property)
     drawNode->drawRect(ax::Vec2(0, 0), ax::Vec2(cardSize.width, cardSize.height), ax::Color4F::RED);
 
     // Display anchor point of the card and positions of its sprites
-    drawNode->drawDot(ax::Vec2(cardSize.width * getAnchorPoint().x, cardSize.height * getAnchorPoint().y), 5, ax::Color4F::RED);
-    drawNode->drawDot(_frontSprite->getPosition(), 5, ax::Color4F::GREEN);
-    drawNode->drawDot(_backSprite->getPosition(), 5, ax::Color4F::BLUE);
+    drawNode->drawDot(ax::Vec2(0,0), 5, ax::Color4F::RED);
     this->addChild(drawNode, 100);
 
     // init for event
