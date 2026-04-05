@@ -17,11 +17,10 @@ bool Card::init(CardData* property)
     if (!Node::init())
     {
         return false;
-    }
-
-    //this->setAnchorPoint(ax::Vec2(0.5f, 0.5f)); 
-
+    }  
     _property = property;
+
+    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
 
     _frontSprite = ax::Sprite::create(property->frontImagePath);
     _backSprite  = ax::Sprite::create(property->backImagePath);
@@ -30,25 +29,16 @@ bool Card::init(CardData* property)
         return false;
     }
 
+    auto cardSize = _frontSprite->getContentSize();
+    this->setContentSize(cardSize);
+
     this->addChild(_frontSprite);
     this->addChild(_backSprite);
-    _frontSprite->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    _backSprite->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    _frontSprite->setPosition(0,0);
-    _backSprite->setPosition(0,0);
+
+    _frontSprite->setPosition(cardSize/2);
+    _backSprite->setPosition(cardSize/2);
 
     _backSprite->setVisible(false);
-
-    this->setContentSize(_frontSprite->getContentSize());
-
-    auto drawNode = ax::DrawNode::create();
-    auto cardSize = this->getContentSize();
-    // Draw rectangle showing the bounding box of the Card itself
-    drawNode->drawRect(ax::Vec2(0, 0), ax::Vec2(cardSize.width, cardSize.height), ax::Color4F::RED);
-
-    // Display anchor point of the card and positions of its sprites
-    drawNode->drawDot(ax::Vec2(0,0), 5, ax::Color4F::RED);
-    this->addChild(drawNode, 100);
 
     // init for event
     _mouseListener                = ax::EventListenerMouse::create();
@@ -85,13 +75,15 @@ void Card::setContentSize(const ax::Size& contentSize) {
         _frontSprite->setContentSize(contentSize);
     if (_backSprite)
         _backSprite->setContentSize(contentSize);
+    _frontSprite->setPosition(contentSize / 2);
+    _backSprite->setPosition(contentSize / 2);
 }
 
 void Card::flip(float duration) {
     this->stopActionByTag(FLIP_ACTION_TAG); 
 
     _isFaceUp        = !_isFaceUp;
-    auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 0.0f);
+    auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);
     auto scaleUp     = ax::ScaleTo::create(duration / 2, 1.0f, 1.0f);
     auto swapSprites = ax::CallFunc::create([this]() {
         if (_isFaceUp)

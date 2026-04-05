@@ -40,7 +40,7 @@ bool MenuScene::init()
     Card* card = Card::create(new CardData("card/uno/0_blue.png", "card/Card Back 1.png"));
 
     this->addChild(card);
-    card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 100));
     card->setContentSize(Size(100, 150));
 
     processStartFile();
