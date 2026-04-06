@@ -7,6 +7,7 @@
 #include "CardData.h"
 
 #include "utils/helper.h"
+#include "utils/Timer.hpp"
 
 class Card : public ax::Node
 {
@@ -17,6 +18,8 @@ public:
     bool init(CardData* property);
 
     bool onMouseDown(ax::Event* event);
+    bool onMouseMove(ax::Event* event);
+    bool onMouseUp(ax::Event* event);
 
     void setContentSize(const ax::Size& contentSize) override;
 
@@ -32,6 +35,8 @@ public:
     ~Card() override;
 
 protected:
+    lib::Timer _timer = lib::Timer(false);
+
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
 
