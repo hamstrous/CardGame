@@ -19,6 +19,10 @@ public:
     bool onMouseMove(ax::Event* event);
     bool onMouseUp(ax::Event* event);
 
+    void shuffle();
+    void sendCardTo(Zone* targetZone, Card* card);
+    void sortCards();
+
     ~Zone() override;
 
 protected:

@@ -14,24 +14,33 @@ class Card : public ax::Node
 
 public:
 
+    // Factory method
     static Card* create(CardData* property);
     bool init(CardData* property);
 
+    // Event handlers
     bool onMouseDown(ax::Event* event);
     bool onMouseMove(ax::Event* event);
     bool onMouseUp(ax::Event* event);
 
+    // Overrides
     void setContentSize(const ax::Size& contentSize) override;
 
+    // Actions
     virtual void flip(float duration = 1.f);
     virtual void reveal();
     virtual void hide();
 
+    // Getters and Setters
     void setDraggable(bool draggable);
     bool getDraggable();
     void setFaceUp(bool faceUp);
     bool getFaceUp();
 
+    // Movement
+    void moveTo(const ax::Vec2& position, float duration = 1.f);
+
+    // Constructor and Destructor
     ~Card() override;
 
 protected:
