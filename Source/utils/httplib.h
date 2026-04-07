@@ -497,7 +497,7 @@ using socket_t = int;
 /*
  * Declaration
  */
-namespace httplib {
+namespace lib {
 
 namespace ws {
 class WebSocket;
@@ -3797,7 +3797,7 @@ public:
   bool is_open() const;
 
 private:
-  friend class httplib::Server;
+  friend class lib::Server;
   friend class WebSocketClient;
 
   WebSocket(
@@ -7344,7 +7344,7 @@ inline ssize_t write_response_line(Stream &strm, int status) {
   std::string s = "HTTP/1.1 ";
   s += std::to_string(status);
   s += ' ';
-  s += httplib::status_message(status);
+  s += lib::status_message(status);
   s += "\r\n";
   return strm.write(s.data(), s.size());
 }

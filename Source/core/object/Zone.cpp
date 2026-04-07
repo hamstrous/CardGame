@@ -1,4 +1,7 @@
 #include "Zone.h"
+#include "utils/random.hpp"
+
+using Random = lib::random_static;
 
 Zone* Zone::create(ZoneData* property)
 {
@@ -17,10 +20,14 @@ bool Zone::init(ZoneData* property)
     return false;
 }
 
-void Zone::shuffle() {}
+void Zone::shuffleCards() {
+    Random::shuffle(_cardList.begin(), _cardList.end());
+}
 
-void Zone::sendCardTo(Zone* targetZone, Card* card) {}
+void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card) {}
 
 void Zone::sortCards() {}
+
+void Zone::moveCardToThisZone(const Card* card, float duration) {}
 
 Zone::~Zone() {}

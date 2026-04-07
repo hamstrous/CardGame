@@ -6,23 +6,29 @@
 #include "Card.h"
 
 #include "utils/helper.h"
-#include "utils/Timer.hpp"
 
 
 class Zone : public ax::Node
 {
 public:
+    // Factory method
     static Zone* create(ZoneData* property);
     bool init(ZoneData* property);
 
+    // Event handlers
     bool onMouseDown(ax::Event* event);
     bool onMouseMove(ax::Event* event);
     bool onMouseUp(ax::Event* event);
 
-    void shuffle();
-    void sendCardTo(Zone* targetZone, Card* card);
+    // Actions
+    void shuffleCards();
+    void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
 
+    // Getters and Setters
+    void moveCardToThisZone(const Card* card, float duration = 1.f);  // Return action that let card move to this zone
+
+    // Constructor and Destructor
     ~Zone() override;
 
 protected:

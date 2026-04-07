@@ -40,7 +40,8 @@ public:
     bool getFaceUp();
 
     // Movement
-    void moveTo(const ax::Vec2& position, float duration = 1.f);
+    void moveToPosition(const ax::Vec2& position, float duration = 1.f);
+    void moveToZone(const Zone* targetZone, float duration = 1.f);
 
     // Constructor and Destructor
     ~Card() override;

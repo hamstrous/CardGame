@@ -45,3 +45,4 @@ static bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint)
     ax::Rect bbox           = ax::Rect(-nodeSize.x / 2, -nodeSize.y / 2, nodeSize.x, nodeSize.y);
     return bbox.containsPoint(localPoint);
 }
+
