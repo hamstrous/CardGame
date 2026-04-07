@@ -1,4 +1,5 @@
 #include "Card.h"
+#include "Zone.h"
 
 Card* Card::create(CardData* property)
 {

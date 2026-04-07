@@ -3,11 +3,11 @@
 #include "axmol.h"
 
 #include "ZoneData.h"
+#include "Card.h"
 
 #include "utils/helper.h"
 #include "utils/Timer.hpp"
 
-class Card;
 
 class Zone : public ax::Node
 {

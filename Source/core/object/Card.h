@@ -9,6 +9,8 @@
 #include "utils/helper.h"
 #include "utils/Timer.hpp"
 
+class Zone;
+
 class Card : public ax::Node
 {
 
@@ -52,6 +54,8 @@ protected:
     CardData* _property = new CardData();
     ax::Sprite* _frontSprite = nullptr;
     ax::Sprite* _backSprite = nullptr;
+
+    Zone* _currentZone = nullptr;
 
     //alias for property
     bool& _isFaceUp = _property->isFaceUp;

@@ -22,3 +22,5 @@ void Zone::shuffle() {}
 void Zone::sendCardTo(Zone* targetZone, Card* card) {}
 
 void Zone::sortCards() {}
+
+Zone::~Zone() {}
