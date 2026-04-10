@@ -17,7 +17,10 @@ Zone* Zone::create(ZoneData* property)
 
 bool Zone::init(ZoneData* property)
 {
-    return false;
+    ax::DrawNode* _rectNode = ax::DrawNode::create();
+    _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
+
+    return true;
 }
 
 void Zone::shuffleCards() {
@@ -33,8 +36,7 @@ void Zone::sortCards() {}
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
     _cardList.pushBack(card);
-
-
+    card->setParent(this);
 }
 
 Zone::~Zone() {}
