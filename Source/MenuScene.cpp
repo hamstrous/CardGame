@@ -149,23 +149,28 @@ void MenuScene::menuCloseCallback(ax::Object* sender)
 }
 
 void MenuScene::processStartFile() {
-    std::string content = getTextFileContent(START_FILE);
-    AXLOG(content.c_str());
+    //std::string content = getTextFileContent(START_FILE);
+    //AXLOG(content.c_str());
 
-    std::istringstream stream(content);
+    //std::istringstream stream(content);
 
-    std::string gameTitle;
-    while (stream >> gameTitle)
-    {
-        MenuButton* button = MenuButton::create("icon/" + gameTitle + ".png", gameTitle);
+    //std::string gameTitle;
+    //while (stream >> gameTitle)
+    //{
+    //    MenuButton* button = MenuButton::create("icon/" + gameTitle + ".png", gameTitle);
+    //    if (button)
+    //    {
+    //        //button->setScale9Enabled(true);
+    //        button->setContentSize(Size(100, 50));
+    //        _menuButtonList.pushBack(button);
+    //    }
+    //}
+    MenuButton* button = MenuButton::create<GameScene>("icon/uno.png", "uno");
         if (button)
         {
-            //button->setScale9Enabled(true);
             button->setContentSize(Size(100, 50));
             _menuButtonList.pushBack(button);
         }
-    }
-
 }
 
 void MenuScene::setUpButtonsPanel() {

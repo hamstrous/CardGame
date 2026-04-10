@@ -24,10 +24,10 @@ public:
     void shuffleCards();
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
+    void moveCardToThisZone(Card* card, float duration = 1.f);  
 
     // Getters and Setters
-    void moveCardToThisZone(const Card* card, float duration = 1.f);  // Return action that let card move to this zone
-
+    
     // Constructor and Destructor
     ~Zone() override;
 

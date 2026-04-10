@@ -19,11 +19,6 @@ public:
     bool init() override;
     void update(float delta) override;
 
-    // touch
-    void onTouchesBegan(const std::vector<ax::Touch*>& touches, ax::Event* event);
-    void onTouchesMoved(const std::vector<ax::Touch*>& touches, ax::Event* event);
-    void onTouchesEnded(const std::vector<ax::Touch*>& touches, ax::Event* event);
-
     // mouse
     bool onMouseDown(ax::Event* event);
     bool onMouseUp(ax::Event* event);
@@ -37,7 +32,6 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    GameScene();
     ~GameScene() override;
 
 protected:
