@@ -24,7 +24,9 @@ public:
     void shuffleCards();
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
-    void moveCardToThisZone(Card* card, float duration = 1.f);  
+    void moveCardToThisZone(Card* card, float duration = 1.f);
+    void getNewCardIndex(Card* card); // Card is not in this zone yet
+    void getNewCardPosition(Card* card);
 
     // Getters and Setters
     

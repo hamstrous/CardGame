@@ -2,6 +2,8 @@
 
 #include "axmol.h"
 
+#include "core/object/Card.h"
+
 class GameScene : public ax::Scene
 {
     enum class GameState
