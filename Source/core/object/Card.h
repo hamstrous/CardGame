@@ -47,7 +47,7 @@ public:
     ~Card() override;
 
 protected:
-    lib::Timer _clicktimer = lib::Timer(false);
+    lib::Timer _clicktimer = lib::Timer(false);  // time elapsed since last click but not yet moved
     ax::Vec2 _dragOffset;
     bool _isDragging = false;
 

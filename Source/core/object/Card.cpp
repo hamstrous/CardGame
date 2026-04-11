@@ -44,6 +44,8 @@ bool Card::init(CardData* property)
     // init for event
     _mouseListener                = ax::EventListenerMouse::create();
     _mouseListener->onMouseDown   = AX_CALLBACK_1(Card::onMouseDown, this);
+    _mouseListener->onMouseMove   = AX_CALLBACK_1(Card::onMouseMove, this);
+    _mouseListener->onMouseUp     = AX_CALLBACK_1(Card::onMouseUp, this);
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
@@ -62,7 +64,6 @@ bool Card::onMouseDown(ax::Event* event)
 
     if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
     {
-        flip();
         _clicktimer.reset();
         _clicktimer.start();
         _dragOffset = mousePos - getNodePositionInWorldSpace(this);
@@ -79,13 +80,11 @@ bool Card::onMouseMove(ax::Event* event)
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
 
-    if (_clicktimer.count() > 0)
+    if (_isDragging || _clicktimer.count() > 0)
     {
         _clicktimer.reset();
         _isDragging = true;
-
         setPosition(mousePos - _dragOffset);
-
         return true;  // Event swallowed
     }
     return false;
@@ -95,14 +94,16 @@ bool Card::onMouseUp(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    _isDragging       = false;
+    
 
-    if (_clicktimer.count() <= 200) 
+    if (_clicktimer.count() <= 200 && _clicktimer.count() > 0)
     {
         _clicktimer.reset();
         _dragOffset = ax::Vec2::ZERO;
+        flip();
         return true;  // Event swallowed
     }
+    _isDragging = false;
 
     return false;
 }
