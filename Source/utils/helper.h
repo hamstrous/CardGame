@@ -46,3 +46,6 @@ static bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint)
     return bbox.containsPoint(localPoint);
 }
 
+static ax::Vec2 getNodePositionInWorldSpace(ax::Node* node) {
+    return node->getParent()->convertToWorldSpace(node->getPosition());
+}

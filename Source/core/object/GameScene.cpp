@@ -43,4 +43,30 @@ bool GameScene::init()
 
 void GameScene::update(float delta) {}
 
+
+bool GameScene::onMouseDown(Event* event)
+{
+    EventMouse* e = static_cast<EventMouse*>(event);
+    // AXLOGD("onMouseDown detected, button: {}", static_cast<int>(e->getMouseButton()));
+    return true;
+}
+
+bool GameScene::onMouseUp(Event* event)
+{
+    EventMouse* e = static_cast<EventMouse*>(event);
+    // AXLOGD("onMouseUp detected, button: {}", static_cast<int>(e->getMouseButton()));
+    return true;
+}
+
+bool GameScene::onMouseMove(Event* event)
+{
+    EventMouse* e = static_cast<EventMouse*>(event);
+    // AXLOGD("onMouseMove detected, X:{}  Y:{}", e->getLocation().x, e->getLocation().y);
+    return true;
+}
+
+void GameScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
+
+void GameScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+
 GameScene::~GameScene() {}

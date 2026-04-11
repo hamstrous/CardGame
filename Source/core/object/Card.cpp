@@ -57,17 +57,54 @@ bool Card::init(CardData* property)
 
 bool Card::onMouseDown(ax::Event* event)
 {
-    // Check if card is clicked
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
 
     if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
     {
         flip();
+        _clicktimer.reset();
+        _clicktimer.start();
+        _dragOffset = mousePos - getNodePositionInWorldSpace(this);
+        AXLOG("Mouse down on card, starting click timer and setting drag offset to ({%f}, {%f})", _dragOffset.x,
+              _dragOffset.y);
         return true; // Event swallowed
     }
 
     return false;  // Propagate to other listeners
+}
+
+bool Card::onMouseMove(ax::Event* event)
+{
+    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+
+    if (_clicktimer.count() > 0)
+    {
+        _clicktimer.reset();
+        _isDragging = true;
+
+        setPosition(mousePos - _dragOffset);
+
+        return true;  // Event swallowed
+    }
+    return false;
+}
+
+bool Card::onMouseUp(ax::Event* event)
+{
+    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    _isDragging       = false;
+
+    if (_clicktimer.count() <= 200) 
+    {
+        _clicktimer.reset();
+        _dragOffset = ax::Vec2::ZERO;
+        return true;  // Event swallowed
+    }
+
+    return false;
 }
 
 void Card::setContentSize(const ax::Size& contentSize) {

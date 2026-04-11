@@ -47,7 +47,9 @@ public:
     ~Card() override;
 
 protected:
-    lib::Timer _timer = lib::Timer(false);
+    lib::Timer _clicktimer = lib::Timer(false);
+    ax::Vec2 _dragOffset;
+    bool _isDragging = false;
 
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
