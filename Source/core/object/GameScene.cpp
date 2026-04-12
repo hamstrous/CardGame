@@ -35,6 +35,21 @@ bool GameScene::init()
     card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 100));
     card->setContentSize(Size(100, 150));
 
+    Card* card2 = Card::create(new CardData("card/uno/0_red.png", "card/Card Back 1.png"));
+
+    this->addChild(card2);
+    card2->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 200));
+    card2->setContentSize(Size(100, 150));
+
+    Zone* zone = Zone::create(new ZoneData());
+    this->addChild(zone);
+    zone->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    zone->setContentSize(Size(200, 300));
+
+
+
+
+
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
 

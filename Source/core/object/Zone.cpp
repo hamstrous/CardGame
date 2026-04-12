@@ -17,11 +17,18 @@ Zone* Zone::create(ZoneData* property)
 
 bool Zone::init(ZoneData* property)
 {
-    ax::DrawNode* _rectNode = ax::DrawNode::create();
+    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+
+    _rectNode = ax::DrawNode::create();
+    this->addChild(_rectNode);
     _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
+
+    scheduleUpdate();
 
     return true;
 }
+
+void Zone::update(float delta) {}
 
 void Zone::shuffleCards() {
     Random::shuffle(_cardList.begin(), _cardList.end());
@@ -33,6 +40,13 @@ void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card) {
 }
 
 void Zone::sortCards() {}
+
+void Zone::setContentSize(const ax::Size& contentSize)
+{
+    Node::setContentSize(contentSize);
+    _rectNode->clear();
+    _rectNode->drawRect(ax::Vec2::ZERO, contentSize, ax::Color4F::WHITE);
+}
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
     _cardList.pushBack(card);

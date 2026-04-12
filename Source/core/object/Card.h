@@ -19,6 +19,7 @@ public:
     // Factory method
     static Card* create(CardData* property);
     bool init(CardData* property);
+    void update(float delta) override;
 
     // Event handlers
     bool onMouseDown(ax::Event* event);

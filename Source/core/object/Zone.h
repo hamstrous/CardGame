@@ -14,6 +14,7 @@ public:
     // Factory method
     static Zone* create(ZoneData* property);
     bool init(ZoneData* property);
+    void update(float delta) override;
 
     // Event handlers
     bool onMouseDown(ax::Event* event);
@@ -28,12 +29,17 @@ public:
     void getNewCardIndex(Card* card); // Card is not in this zone yet
     void getNewCardPosition(Card* card);
 
+    // Overrides
+    void setContentSize(const ax::Size& contentSize) override;
+
     // Getters and Setters
     
     // Constructor and Destructor
     ~Zone() override;
 
 protected:
+    ax::DrawNode* _rectNode = nullptr;
+
     ax::Vector<Card*> _cardList;
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;

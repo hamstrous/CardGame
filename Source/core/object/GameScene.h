@@ -3,6 +3,7 @@
 #include "axmol.h"
 
 #include "core/object/Card.h"
+#include "core/object/Zone.h"
 
 class GameScene : public ax::Scene
 {

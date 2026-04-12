@@ -54,8 +54,11 @@ bool Card::init(CardData* property)
     //_keyboardListener->onKeyReleased = AX_CALLBACK_2(MenuScene::onKeyReleased, this);
     //_eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
+    scheduleUpdate();
     return true;
 }
+
+void Card::update(float delta) {}
 
 bool Card::onMouseDown(ax::Event* event)
 {
@@ -64,6 +67,12 @@ bool Card::onMouseDown(ax::Event* event)
 
     if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
     {
+        ax::Node* parent = this->getParent();  // save parent first
+        this->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
+        this->removeFromParent();          
+        parent->addChild(this); // bring to front    
+        this->release(); // balance the retain, scene graph hold the only reference again
+
         _clicktimer.reset();
         _clicktimer.start();
         _dragOffset = mousePos - getNodePositionInWorldSpace(this);
