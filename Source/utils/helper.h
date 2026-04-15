@@ -50,6 +50,11 @@ static ax::Vec2 getNodePositionInWorldSpace(ax::Node* node) {
     return node->getParent()->convertToWorldSpace(node->getPosition());
 }
 
+static bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition) {
+    auto rect = node->getBoundingBox();
+    return rect.containsPoint(node->getParent()->convertToNodeSpace(worldPosition));
+}
+
 static void moveNodeToFront(ax::Node* node) {
     ax::Node* parent = node->getParent();  // save parent first
     node->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph

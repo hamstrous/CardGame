@@ -40,7 +40,7 @@ void Zone::OnCardMouseUp(ax::Event* event) {
     ax::Vec2 releasePosition = cardEvent->getReleasePosition();
     // Check if the card belongs to this zone
 
-    if (this->getBoundingBox().containsPoint(releasePosition))  // containPoint(this,mousePos))
+    if (isWorldPositionInNode(this, releasePosition))  // containPoint(this,mousePos))
     {
         moveCardToThisZone(cardEvent->getCard(), 0.5f);
     }

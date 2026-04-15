@@ -65,8 +65,7 @@ bool Card::onMouseDown(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-
-    if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
+    if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         moveNodeToFront(this);
 
