@@ -2,7 +2,7 @@
 
 #include "axmol.h"
 
-#include "ZoneData.h"
+#include "core/object/data/ZoneData.h"
 #include "Card.h"
 
 #include "utils/helper.h"
@@ -26,7 +26,7 @@ public:
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
     void moveCardToThisZone(Card* card, float duration = 1.f);
-    void getNewCardIndex(Card* card); // Card is not in this zone yet
+    void getNewCardIndex(Card* card); 
     void getNewCardPosition(Card* card);
 
     // Overrides
@@ -41,7 +41,10 @@ protected:
     ax::DrawNode* _rectNode = nullptr;
 
     ax::Vector<Card*> _cardList;
+
+    // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
+    ax::EventListenerCustom* _mouseUpWithCard = nullptr;
 
 };

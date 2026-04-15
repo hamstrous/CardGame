@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "CardData.h"
+#include "core/object/data/CardData.h"
 
 #include "utils/helper.h"
 #include "utils/Timer.hpp"
@@ -52,6 +52,7 @@ protected:
     ax::Vec2 _dragOffset;
     bool _isDragging = false;
 
+    // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
 
@@ -65,7 +66,9 @@ protected:
     bool& _isFaceUp = _property->isFaceUp;
     bool& _isDraggable = _property->isDraggable;
 
-    const int FLIP_ACTION_TAG = 1001;
+    static const int FLIP_ACTION_TAG = 1001;
+
+
     
 };
 

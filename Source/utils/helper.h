@@ -49,3 +49,11 @@ static bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint)
 static ax::Vec2 getNodePositionInWorldSpace(ax::Node* node) {
     return node->getParent()->convertToWorldSpace(node->getPosition());
 }
+
+static void moveNodeToFront(ax::Node* node) {
+    ax::Node* parent = node->getParent();  // save parent first
+    node->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
+    node->removeFromParent();          
+    parent->addChild(node); // bring to front    
+    node->release(); // balance the retain, scene graph hold the only reference again
+}

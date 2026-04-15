@@ -1,5 +1,6 @@
 #include "Card.h"
 #include "Zone.h"
+#include "core/event/EventCard.h"
 
 Card* Card::create(CardData* property)
 {
@@ -67,17 +68,11 @@ bool Card::onMouseDown(ax::Event* event)
 
     if (this->getBoundingBox().containsPoint(mousePos))//containPoint(this,mousePos))
     {
-        ax::Node* parent = this->getParent();  // save parent first
-        this->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
-        this->removeFromParent();          
-        parent->addChild(this); // bring to front    
-        this->release(); // balance the retain, scene graph hold the only reference again
+        moveNodeToFront(this);
 
         _clicktimer.reset();
         _clicktimer.start();
         _dragOffset = mousePos - getNodePositionInWorldSpace(this);
-        AXLOG("Mouse down on card, starting click timer and setting drag offset to ({%f}, {%f})", _dragOffset.x,
-              _dragOffset.y);
         return true; // Event swallowed
     }
 
@@ -128,7 +123,7 @@ void Card::setContentSize(const ax::Size& contentSize) {
 }
 
 void Card::flip(float duration) {
-    this->stopActionByTag(FLIP_ACTION_TAG); 
+    //this->stopActionByTag(FLIP_ACTION_TAG); 
 
     _isFaceUp        = !_isFaceUp;
     auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);
@@ -149,6 +144,10 @@ void Card::flip(float duration) {
     auto sequence    = ax::Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
     sequence->setTag(FLIP_ACTION_TAG);
     this->runAction(sequence);
+
+    EventCard* event = new EventCard(this, true);
+
+    _eventDispatcher->dispatchEvent(event);
 }
 
 void Card::reveal() {

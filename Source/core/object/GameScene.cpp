@@ -29,6 +29,12 @@ bool GameScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(GameScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
+    _cardEventListener = EventListenerCard::create();
+    _cardEventListener->onCardFlipped = [](EventCard* event) {
+            AXLOG("Card flipped");
+        };
+    _eventDispatcher->addEventListenerWithFixedPriority(_cardEventListener, 12);
+
     Card* card = Card::create(new CardData("card/uno/0_blue.png", "card/Card Back 1.png"));
 
     this->addChild(card);
@@ -48,9 +54,7 @@ bool GameScene::init()
 
 
 
-
-
-    // scheduleUpdate() is required to ensure update(float) is called on every loop
+        // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
 
     return true;

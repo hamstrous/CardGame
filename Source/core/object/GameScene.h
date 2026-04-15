@@ -4,6 +4,7 @@
 
 #include "core/object/Card.h"
 #include "core/object/Zone.h"
+#include "core/event/EventListenerCard.h"
 
 class GameScene : public ax::Scene
 {
@@ -43,5 +44,5 @@ protected:
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
 
-    
+    EventListenerCard* _cardEventListener = nullptr;
 };
