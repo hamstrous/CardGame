@@ -57,3 +57,12 @@ static void moveNodeToFront(ax::Node* node) {
     parent->addChild(node); // bring to front    
     node->release(); // balance the retain, scene graph hold the only reference again
 }
+
+static void setNewParentWithNoEffect(ax::Node* child, ax::Node* newParent) {
+    ax::Vec2 worldPosition = getNodePositionInWorldSpace(child);
+    child->retain();
+    child->removeFromParentAndCleanup(false);
+    newParent->addChild(child);
+    child->setPosition(newParent->convertToNodeSpace(worldPosition));
+    child->release();
+}

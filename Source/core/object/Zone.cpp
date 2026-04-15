@@ -24,6 +24,10 @@ bool Zone::init(ZoneData* property)
     this->addChild(_rectNode);
     _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
 
+    _cardListener = EventListenerCard::create();
+    _cardListener->onCardReleased = AX_CALLBACK_1(Zone::OnCardMouseUp, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
+
     scheduleUpdate();
 
     return true;
@@ -63,10 +67,7 @@ void Zone::setContentSize(const ax::Size& contentSize)
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
     //_cardList.pushBack(card);
-    card->retain();
-    card->removeFromParent();
-    this->addChild(card);
-    card->release();
+    setNewParentWithNoEffect(card, this);
 
     ax::Action* moveAction = ax::MoveTo::create(duration, ax::Vec2::ZERO);
     card->runAction(moveAction);
