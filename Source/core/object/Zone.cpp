@@ -1,5 +1,6 @@
 #include "Zone.h"
 #include "utils/random.hpp"
+#include "core/event/EventCard.h"
 
 using Random = lib::random_static;
 
@@ -30,7 +31,19 @@ bool Zone::init(ZoneData* property)
 
 void Zone::update(float delta) {}
 
-void Zone::shuffleCards() {
+void Zone::OnCardMouseUp(ax::Event* event) {
+    EventCard* cardEvent = static_cast<EventCard*>(event);
+    ax::Vec2 releasePosition = cardEvent->getReleasePosition();
+    // Check if the card belongs to this zone
+
+    if (this->getBoundingBox().containsPoint(releasePosition))  // containPoint(this,mousePos))
+    {
+        moveCardToThisZone(cardEvent->getCard(), 0.5f);
+    }
+}
+
+void Zone::shuffleCards()
+{
     Random::shuffle(_cardList.begin(), _cardList.end());
 }
 
@@ -49,8 +62,14 @@ void Zone::setContentSize(const ax::Size& contentSize)
 }
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
-    _cardList.pushBack(card);
-    card->setParent(this);
+    //_cardList.pushBack(card);
+    card->retain();
+    card->removeFromParent();
+    this->addChild(card);
+    card->release();
+
+    ax::Action* moveAction = ax::MoveTo::create(duration, ax::Vec2::ZERO);
+    card->runAction(moveAction);
 }
 
 Zone::~Zone() {}

@@ -3,7 +3,10 @@
 #include "axmol.h"
 
 #include "core/object/data/ZoneData.h"
+
 #include "Card.h"
+
+#include "core/event/EventCard.h"
 
 #include "utils/helper.h"
 
@@ -20,6 +23,8 @@ public:
     bool onMouseDown(ax::Event* event);
     bool onMouseMove(ax::Event* event);
     bool onMouseUp(ax::Event* event);
+
+    void OnCardMouseUp(ax::Event* event);
 
     // Actions
     void shuffleCards();
@@ -45,6 +50,6 @@ protected:
     // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
-    ax::EventListenerCustom* _mouseUpWithCard = nullptr;
+    EventListenerCard* _cardListener = nullptr;
 
 };

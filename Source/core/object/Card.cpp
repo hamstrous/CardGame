@@ -84,7 +84,8 @@ bool Card::onMouseMove(ax::Event* event)
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
 
-    if (_isDragging || _clicktimer.count() > 0)
+    // Drag logic
+    if (_isDraggable && (_isDragging || _clicktimer.count() > 0))
     {
         _clicktimer.reset();
         _isDragging = true;
@@ -98,18 +99,23 @@ bool Card::onMouseUp(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    bool ret          = false;
     
-
     if (_clicktimer.count() <= 200 && _clicktimer.count() > 0)
     {
-        _clicktimer.reset();
         _dragOffset = ax::Vec2::ZERO;
         flip();
-        return true;  // Event swallowed
+        ret = true;  // Event swallowed
+    }
+    else if (_isDragging)
+    {
+        EventCard* event = new EventCard(this, mousePos);
+        _eventDispatcher->dispatchEvent(event);
     }
     _isDragging = false;
+    _clicktimer.reset();
 
-    return false;
+    return ret;
 }
 
 void Card::setContentSize(const ax::Size& contentSize) {
@@ -123,7 +129,11 @@ void Card::setContentSize(const ax::Size& contentSize) {
 }
 
 void Card::flip(float duration) {
-    //this->stopActionByTag(FLIP_ACTION_TAG); 
+    auto runningFlipAction = this->getActionByTag(FLIP_ACTION_TAG);
+    if (runningFlipAction)
+    {
+        return;
+    }
 
     _isFaceUp        = !_isFaceUp;
     auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);

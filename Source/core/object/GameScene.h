@@ -44,5 +44,5 @@ protected:
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
 
-    EventListenerCard* _cardEventListener = nullptr;
+    //EventListenerCard* _cardEventListener = nullptr;
 };

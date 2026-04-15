@@ -53,7 +53,7 @@ static ax::Vec2 getNodePositionInWorldSpace(ax::Node* node) {
 static void moveNodeToFront(ax::Node* node) {
     ax::Node* parent = node->getParent();  // save parent first
     node->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
-    node->removeFromParent();          
+    node->removeFromParentAndCleanup(false);          
     parent->addChild(node); // bring to front    
     node->release(); // balance the retain, scene graph hold the only reference again
 }
