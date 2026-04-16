@@ -62,7 +62,7 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
     for (auto card : cardList)
     {
         AXASSERT(card->getParent() == this, "Card list should only contain cards that are children of this zone");
-        originOffset += ax::Vec2(card->getContentSize().width * card->getScaleX() / 2, 0);  // Assuming the anchor point of the card is at its center
+        originOffset += ax::Vec2(card->getContentSize().width/ 2, 0);  // Assuming the anchor point of the card is at its center
     }
     std::vector<ax::Vec2> positions;
     if (size > 0)
@@ -72,8 +72,8 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
         for (int i = 0; i < size; ++i)
         {
             positions.push_back(previousCardEnd +
-                                ax::Vec2(cardList.at(i)->getContentSize().width * cardList.at(i)->getScaleX() / 2, 0));
-            previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width * cardList.at(i)->getScaleX(), 0);
+                                ax::Vec2(cardList.at(i)->getContentSize().width / 2, 0));
+            previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width, 0);
         }
     }
 
