@@ -71,3 +71,8 @@ static void setNewParentWithNoEffect(ax::Node* child, ax::Node* newParent) {
     child->setPosition(newParent->convertToNodeSpace(worldPosition));
     child->release();
 }
+
+static void addChildToCurrentSceneWithNoEffect(ax::Node* child) {
+    ax::Scene* currentScene = ax::Director::getInstance()->getRunningScene();
+    setNewParentWithNoEffect(child, currentScene);
+}

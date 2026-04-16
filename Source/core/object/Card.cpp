@@ -71,7 +71,8 @@ bool Card::onMouseDown(ax::Event* event)
 
         _clicktimer.reset();
         _clicktimer.start();
-        _dragOffset = mousePos - getNodePositionInWorldSpace(this);
+        //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
+        _dragOffset = this->getParent()->convertToNodeSpace(mousePos) - this->getPosition();
         return true; // Event swallowed
     }
 
@@ -88,7 +89,7 @@ bool Card::onMouseMove(ax::Event* event)
     {
         _clicktimer.reset();
         _isDragging = true;
-        setPosition(mousePos - _dragOffset);
+        setPosition(this->getParent()->convertToNodeSpace(mousePos) - _dragOffset);
         return true;  // Event swallowed
     }
     return false;
