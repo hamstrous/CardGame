@@ -1,5 +1,8 @@
 #include "Zone.h"
+
+#include "utils/helper.h"
 #include "utils/random.hpp"
+
 #include "core/event/EventCard.h"
 
 using Random = lib::random_static;
@@ -46,6 +49,17 @@ void Zone::OnCardMouseUp(ax::Event* event) {
     }
 }
 
+void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration) {
+    // Card must be a child of this zone already
+    AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
+
+    ax::FiniteTimeAction* moveAction   = ax::MoveTo::create(duration, targetPosition);
+    ax::FiniteTimeAction* rotateAction = ax::RotateTo::create(duration, 0);
+    ax::FiniteTimeAction* scaleAction  = ax::ScaleTo::create(duration, 1.f);
+    ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateAction, scaleAction, nullptr);
+    card->runAction(spawnAction);
+}
+
 void Zone::shuffleCards()
 {
     Random::shuffle(_cardList.begin(), _cardList.end());
@@ -66,11 +80,13 @@ void Zone::setContentSize(const ax::Size& contentSize)
 }
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
-    //_cardList.pushBack(card);
+    card->setRotation(getWorldRotation(card) - getWorldRotation(this));  // To get the absolute difference in rotation between the card and the zone and rotate it accordingly
+    card->setVecScale(getWorldScale(card) / getWorldScale(this));  // To get the absolute difference in scale between the card and the zone and scale it accordingly
     setNewParentWithNoEffect(card, this);
 
-    ax::Action* moveAction = ax::MoveTo::create(duration, ax::Vec2::ZERO);
-    card->runAction(moveAction);
+    ax::Vector<Card*> _cardList = castToVectorOfType<Card*>(this->getChildren());
+
+    moveCard(card, ax::Vec2::ZERO, duration);
 }
 
 Zone::~Zone() {}

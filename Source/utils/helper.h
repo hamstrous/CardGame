@@ -76,3 +76,33 @@ static void addChildToCurrentSceneWithNoEffect(ax::Node* child) {
     ax::Scene* currentScene = ax::Director::getInstance()->getRunningScene();
     setNewParentWithNoEffect(child, currentScene);
 }
+
+static float getWorldRotation(ax::Node* node) {
+    float rotation = node->getRotation();
+    ax::Node* parent = node->getParent();
+    while (parent) {
+        rotation += parent->getRotation();
+        parent = parent->getParent();
+    }
+    return rotation;
+}
+
+static ax::Vec2 getWorldScale(ax::Node* node) {
+    ax::Vec2 scale = ax::Vec2(node->getScaleX(), node->getScaleY());
+    ax::Node* parent = node->getParent();
+    while (parent) {
+        scale.x *= parent->getScaleX();
+        scale.y *= parent->getScaleY();
+        parent = parent->getParent();
+    }
+    return scale;
+}
+
+template <typename T, typename V>
+static ax::Vector<T> castToVectorOfType(ax::Vector<V> v) {
+    ax::Vector<T> result;
+    for (auto& item : v) {
+        result.pushBack(static_cast<T>(item));
+    }
+    return result;
+}

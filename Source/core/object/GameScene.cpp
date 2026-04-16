@@ -45,6 +45,8 @@ bool GameScene::init()
     this->addChild(zone);
     zone->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     zone->setContentSize(Size(200, 300));
+    zone->setRotation(100.f);
+    zone->setScale(1.5f);
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();

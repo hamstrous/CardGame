@@ -28,6 +28,7 @@ public:
 
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
+    void setVecScale(const ax::Vec2& scale) { setScaleX(scale.x); setScaleY(scale.y); };
 
     // Actions
     virtual void flip(float duration = 1.f);
@@ -67,6 +68,7 @@ protected:
     bool& _isDraggable = _property->isDraggable;
 
     static const int FLIP_ACTION_TAG = 1001;
+    static const int CARD_TAG = 10;
 
 
     

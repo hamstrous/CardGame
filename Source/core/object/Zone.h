@@ -27,12 +27,14 @@ public:
     void OnCardMouseUp(ax::Event* event);
 
     // Actions
+    void moveCard(Card* card, const ax::Vec2& targetPosition, float duration = 1.f);
     void shuffleCards();
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
     void moveCardToThisZone(Card* card, float duration = 1.f);
     void getNewCardIndex(Card* card); 
     void getNewCardPosition(Card* card);
+    std::vector<ax::Vec2> getCurrentPositionList();
 
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
@@ -45,7 +47,7 @@ public:
 protected:
     ax::DrawNode* _rectNode = nullptr;
 
-    ax::Vector<Card*> _cardList;
+    ax::Vector<Card*> _cardList;  // currently using get all children and filter by tag
 
     // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;

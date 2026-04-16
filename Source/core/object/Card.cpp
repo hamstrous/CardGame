@@ -23,6 +23,7 @@ bool Card::init(CardData* property)
     _property = property;
 
     this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+    this->setTag(Card::CARD_TAG);
 
     _frontSprite = ax::Sprite::create(property->frontImagePath);
     _backSprite  = ax::Sprite::create(property->backImagePath);
