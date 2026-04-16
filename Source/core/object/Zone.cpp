@@ -5,6 +5,8 @@
 
 #include "core/event/EventCard.h"
 
+#include <algorithm>
+
 using Random = lib::random_static;
 
 Zone* Zone::create(ZoneData* property)
@@ -67,13 +69,13 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
     std::vector<ax::Vec2> positions;
     if (size > 0)
     {
-        ax::Vec2 previousCardEnd = origin - originOffset;
-        float spacing            = getContentSize().width / (size + 1);
+        ax::Vec2 previousCardEnd = ax::Vec2(std::max((origin - originOffset).x, origin.x - this->getContentSize().width / 2), origin.y);
+        float overflow           = originOffset.x * 2 > this->getContentSize().width ? originOffset.x * 2 - this->getContentSize().width : 0;
         for (int i = 0; i < size; ++i)
         {
-            positions.push_back(previousCardEnd +
-                                ax::Vec2(cardList.at(i)->getContentSize().width / 2, 0));
-            previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width, 0);
+            float spacing = (i == 0) ? 0 : overflow * (cardList.at(i)->getContentSize().width / (originOffset.x * 2 - cardList.at(0)->getContentSize().width));
+            positions.push_back(previousCardEnd + ax::Vec2(cardList.at(i)->getContentSize().width / 2, 0) - ax::Vec2(spacing, 0));
+            previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width - spacing, 0);
         }
     }
 

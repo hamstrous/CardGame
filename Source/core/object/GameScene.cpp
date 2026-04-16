@@ -41,6 +41,11 @@ bool GameScene::init()
     card2->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 200));
     card2->setContentSize(Size(100, 150));
 
+    Card* card3 = Card::create(new CardData("card/uno/0_green.png", "card/Card Back 1.png"));
+    this->addChild(card3);
+    card3->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 300));
+    card3->setContentSize(Size(100, 150));
+
     Zone* zone = Zone::create(new ZoneData());
     this->addChild(zone);
     zone->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
