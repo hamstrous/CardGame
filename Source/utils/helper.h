@@ -102,7 +102,8 @@ template <typename T, typename V>
 static ax::Vector<T> castToVectorOfType(ax::Vector<V> v) {
     ax::Vector<T> result;
     for (auto& item : v) {
-        result.pushBack(static_cast<T>(item));
+        T castedItem = dynamic_cast<T>(item);
+        if(castedItem) result.pushBack(castedItem);
     }
     return result;
 }

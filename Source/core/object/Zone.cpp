@@ -49,6 +49,38 @@ void Zone::OnCardMouseUp(ax::Event* event) {
     }
 }
 
+// Positions will be spread on the horizontal line, without leaving the zone
+std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
+{
+    if (cardList.empty())
+    {
+        cardList = castToVectorOfType<Card*>(this->getChildren());
+    }
+    int size              = cardList.size();
+    ax::Vec2 origin       = getAnchorPoint() * getContentSize();
+    ax::Vec2 originOffset = ax::Vec2::ZERO;
+    for (auto card : cardList)
+    {
+        AXASSERT(card->getParent() == this, "Card list should only contain cards that are children of this zone");
+        originOffset += ax::Vec2(card->getContentSize().width * card->getScaleX() / 2, 0);  // Assuming the anchor point of the card is at its center
+    }
+    std::vector<ax::Vec2> positions;
+    if (size > 0)
+    {
+        ax::Vec2 previousCardEnd = origin - originOffset;
+        float spacing            = getContentSize().width / (size + 1);
+        for (int i = 0; i < size; ++i)
+        {
+            positions.push_back(previousCardEnd +
+                                ax::Vec2(cardList.at(i)->getContentSize().width * cardList.at(i)->getScaleX() / 2, 0));
+            previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width * cardList.at(i)->getScaleX(), 0);
+        }
+    }
+
+    return positions;
+}
+
+
 void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration) {
     // Card must be a child of this zone already
     AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
@@ -85,8 +117,12 @@ void Zone::moveCardToThisZone(Card* card, float duration) {
     setNewParentWithNoEffect(card, this);
 
     ax::Vector<Card*> _cardList = castToVectorOfType<Card*>(this->getChildren());
-
-    moveCard(card, ax::Vec2::ZERO, duration);
+    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+    for (int i = 0; i < _cardList.size(); i++)
+    {
+        AXLOG("Positioning card %d at position (%f, %f)", i, newPositions.at(i).x, newPositions.at(i).y);
+        moveCard(_cardList.at(i), newPositions.at(i), duration);
+    }
 }
 
 Zone::~Zone() {}

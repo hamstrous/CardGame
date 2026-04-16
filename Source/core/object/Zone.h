@@ -27,6 +27,7 @@ public:
     void OnCardMouseUp(ax::Event* event);
 
     // Actions
+    std::vector<ax::Vec2> getCurrentPositionList(ax::Vector<Card*> cardList = ax::Vector<Card*>()); //List of positions for cards in this zone, used to update card positions when a change happens
     void moveCard(Card* card, const ax::Vec2& targetPosition, float duration = 1.f);
     void shuffleCards();
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
@@ -34,7 +35,6 @@ public:
     void moveCardToThisZone(Card* card, float duration = 1.f);
     void getNewCardIndex(Card* card); 
     void getNewCardPosition(Card* card);
-    std::vector<ax::Vec2> getCurrentPositionList();
 
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
