@@ -35,6 +35,7 @@ public:
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
     void setVecScale(const ax::Vec2& scale) { setScaleX(scale.x); setScaleY(scale.y); };
+    void setGlobalZOrder(int z);
 
     // Actions
     virtual void flip(float duration = 1.f);

@@ -69,7 +69,7 @@ bool Card::onMouseDown(ax::Event* event)
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         moveNodeToFront(this);
-
+        this->setGlobalZOrder(100); 
         _clicktimer.reset();
         //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
         if (this->getNumberOfRunningActionsByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG) > 0)
@@ -130,6 +130,7 @@ bool Card::onMouseUp(ax::Event* event)
         EventCard* event = new EventCard(this, mousePos);
         _eventDispatcher->dispatchEvent(event);
     }
+    this->setGlobalZOrder(0);
     _isDragging = false;
     _clicktimer.reset();
 
@@ -144,6 +145,12 @@ void Card::setContentSize(const ax::Size& contentSize) {
         _backSprite->setContentSize(contentSize);
     _frontSprite->setPosition(contentSize / 2);
     _backSprite->setPosition(contentSize / 2);
+}
+
+void Card::setGlobalZOrder(int z) {
+    Node::setGlobalZOrder(z);
+    _frontSprite->setGlobalZOrder(z);
+    _backSprite->setGlobalZOrder(z);
 }
 
 void Card::flip(float duration) {
