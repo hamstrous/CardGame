@@ -34,8 +34,7 @@ EventListenerZone* EventListenerZone::clone()
     if (ret->init())
     {
         ret->autorelease();
-        ret->onCardFlipped  = onCardFlipped;
-        ret->onCardReleased = onCardReleased;
+        ret->onCardReceived = onCardReceived;
     }
     else
     {
@@ -44,21 +43,16 @@ EventListenerZone* EventListenerZone::clone()
     return ret;
 }
 
-EventListenerZone::EventListenerZone() : onCardFlipped(nullptr), onCardReleased(nullptr) {}
+EventListenerZone::EventListenerZone() : onCardReceived(nullptr){}
 
 bool EventListenerZone::init()
 {
     auto listener = [this](ax::Event* event) {
-        auto cardEvent = static_cast<EventCard*>(event);
-        if (cardEvent->_isCardFlipped)
+        auto zoneEvent = static_cast<EventZone*>(event);
+        if (zoneEvent->_isReceived)
         {
-            if (onCardFlipped != nullptr)
-                onCardFlipped(cardEvent);
-        }
-        else
-        {
-            if (onCardReleased != nullptr)
-                onCardReleased(cardEvent);
+            if (onCardReceived != nullptr)
+                onCardReceived(zoneEvent);
         }
     };
 

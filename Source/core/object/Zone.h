@@ -6,7 +6,7 @@
 
 #include "Card.h"
 
-#include "core/event/EventListenerZone.h"
+#include "core/event/EventListenerCard.h"
 
 #include "utils/helper.h"
 
@@ -14,6 +14,8 @@
 class Zone : public ax::Node
 {
 public:
+    static const int CARD_TRANSFORM_TO_ZONE_ACTION_TAG = 2000;
+
     // Factory method
     static Zone* create(ZoneData* property);
     bool init(ZoneData* property);
@@ -52,6 +54,6 @@ protected:
     // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
-    EventListenerZone* _cardListener = nullptr;
+    EventListenerCard* _cardListener = nullptr;
 
 };

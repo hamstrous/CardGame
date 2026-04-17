@@ -1,22 +1,22 @@
 #pragma once
 
 #include "axmol.h"
-#include "EventCard.h"
+#include "EventZone.h"
 
 
-class AX_DLL EventListenerCard : public ax::EventListenerCustom
+class AX_DLL EventListenerZone : public ax::EventListenerCustom
 {
 public:
     static const std::string LISTENER_ID;
 
-    static EventListenerCard* create();
+    static EventListenerZone* create();
 
     /// Overrides
-    virtual EventListenerCard* clone() override;
+    virtual EventListenerZone* clone() override;
     virtual bool checkAvailable() override;
 
-    std::function<void(EventCard*)> onCardFlipped;
-    std::function<void(EventCard*)> onCardReleased;  // Mouse up after dragging a card
-    EventListenerCard();
+    std::function<void(EventZone*)> onCardReceived = nullptr;
+
+    EventListenerZone();
     bool init();
 };

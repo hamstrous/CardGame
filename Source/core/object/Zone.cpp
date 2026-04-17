@@ -29,7 +29,7 @@ bool Zone::init(ZoneData* property)
     this->addChild(_rectNode);
     _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
 
-    _cardListener = EventListenerZone::create();
+    _cardListener = EventListenerCard::create();
     _cardListener->onCardReleased = AX_CALLBACK_1(Zone::OnCardMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
 
@@ -48,6 +48,7 @@ void Zone::OnCardMouseUp(ax::Event* event) {
     if (isWorldPositionInNode(this, releasePosition))  // containPoint(this,mousePos))
     {
         moveCardToThisZone(cardEvent->getCard(), 0.5f);
+        cardEvent->stopPropagation();  // Stop propagation to prevent multiple zones from responding to the same card release
     }
 }
 
@@ -87,10 +88,11 @@ void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration) 
     // Card must be a child of this zone already
     AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
 
-    ax::FiniteTimeAction* moveAction   = ax::MoveTo::create(duration, targetPosition);
-    ax::FiniteTimeAction* rotateAction = ax::RotateTo::create(duration, 0);
-    ax::FiniteTimeAction* scaleAction  = ax::ScaleTo::create(duration, 1.f);
+    ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
+    ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0);
+    ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
     ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateAction, scaleAction, nullptr);
+    spawnAction->setTag(CARD_TRANSFORM_TO_ZONE_ACTION_TAG); 
     card->runAction(spawnAction);
 }
 
@@ -124,6 +126,7 @@ void Zone::moveCardToThisZone(Card* card, float duration) {
     std::vector<ax::Vec2> newPositions = getCurrentPositionList();
     for (int i = 0; i < _cardList.size(); i++)
     {
+        _cardList.at(i)->stopActionByTag(CARD_TRANSFORM_TO_ZONE_ACTION_TAG);
         moveCard(_cardList.at(i), newPositions.at(i), duration);
     }
 }

@@ -46,5 +46,9 @@ protected:
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
 
+    ax::Vec2 visibleSize = _director->getVisibleSize();
+    ax::Vec2 origin      = _director->getVisibleOrigin();
+    ax::Rect safeArea    = _director->getSafeAreaRect();
+    ax::Vec2 safeOrigin  = safeArea.origin;
     //EventListenerZone* _cardEventListener = nullptr;
 };

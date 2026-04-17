@@ -71,8 +71,18 @@ bool Card::onMouseDown(ax::Event* event)
         moveNodeToFront(this);
 
         _clicktimer.reset();
-        _clicktimer.start();
         //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
+        if (this->getNumberOfRunningActionsByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG) > 0)
+        {
+            // When cards are moving, clicking on it will consider as stopping it for dragging
+            this->stopActionByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG);
+            _isDragging = true;
+        }
+        else
+        {
+
+            _clicktimer.start();
+        }
         _dragOffset = this->getParent()->convertToNodeSpace(mousePos) - this->getPosition();
         return true; // Event swallowed
     }
@@ -84,16 +94,23 @@ bool Card::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-
+    bool ret          = false;
     // Drag logic
-    if (_isDraggable && (_isDragging || _clicktimer.count() > 0))
+    if(!_isDraggable) return false;
+    if (_clicktimer.count() > 0)
     {
         _clicktimer.reset();
         _isDragging = true;
-        setPosition(this->getParent()->convertToNodeSpace(mousePos) - _dragOffset);
-        return true;  // Event swallowed
+        ret         = true;
+        this->stopActionByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG);  
     }
-    return false;
+
+    if (_isDragging)
+    {
+        setPosition(this->getParent()->convertToNodeSpace(mousePos) - _dragOffset);
+        ret = true;
+    }
+    return ret;
 }
 
 bool Card::onMouseUp(ax::Event* event)
@@ -189,7 +206,16 @@ bool Card::getFaceUp()
     return _property->isFaceUp;
 }
 
-Card::~Card() {
+void Card::setCurrentZone(Zone* zone) {
+    _currentZone = zone;
+}
+
+void Card::moveToZone(Zone* targetZone, float duration) {
+    targetZone->moveCardToThisZone(this, duration);
+}
+
+Card::~Card()
+{
     AX_SAFE_DELETE(_property);
 
     if (_keyboardListener)

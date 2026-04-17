@@ -46,10 +46,12 @@ public:
     bool getDraggable();
     void setFaceUp(bool faceUp);
     bool getFaceUp();
+    void setCurrentZone(Zone* zone);
+    Zone* getCurrentZone() const { return _currentZone; }
 
     // Movement
     void moveToPosition(const ax::Vec2& position, float duration = 1.f);
-    void moveToZone(const Zone* targetZone, float duration = 1.f);
+    void moveToZone(Zone* targetZone, float duration = 1.f);
 
     // Constructor and Destructor
     ~Card() override;
