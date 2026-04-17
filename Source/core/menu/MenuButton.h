@@ -2,7 +2,7 @@
 
 #include "axmol.h"
 #include "ui/UIButton.h"
-#include "core/object/GameScene.h"
+#include "core/scene/GameScene.h"
 
 #include <string>
 
@@ -42,8 +42,7 @@ public:
         this->addClickEventListener([this](ax::Object* sender) {
             auto director = ax::Director::getInstance();
             auto scene    = ax::utils::createInstance<T>();
-            if (scene == nullptr)
-                AXLOGD("Scene null");
+            AXASSERT(scene != nullptr, "Scene connected to menu button is null");
             director->replaceScene(scene);
             return true;
         });

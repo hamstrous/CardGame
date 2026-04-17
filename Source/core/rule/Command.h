@@ -2,7 +2,7 @@
 
 #include "axmol.h"
 
-class Command
+class Command : public ax::Node
 {
 public:
     virtual ~Command() {}

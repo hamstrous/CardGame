@@ -29,7 +29,7 @@ bool Zone::init(ZoneData* property)
     this->addChild(_rectNode);
     _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
 
-    _cardListener = EventListenerCard::create();
+    _cardListener = EventListenerZone::create();
     _cardListener->onCardReleased = AX_CALLBACK_1(Zone::OnCardMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
 
@@ -114,15 +114,16 @@ void Zone::setContentSize(const ax::Size& contentSize)
 }
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
+    // Set temporary transform for smooth animation
     card->setRotation(getWorldRotation(card) - getWorldRotation(this));  // To get the absolute difference in rotation between the card and the zone and rotate it accordingly
     card->setVecScale(getWorldScale(card) / getWorldScale(this));  // To get the absolute difference in scale between the card and the zone and scale it accordingly
+
     setNewParentWithNoEffect(card, this);
 
     ax::Vector<Card*> _cardList = castToVectorOfType<Card*>(this->getChildren());
     std::vector<ax::Vec2> newPositions = getCurrentPositionList();
     for (int i = 0; i < _cardList.size(); i++)
     {
-        AXLOG("Positioning card %d at position (%f, %f)", i, newPositions.at(i).x, newPositions.at(i).y);
         moveCard(_cardList.at(i), newPositions.at(i), duration);
     }
 }

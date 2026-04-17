@@ -4,7 +4,7 @@
 
 #include "core/object/Card.h"
 #include "core/object/Zone.h"
-#include "core/event/EventListenerCard.h"
+#include "core/event/EventListenerZone.h"
 
 class GameScene : public ax::Scene
 {
@@ -22,6 +22,8 @@ class GameScene : public ax::Scene
 public:
     bool init() override;
     void update(float delta) override;
+
+    void setUpScene();
 
     // mouse
     bool onMouseDown(ax::Event* event);
@@ -44,5 +46,5 @@ protected:
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
 
-    //EventListenerCard* _cardEventListener = nullptr;
+    //EventListenerZone* _cardEventListener = nullptr;
 };

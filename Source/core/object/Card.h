@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include "core/interface/ILockableInput.h"
+
 #include "core/object/data/CardData.h"
 
 #include "utils/helper.h"
@@ -11,7 +13,7 @@
 
 class Zone;
 
-class Card : public ax::Node
+class Card : public ax::Node, public ILockableInput
 {
 
 public:
@@ -21,7 +23,11 @@ public:
     bool init(CardData* property);
     void update(float delta) override;
 
-    // Event handlers
+    // Input locking
+    void lockInput() override;
+    void unlockInput() override;
+
+    // Input handlers
     bool onMouseDown(ax::Event* event);
     bool onMouseMove(ax::Event* event);
     bool onMouseUp(ax::Event* event);

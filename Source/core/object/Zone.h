@@ -6,7 +6,7 @@
 
 #include "Card.h"
 
-#include "core/event/EventListenerCard.h"
+#include "core/event/EventListenerZone.h"
 
 #include "utils/helper.h"
 
@@ -52,6 +52,6 @@ protected:
     // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
-    EventListenerCard* _cardListener = nullptr;
+    EventListenerZone* _cardListener = nullptr;
 
 };

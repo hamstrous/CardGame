@@ -34,6 +34,7 @@ bool GameScene::init()
     this->addChild(card);
     card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 100));
     card->setContentSize(Size(100, 150));
+    card->lockInput();
 
     Card* card2 = Card::create(new CardData("card/uno/0_red.png", "card/Card Back 1.png"));
 

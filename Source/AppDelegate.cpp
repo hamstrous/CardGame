@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "MainScene.h"
-#include "MenuScene.h"
+#include "core/scene/MenuScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -10,7 +10,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(800, 480);
+static ax::Size designResolutionSize = ax::Size(1000, 680);
 
 AppDelegate::AppDelegate() {}
 

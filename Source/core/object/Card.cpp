@@ -197,3 +197,11 @@ Card::~Card() {
     if (_mouseListener)
         _eventDispatcher->removeEventListener(_mouseListener);
 }
+
+void Card::lockInput() {
+    _mouseListener->setEnabled(false);
+}
+
+void Card::unlockInput() {
+    _mouseListener->setEnabled(true);
+}
