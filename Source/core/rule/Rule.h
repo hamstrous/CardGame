@@ -16,10 +16,10 @@ public:
     ~Rule() { ax::Director::getInstance()->getScheduler()->unscheduleUpdate(this); }
 
     void startRule() {
-        startTurn();
+        executeTurn();
     }
 
-    void startTurn() {
+    void executeTurn() {
         if (_currentTurn) {
             _currentTurn->startTurn();
         }

@@ -2,12 +2,10 @@
 
 Phase::Phase(std::vector<Command*>& commandList) : _commandList(commandList)
 {
-    ax::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
+    this->scheduleUpdate();
 }
 
-Phase::~Phase() {
-    ax::Director::getInstance()->getScheduler()->unscheduleUpdate(this);
-}
+Phase::~Phase() {}
 
 void Phase::startPhase() {
     executeCommand();

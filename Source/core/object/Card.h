@@ -78,8 +78,6 @@ protected:
 
     static const int FLIP_ACTION_TAG = 1001;
     static const int CARD_TAG = 10;
-
-
     
 };
 

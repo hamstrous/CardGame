@@ -97,6 +97,7 @@ void GameScene::setUpObjects() {
             //    card->moveToZone(zone2);
             //}
             cards.pushBack(card);
+            card->setName(string(color) + string(i));
         }
 
 }
@@ -120,6 +121,12 @@ void GameScene::setUpRule() {
     Turn* initTurn = new Turn(dealPhase);
     Rule* rule = new Rule(initTurn, nullptr, nullptr);
     rule->startRule();
+
+    this->addChild(rule);
+    rule->addChild(initTurn);
+    initTurn->addChild(dealPhase);
+    dealPhase->addChild(dealCommand);
+    dealPhase->addChild(shuffleCommand);
 }
 
 

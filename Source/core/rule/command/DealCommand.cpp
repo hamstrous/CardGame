@@ -17,5 +17,5 @@ void DealCommand::execute() {
         AXLOG("Deal command done");
         });
     auto sequence    = ax::Sequence::create(delayAction, callback, nullptr);
-    ax::Director::getInstance()->getRunningScene()->runAction(sequence);
+    this->runAction(sequence);
 }

@@ -10,12 +10,12 @@ void Rule::update(float delta) {
         switch (_currentState) {
             case State::start:
                 _currentTurn = _mainTurn;
-                _currentTurn->startTurn();
+                executeTurn();
                 _currentState = State::main;
                 break;
             case State::main:
                 _currentTurn = _endTurn;
-                _currentTurn->startTurn();
+                executeTurn();
                 _currentState = State::end;
                 break;
             case State::end:
