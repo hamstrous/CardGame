@@ -2,13 +2,18 @@
 
 #include "axmol.h"
 
-class Command : public ax::Node
+#include "core/object/Card.h"
+#include "core/rule/Command.h"
+
+
+class ShuffleCommand : public Command
 {
 public:
-    virtual ~Command() {}
-    virtual void execute() const;
-    virtual void undo() const;
-    virtual ax::Action* getAction() const;  // Get the action associated with this command
+    ShuffleCommand(ax::Vector<Card*> &cards);
+    virtual ~ShuffleCommand() {};
+    void execute() override;
+protected:
+    ax::Vector<Card*> _cardsToShuffle;  // Cards to be shuffled
 };
 
 

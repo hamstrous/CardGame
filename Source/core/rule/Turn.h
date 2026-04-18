@@ -11,8 +11,10 @@ public:
 
     void startTurn();
     bool isDone() const { return _isDone; }
-    void update(float delta) {
-        
+    void update(float delta)
+    {
+        if (_mainPhase->isDone())
+            _isDone = true;
     }
 
 protected:

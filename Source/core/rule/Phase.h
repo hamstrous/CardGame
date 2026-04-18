@@ -12,16 +12,17 @@ class Phase : public ax::Node
     };
 
 public:
-    Phase(Command* prepareCommand, Command* mainCommand);
+    Phase(std::vector<Command*> &commandList);
     ~Phase();
     virtual void startPhase();
-    void update(float delta);
+    void executeCommand();
+    void update(float delta) override;
+    bool isDone() const { return _isDone; }
 
 protected:
     //std::vector<Command*> _commandList;
-    Command* _prepareCommand;
-    Command* _mainCommand;
-
-    Command* _currentCommand;
+    std::vector<Command*> _commandList;
+    int _currentCommandIndex = 0;
     State _currentState = State::prepare;
+    bool _isDone             = false;
 };

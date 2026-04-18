@@ -112,11 +112,13 @@ void GameScene::setUpRule() {
         zones[i]->lockInput();
     }
 
-    DealCommand* dealCommand = new DealCommand(cards, zones);
-    Phase* dealPhase         = new Phase(dealCommand, nullptr);
+    Command* dealCommand = new DealCommand(cards, zones);
+    Command* shuffleCommand = new ShuffleCommand(cards);
+    std::vector<Command*> commands{shuffleCommand, dealCommand};
+    Phase* dealPhase = new Phase(commands);
 
-    Turn* turn = new Turn(dealPhase);
-    Rule* rule = new Rule(turn, nullptr, nullptr);
+    Turn* initTurn = new Turn(dealPhase);
+    Rule* rule = new Rule(initTurn, nullptr, nullptr);
     rule->startRule();
 }
 

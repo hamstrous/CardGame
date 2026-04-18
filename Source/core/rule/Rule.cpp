@@ -1,7 +1,7 @@
 #include "Rule.h"
 
 Rule::Rule(Turn* startTurn, Turn* mainTurn, Turn* endTurn) : _startTurn(startTurn), _mainTurn(mainTurn), _endTurn(endTurn) {
-    this->scheduleUpdate();
+    ax::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     _currentTurn = _startTurn;
 }
 

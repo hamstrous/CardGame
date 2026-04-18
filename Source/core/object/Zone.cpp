@@ -119,10 +119,12 @@ void Zone::setContentSize(const ax::Size& contentSize)
 
 void Zone::lockInput() {
     _mouseListener->setEnabled(false);
+    _cardListener->setEnabled(false);
 }
 
 void Zone::unlockInput() {
     _mouseListener->setEnabled(true);
+    _cardListener->setEnabled(true);
 }
 
 void Zone::moveCardToThisZone(Card* card, float duration) {
