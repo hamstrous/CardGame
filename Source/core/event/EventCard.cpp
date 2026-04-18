@@ -1,4 +1,3 @@
-
 #include "EventCard.h"
 #include "EventListenerCard.h"
 

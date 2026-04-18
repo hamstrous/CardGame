@@ -1,14 +1,14 @@
 #include "Phase.h"
 
-Phase::Phase(std::vector<Command*>& commandList) : _commandList(commandList)
+Phase::Phase(std::vector<Command*>& commandList, bool isRepeating) : _commandList(commandList), _isRepeating(isRepeating)
 {
-    this->scheduleUpdate();
 }
 
 Phase::~Phase() {}
 
 void Phase::startPhase() {
     executeCommand();
+    this->scheduleUpdate();
 }
 
 void Phase::executeCommand() {
@@ -23,12 +23,22 @@ void Phase::update(float delta) {
     {
         _currentCommandIndex++;
     }
-    if (_currentCommandIndex >= _commandList.size())
+    else if (_currentCommandIndex < _commandList.size() && !_commandList[_currentCommandIndex]->isExecuted())
+    {
+        executeCommand();
+
+    }
+    else if (_currentCommandIndex >= _commandList.size() && !_isRepeating)
     {
         _isDone = true;
     }
     else
     {
-        executeCommand();
+        _currentCommandIndex = 0;
+        for (auto command : _commandList)
+        {
+            command->setExecuted(false);
+            command->setExecuting(false);
+        }
     }
 }

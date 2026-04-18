@@ -46,9 +46,14 @@ void Zone::OnCardMouseUp(ax::Event* event) {
     EventCard* cardEvent = static_cast<EventCard*>(event);
     ax::Vec2 releasePosition = cardEvent->getReleasePosition();
     // Check if the card belongs to this zone
-
     if (isWorldPositionInNode(this, releasePosition))  // containPoint(this,mousePos))
     {
+        auto cardPreviousParent = cardEvent->getCard()->getParent();
+        if (dynamic_cast<Zone*>(cardPreviousParent) != this)
+        {
+            EventZone* zoneEvent = new EventZone(this, cardEvent->getCard());
+            _eventDispatcher->dispatchEvent(zoneEvent);
+        }
         moveCardToThisZone(cardEvent->getCard(), 0.5f);
         cardEvent->stopPropagation();  // Stop propagation to prevent multiple zones from responding to the same card release
     }
@@ -131,7 +136,7 @@ void Zone::moveCardToThisZone(Card* card, float duration) {
     // Set temporary transform for smooth animation
     card->setRotation(getWorldRotation(card) - getWorldRotation(this));  // To get the absolute difference in rotation between the card and the zone and rotate it accordingly
     card->setVecScale(getWorldScale(card) / getWorldScale(this));  // To get the absolute difference in scale between the card and the zone and scale it accordingly
-
+    
     setNewParentWithNoEffect(card, this);
 
     ax::Vector<Card*> _cardList = castToVectorOfType<Card*>(this->getChildren());

@@ -10,9 +10,7 @@ class DealCommand : public Command
 public:
     DealCommand(const ax::Vector<Card*>& cardsToDeal, const ax::Vector<Zone*>& targetZones)
         : _cardsToDeal(cardsToDeal), _targetZones(targetZones)
-    {
-        this->scheduleUpdate();
-    }
+    {}
     void execute() override;
     static const int DEAL_COMMAND_TAG = 3000;
 

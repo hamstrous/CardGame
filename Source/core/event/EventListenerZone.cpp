@@ -1,7 +1,8 @@
 #include "EventListenerZone.h"
+#include "EventZone.h"
 
 
-const std::string EventListenerZone::LISTENER_ID = "__ax_card";
+const std::string EventListenerZone::LISTENER_ID = "__ax_zone";
 
 bool EventListenerZone::checkAvailable()
 {

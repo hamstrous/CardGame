@@ -1,7 +1,7 @@
 #pragma once
 
 #include "axmol.h"
-#include "EventZone.h"
+class EventZone; // forward declaration to avoid circular dependency with Zone.h
 
 
 class AX_DLL EventListenerZone : public ax::EventListenerCustom

@@ -7,8 +7,7 @@
 #include "core/event/EventListenerZone.h"
 
 #include "core/rule/Rule.h"
-#include "core/rule/command/DealCommand.h"
-#include "core/rule/command/ShuffleCommand.h"
+
 
 class GameScene : public ax::Scene
 {

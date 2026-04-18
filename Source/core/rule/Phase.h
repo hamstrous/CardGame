@@ -12,7 +12,7 @@ class Phase : public ax::Node
     };
 
 public:
-    Phase(std::vector<Command*> &commandList);
+    Phase(std::vector<Command*> &commandList, bool isRepeating = false);
     ~Phase();
     virtual void startPhase();
     void executeCommand();
@@ -25,4 +25,5 @@ protected:
     int _currentCommandIndex = 0;
     State _currentState = State::prepare;
     bool _isDone             = false;
+    bool _isRepeating        = false;  // Flag to indicate if the phase should repeat after completion
 };

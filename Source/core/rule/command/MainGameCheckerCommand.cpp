@@ -10,11 +10,13 @@ ShuffleCommand::ShuffleCommand(ax::Vector<Card*> &cards) : _cardsToShuffle(cards
 
 void ShuffleCommand::execute()
 {
-    this->scheduleUpdate();
     setExecuting(true);
     auto& gameCards = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene())->cards;
     std::vector<Card*> cardsVector(gameCards.begin(), gameCards.end());
     Random::shuffle(cardsVector.begin(), cardsVector.end());
+    for (auto i : cardsVector){
+        AXLOG("%s", std::string(i->getName()).c_str());
+    }
     gameCards.clear();
     for (auto card : cardsVector)
         gameCards.pushBack(card);

@@ -6,7 +6,7 @@ Rule::Rule(Turn* startTurn, Turn* mainTurn, Turn* endTurn) : _startTurn(startTur
 }
 
 void Rule::update(float delta) {
-    if (_currentTurn->isDone()) {
+    if (_currentTurn && _currentTurn->isDone()) {
         switch (_currentState) {
             case State::start:
                 _currentTurn = _mainTurn;

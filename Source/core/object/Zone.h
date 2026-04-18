@@ -7,6 +7,8 @@
 #include "Card.h"
 
 #include "core/event/EventListenerCard.h"
+#include "core/event/EventListenerZone.h"
+#include "core/event/EventZone.h"
 
 #include "core/interface/ILockableInput.h"
 

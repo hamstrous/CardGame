@@ -1,4 +1,7 @@
 #include "GameScene.h"
+#include "core/rule/command/DealCommand.h"
+#include "core/rule/command/ShuffleCommand.h"
+#include "core/rule/command/MainGameCommand.h"
 
 using namespace ax;
 using namespace std;
@@ -108,18 +111,23 @@ void GameScene::setUpRule() {
         cards[i]->lockInput();
     }
 
-    for (int i = 0; i < zones.size(); ++i)
+    for (int i = 0; i < 2; ++i)
     {
         zones[i]->lockInput();
     }
 
-    Command* dealCommand = new DealCommand(cards, zones);
     Command* shuffleCommand = new ShuffleCommand(cards);
+    Command* dealCommand    = new DealCommand(cards, zones);
     std::vector<Command*> commands{shuffleCommand, dealCommand};
     Phase* dealPhase = new Phase(commands);
-
     Turn* initTurn = new Turn(dealPhase);
-    Rule* rule = new Rule(initTurn, nullptr, nullptr);
+
+    Command* mainGameCommand = new MainGameCommand(zones[2]);
+    std::vector<Command*> mainCommands{mainGameCommand};
+    Phase* mainPhase         = new Phase(mainCommands, true);
+    Turn* mainTurn   = new Turn(mainPhase);
+
+    Rule* rule = new Rule(initTurn, mainTurn, nullptr);
     rule->startRule();
 
     this->addChild(rule);
@@ -127,6 +135,10 @@ void GameScene::setUpRule() {
     initTurn->addChild(dealPhase);
     dealPhase->addChild(dealCommand);
     dealPhase->addChild(shuffleCommand);
+
+    rule->addChild(mainTurn);
+    mainTurn->addChild(mainPhase);
+    mainPhase->addChild(mainGameCommand);
 }
 
 
