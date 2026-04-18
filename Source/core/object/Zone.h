@@ -8,10 +8,12 @@
 
 #include "core/event/EventListenerCard.h"
 
+#include "core/interface/ILockableInput.h"
+
 #include "utils/helper.h"
 
 
-class Zone : public ax::Node
+class Zone : public ax::Node, public ILockableInput
 {
 public:
     static const int CARD_TRANSFORM_TO_ZONE_ACTION_TAG = 2000;
@@ -40,7 +42,8 @@ public:
 
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
-
+    void lockInput() override;
+    void unlockInput() override;
     // Getters and Setters
     
     // Constructor and Destructor

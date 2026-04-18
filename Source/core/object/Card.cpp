@@ -139,10 +139,8 @@ bool Card::onMouseUp(ax::Event* event)
 
 void Card::setContentSize(const ax::Size& contentSize) {
     Node::setContentSize(contentSize);
-    if (_frontSprite)
-        _frontSprite->setContentSize(contentSize);
-    if (_backSprite)
-        _backSprite->setContentSize(contentSize);
+    _frontSprite->setContentSize(contentSize);
+    _backSprite->setContentSize(contentSize);
     _frontSprite->setPosition(contentSize / 2);
     _backSprite->setPosition(contentSize / 2);
 }

@@ -33,6 +33,8 @@ bool Zone::init(ZoneData* property)
     _cardListener->onCardReleased = AX_CALLBACK_1(Zone::OnCardMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
 
+    _mouseListener = ax::EventListenerMouse::create();
+
     scheduleUpdate();
 
     return true;
@@ -113,6 +115,14 @@ void Zone::setContentSize(const ax::Size& contentSize)
     Node::setContentSize(contentSize);
     _rectNode->clear();
     _rectNode->drawRect(ax::Vec2::ZERO, contentSize, ax::Color4F::WHITE);
+}
+
+void Zone::lockInput() {
+    _mouseListener->setEnabled(false);
+}
+
+void Zone::unlockInput() {
+    _mouseListener->setEnabled(true);
 }
 
 void Zone::moveCardToThisZone(Card* card, float duration) {

@@ -10,7 +10,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(1000, 680);
+static ax::Size designResolutionSize = ax::Size(1000, 780);
 
 AppDelegate::AppDelegate() {}
 

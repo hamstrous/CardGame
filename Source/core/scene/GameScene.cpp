@@ -29,7 +29,7 @@ bool GameScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(GameScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
-    setUpScene();
+    setUpObjects();
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -39,7 +39,7 @@ bool GameScene::init()
 
 void GameScene::update(float delta) {}
 
-void GameScene::setUpScene() {
+void GameScene::setUpObjects() {
     //Card* card = Card::create(new CardData("card/uno/0_blue.png", "card/Card Back 1.png"));
 
     //this->addChild(card);
@@ -63,14 +63,23 @@ void GameScene::setUpScene() {
     // Set up 2 zone on opposite sides
     Zone* zone = Zone::create(new ZoneData());
     this->addChild(zone);
-    zone->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 200));
+    zone->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y - 300));
     zone->setContentSize(Size(300, 150));
 
     Zone* zone2 = Zone::create(new ZoneData());
     this->addChild(zone2);
-    zone2->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y + 200));
+    zone2->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y + 300));
     zone2->setContentSize(Size(300, 150));
     zone2->setRotation(180);
+
+    Zone* zone3 = Zone::create(new ZoneData());
+    this->addChild(zone3);
+    zone3->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    zone3->setContentSize(Size(300, 300));
+
+    zones.pushBack(zone);
+    zones.pushBack(zone2);
+    zones.pushBack(zone3);
 
     // Set up 8 cards 4 for each side
     for (auto i : {"0", "1"})
@@ -80,15 +89,35 @@ void GameScene::setUpScene() {
             this->addChild(card);
             card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
             card->setContentSize(Size(100, 150));
-            if (i == "0") {
-                card->moveToZone(zone);
-            }
-            else
-            {
-                card->moveToZone(zone2);
-            }
+            //if (i == "0") {
+            //    card->moveToZone(zone);
+            //}
+            //else
+            //{
+            //    card->moveToZone(zone2);
+            //}
+            cards.pushBack(card);
         }
 
+}
+
+void GameScene::setUpRule() {
+    for (int i = 0; i < cards.size(); ++i)
+    {
+        cards[i]->lockInput();
+    }
+
+    for (int i = 0; i < zones.size(); ++i)
+    {
+        zones[i]->lockInput();
+    }
+
+    DealCommand* dealCommand = new DealCommand(cards, zones);
+    Phase* dealPhase         = new Phase(dealCommand, nullptr);
+
+    Turn* turn = new Turn(dealPhase);
+    Rule* rule = new Rule(turn, nullptr, nullptr);
+    rule->startRule();
 }
 
 
@@ -116,5 +145,10 @@ bool GameScene::onMouseMove(Event* event)
 void GameScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void GameScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+
+void GameScene::onEnter() {
+    Scene::onEnter();
+    setUpRule();
+}
 
 GameScene::~GameScene() {}
