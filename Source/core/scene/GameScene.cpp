@@ -92,13 +92,6 @@ void GameScene::setUpObjects() {
             this->addChild(card);
             card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
             card->setContentSize(Size(100, 150));
-            //if (i == "0") {
-            //    card->moveToZone(zone);
-            //}
-            //else
-            //{
-            //    card->moveToZone(zone2);
-            //}
             cards.pushBack(card);
             card->setName(string(color) + string(i));
         }
@@ -118,27 +111,40 @@ void GameScene::setUpRule() {
 
     Command* shuffleCommand = new ShuffleCommand(cards);
     Command* dealCommand    = new DealCommand(cards, zones);
-    std::vector<Command*> commands{shuffleCommand, dealCommand};
-    Phase* dealPhase = new Phase(commands);
-    Turn* initTurn = new Turn(dealPhase);
-
     Command* mainGameCommand = new MainGameCommand(zones[2]);
-    std::vector<Command*> mainCommands{mainGameCommand};
-    Phase* mainPhase         = new Phase(mainCommands, true);
-    Turn* mainTurn   = new Turn(mainPhase);
 
-    Rule* rule = new Rule(initTurn, mainTurn, nullptr);
-    rule->startRule();
+    LogicUnit* mainLogic = new LogicUnit(mainGameCommand, nullptr);
+    LogicUnit* dealLogic    = new LogicUnit(dealCommand, mainLogic);
+    LogicUnit* shuffleLogic = new LogicUnit(shuffleCommand, dealLogic);
 
-    this->addChild(rule);
-    rule->addChild(initTurn);
-    initTurn->addChild(dealPhase);
-    dealPhase->addChild(dealCommand);
-    dealPhase->addChild(shuffleCommand);
+    _flows.push_back(shuffleLogic);
+    _flows.push_back(dealLogic);
+    _flows.push_back(mainLogic);
+    this->addChild(shuffleLogic);
+    this->addChild(dealLogic);
+    this->addChild(mainLogic);
+    shuffleLogic->start();
 
-    rule->addChild(mainTurn);
-    mainTurn->addChild(mainPhase);
-    mainPhase->addChild(mainGameCommand);
+    //std::vector<Command*> commands{shuffleCommand, dealCommand};
+    //Phase* dealPhase = new Phase(commands);
+    //Turn* initTurn = new Turn(dealPhase);
+
+    //std::vector<Command*> mainCommands{mainGameCommand};
+    //Phase* mainPhase         = new Phase(mainCommands, true);
+    //Turn* mainTurn   = new Turn(mainPhase);
+
+    //Rule* rule = new Rule(initTurn, mainTurn, nullptr);
+    //rule->startRule();
+
+    //this->addChild(rule);
+    //rule->addChild(initTurn);
+    //initTurn->addChild(dealPhase);
+    //dealPhase->addChild(dealCommand);
+    //dealPhase->addChild(shuffleCommand);
+
+    //rule->addChild(mainTurn);
+    //mainTurn->addChild(mainPhase);
+    //mainPhase->addChild(mainGameCommand);
 }
 
 

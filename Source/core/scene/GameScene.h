@@ -7,6 +7,7 @@
 #include "core/event/EventListenerZone.h"
 
 #include "core/rule/Rule.h"
+#include "core/rule/LogicUnit.h"
 
 
 class GameScene : public ax::Scene
@@ -58,6 +59,7 @@ protected:
     int _sceneID                                 = 0;
 
     Rule* _rule = nullptr;
+    std::vector<LogicUnit*> _flows;
 
     ax::Vec2 visibleSize = _director->getVisibleSize();
     ax::Vec2 origin      = _director->getVisibleOrigin();

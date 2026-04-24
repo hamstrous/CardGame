@@ -11,6 +11,7 @@ MainGameCommand::MainGameCommand(Zone* playField)
 
 void MainGameCommand::execute()
 {
+    AXLOG("Main game command executing");
     auto gameScene = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene());
     auto cards     = gameScene->cards;
     auto zones     = gameScene->zones;
@@ -40,7 +41,7 @@ void MainGameCommand::onMainFieldCardReceived(EventZone* event) {
         return;  // Ignore events from other zones
     }
 
-    setDone(true);
+    //setDone(true);
     for (auto input : _playerList[_currentPlayerIndex])
     {
         input->lockInput();
@@ -52,8 +53,10 @@ void MainGameCommand::onMainFieldCardReceived(EventZone* event) {
     if (_playerList[_currentPlayerIndex].size() == 1)
     {
         AXLOG("%d win", _currentPlayerIndex);
+        setDone(true);
+        return;
     }
-
+    execute();
 }
 
 void MainGameCommand::setCurrentPlayerIndex(int index) {

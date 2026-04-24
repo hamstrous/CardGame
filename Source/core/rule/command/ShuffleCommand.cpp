@@ -10,6 +10,7 @@ ShuffleCommand::ShuffleCommand(ax::Vector<Card*> &cards) : _cardsToShuffle(cards
 
 void ShuffleCommand::execute()
 {
+    AXLOG("Shuffle command executing");
     this->scheduleUpdate();
     setRunning(true);
     auto& gameCards = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene())->cards;
