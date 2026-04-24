@@ -11,7 +11,7 @@ void View::setUpObjectsForScene() {
     ax::Rect safeArea    = director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    if (gameState->clientPlayer->getIndex() && gameState->clientPlayer->getIndex() == 0)
+    if (gameState->clientPlayer->getIndex() == 0)
     {
 
     }

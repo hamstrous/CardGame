@@ -7,7 +7,11 @@
 #include "core/view/Player.h"
 #include "core/model/StateManager.h"
 
+#include "network/HttpClient.h"
+
+
 using namespace ax;
+using namespace ax::network;
 using namespace std;
 
 bool GameScene::init()
@@ -41,11 +45,6 @@ bool GameScene::init()
 
 
     setUpObjects();
-
-    Player* player = new Player("Test", 1);
-    _gameState->clientPlayer = player;
-    View* playerView         = new View();
-    playerView->setUpObjectsForScene();
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -188,7 +187,34 @@ void GameScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 
 void GameScene::onEnter() {
     Scene::onEnter();
-    setUpRule();
+    Player* player           = new Player("Test", 0);
+    _gameState->clientPlayer = player;
+
+    auto request = new HttpRequest();
+    request->setRequestType(HttpRequest::Type::GET);
+    request->setUrl("http://localhost:5284");
+
+    request->setCompleteCallback([player, this](HttpClient* client, HttpResponse* response) {
+        if (response->getResponseCode() == 200)
+        {
+            auto* data = response->getResponseData();
+            std::string body(data->data(), data->size());
+            int id = stoi(body);
+            AXLOG("Player data: %d", id);
+            player->setIndex(id);
+            View* playerView = new View();
+            playerView->setUpObjectsForScene();
+            delete playerView;
+            setUpRule();
+        }
+        else
+        {
+            AXLOG("HTTP error: %d", response->getResponseCode());
+        }
+    });
+
+    HttpClient::getInstance()->send(request);
+    request->release();  // send() retains internally
 }
 
 GameScene::~GameScene() {}
