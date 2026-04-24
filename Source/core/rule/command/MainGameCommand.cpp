@@ -11,7 +11,6 @@ MainGameCommand::MainGameCommand(Zone* playField)
 
 void MainGameCommand::execute()
 {
-    AXLOG("Main game command executing");
     auto gameScene = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene());
     auto cards     = gameScene->cards;
     auto zones     = gameScene->zones;

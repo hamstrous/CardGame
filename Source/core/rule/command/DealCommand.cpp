@@ -8,7 +8,6 @@ void DealCommand::execute() {
     auto cards     = gameScene->cards;
 
     setRunning(true);
-    AXLOG("Deal command executing");
     float delay = 0.0f;
     int currentZoneIndex = 0;
     for (int i = 0; i < cards.size(); ++i)
@@ -20,7 +19,6 @@ void DealCommand::execute() {
     auto delayAction = ax::DelayTime::create(delay);
     auto callback = ax::CallFunc::create([this]() {
         this->setDone(true);
-        AXLOG("Deal command done");
         });
     auto sequence    = ax::Sequence::create(delayAction, callback, nullptr);
     this->runAction(sequence);
