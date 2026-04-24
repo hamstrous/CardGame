@@ -3,6 +3,10 @@
 #include "core/rule/command/ShuffleCommand.h"
 #include "core/rule/command/MainGameCommand.h"
 
+#include "core/view/View.h"
+#include "core/view/Player.h"
+#include "core/model/StateManager.h"
+
 using namespace ax;
 using namespace std;
 
@@ -32,7 +36,16 @@ bool GameScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(GameScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
+    StateManager::getInstance()->setGameState(new GameState());
+    _gameState = StateManager::getInstance()->getGameState();
+
+
     setUpObjects();
+
+    Player* player = new Player("Test", 1);
+    _gameState->clientPlayer = player;
+    View* playerView         = new View();
+    playerView->setUpObjectsForScene();
 
     // scheduleUpdate() is required to ensure update(float) is called on every loop
     scheduleUpdate();
@@ -80,9 +93,9 @@ void GameScene::setUpObjects() {
     zone3->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     zone3->setContentSize(Size(300, 300));
 
-    zones.pushBack(zone);
-    zones.pushBack(zone2);
-    zones.pushBack(zone3);
+    _gameState->zones.pushBack(zone);
+    _gameState->zones.pushBack(zone2);
+    _gameState->zones.pushBack(zone3);
 
     // Set up 8 cards 4 for each side
     for (auto i : {"0", "1"})
@@ -92,26 +105,26 @@ void GameScene::setUpObjects() {
             this->addChild(card);
             card->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
             card->setContentSize(Size(100, 150));
-            cards.pushBack(card);
+            _gameState->cards.pushBack(card);
             card->setName(string(color) + string(i));
         }
 
 }
 
 void GameScene::setUpRule() {
-    for (int i = 0; i < cards.size(); ++i)
+    for (int i = 0; i < _gameState->cards.size(); ++i)
     {
-        cards[i]->lockInput();
+        _gameState->cards[i]->lockInput();
     }
-
+    
     for (int i = 0; i < 2; ++i)
     {
-        zones[i]->lockInput();
+        _gameState->zones[i]->lockInput();
     }
 
-    Command* shuffleCommand = new ShuffleCommand(cards);
-    Command* dealCommand    = new DealCommand(cards, zones);
-    Command* mainGameCommand = new MainGameCommand(zones[2]);
+    Command* shuffleCommand = new ShuffleCommand(_gameState->cards);
+    Command* dealCommand    = new DealCommand(_gameState->cards, _gameState->zones);
+    Command* mainGameCommand = new MainGameCommand(_gameState->zones[2]);
 
     LogicUnit* mainLogic = new LogicUnit(mainGameCommand, nullptr);
     LogicUnit* dealLogic    = new LogicUnit(dealCommand, mainLogic);

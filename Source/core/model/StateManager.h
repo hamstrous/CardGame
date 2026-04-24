@@ -26,5 +26,3 @@ private:
 
     GameState* _gameState = nullptr;
 };
-
-StateManager* StateManager::_instance = nullptr;

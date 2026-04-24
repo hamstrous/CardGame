@@ -1,5 +1,6 @@
 #include "MainGameCommand.h"
 #include "core/scene/GameScene.h"
+#include "core/model/StateManager.h"
 
 MainGameCommand::MainGameCommand(Zone* playField) 
 {
@@ -12,8 +13,8 @@ MainGameCommand::MainGameCommand(Zone* playField)
 void MainGameCommand::execute()
 {
     auto gameScene = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene());
-    auto cards     = gameScene->cards;
-    auto zones     = gameScene->zones;
+    auto cards     = StateManager::getInstance()->getGameState()->cards;
+    auto zones     = StateManager::getInstance()->getGameState()->zones;
     if (_firstTime)
     {
         for (auto i : cards)

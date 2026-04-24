@@ -1,11 +1,10 @@
 #include "DealCommand.h"
-#include "core/scene/GameScene.h"
+#include "core/model/StateManager.h"
 
 void DealCommand::execute() {
     this->scheduleUpdate();
 
-    auto gameScene = static_cast<GameScene*>(ax::Director::getInstance()->getRunningScene());
-    auto cards     = gameScene->cards;
+    auto cards     = StateManager::getInstance()->getGameState()->cards;
 
     setRunning(true);
     float delay = 0.0f;

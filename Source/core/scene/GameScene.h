@@ -8,25 +8,11 @@
 
 #include "core/rule/Rule.h"
 #include "core/rule/LogicUnit.h"
+#include "core/model/GameState.h"
 
 
 class GameScene : public ax::Scene
 {
-    enum class GameState
-    {
-        init = 0,
-        update,
-        pause,
-        end,
-        menu1,
-        menu2,
-    };
-
-// Game state that can accesible from anywhere
-public:
-    ax::Vector<Zone*> zones;
-    ax::Vector<Card*> cards;
-
 public:
     bool init() override;
     void update(float delta) override;
@@ -53,7 +39,6 @@ public:
     ~GameScene() override;
 
 protected:
-    GameState _gameState                         = GameState::init;
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
@@ -65,5 +50,8 @@ protected:
     ax::Vec2 origin      = _director->getVisibleOrigin();
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
+
+    GameState* _gameState = nullptr; 
+
     //EventListenerZone* _cardEventListener = nullptr;
 };

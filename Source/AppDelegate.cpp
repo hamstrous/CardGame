@@ -57,7 +57,7 @@ bool AppDelegate::applicationDidFinishLaunching()
                                     ResolutionPolicy::SHOW_ALL);
 
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<LoginScene>();
+    auto scene = utils::createInstance<MenuScene>();
 
     // run
     director->runWithScene(scene);

@@ -5,6 +5,8 @@
 #include "core/object/Card.h"
 #include "core/object/Zone.h"
 
+#include "core/view/Player.h"
+
 #include <map>
 #include <vector>
 
@@ -12,11 +14,16 @@
 
 class GameState{
 public:
-    std::vector<Card*> cardsInPlay;
-    std::vector<Zone*> zonesInPlay;
+    GameState() = default;
+    // global
+    ax::Vector<Card*> cards;
+    ax::Vector<Zone*> zones;
 
     int playerCount = 0;
     int currentPlayerIndex = 0;
     std::vector<std::string> playerNames;
+
+    // local
+    Player* clientPlayer = nullptr;
 
 };
