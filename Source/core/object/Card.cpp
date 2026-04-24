@@ -17,21 +17,6 @@ Card* Card::create(CardData* property)
 
 bool Card::init(CardData* property)
 {
-
-Card* Card::create(CardData* property)
-{
-    Card* card = new (std::nothrow) Card();
-    if (card && card->init(property))
-    {
-        card->autorelease();
-        return card;
-    }
-    AX_SAFE_DELETE(card);
-    return nullptr;
-}
-
-bool Card::init(CardData* property)
-{
     if (!Node::init())
     {
         return false;
@@ -195,7 +180,8 @@ void Card::flip(float duration) {
     this->runAction(sequence);
 
     EventCard* event = new EventCard(this, true);
-
+    _eventDispatcher->dispatchEvent(event);
+}
 
 void Card::reveal() {
     if(_isFaceUp) return;
