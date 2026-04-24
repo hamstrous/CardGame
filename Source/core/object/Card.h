@@ -3,6 +3,7 @@
 #include "axmol.h"
 
 #include <string>
+#include <map>
 
 #include "core/interface/ILockableInput.h"
 
@@ -70,14 +71,12 @@ protected:
     ax::Sprite* _frontSprite = nullptr;
     ax::Sprite* _backSprite = nullptr;
 
+    std::map<std::string, ax::Action*> _currentActions;
+
     Zone* _currentZone = nullptr;
 
     //alias for property
     bool& _isFaceUp = _property->isFaceUp;
     bool& _isDraggable = _property->isDraggable;
-
-    static const int FLIP_ACTION_TAG = 1001;
-    static const int CARD_TAG = 10;
     
 };
-

@@ -1,6 +1,22 @@
 #include "Card.h"
 #include "Zone.h"
 #include "core/event/EventCard.h"
+#include "core/const/GameConstants.h"
+
+Card* Card::create(CardData* property)
+{
+    Card* card = new (std::nothrow) Card();
+    if (card && card->init(property))
+    {
+        card->autorelease();
+        return card;
+    }
+    AX_SAFE_DELETE(card);
+    return nullptr;
+}
+
+bool Card::init(CardData* property)
+{
 
 Card* Card::create(CardData* property)
 {
@@ -23,7 +39,7 @@ bool Card::init(CardData* property)
     _property = property;
 
     this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    this->setTag(Card::CARD_TAG);
+    this->setTag(ObjectTag::CARD);
 
     _frontSprite = ax::Sprite::create(property->frontImagePath);
     _backSprite  = ax::Sprite::create(property->backImagePath);
@@ -69,13 +85,13 @@ bool Card::onMouseDown(ax::Event* event)
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         moveNodeToFront(this);
-        this->setGlobalZOrder(100); 
+        this->setGlobalZOrder(ZOrder::CARD_DRAGGING); 
         _clicktimer.reset();
         //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
-        if (this->getNumberOfRunningActionsByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG) > 0)
+        if (this->getNumberOfRunningActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE) > 0)
         {
             // When cards are moving, clicking on it will consider as stopping it for dragging
-            this->stopActionByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG);
+            this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
             _isDragging = true;
         }
         else
@@ -102,7 +118,7 @@ bool Card::onMouseMove(ax::Event* event)
         _clicktimer.reset();
         _isDragging = true;
         ret         = true;
-        this->stopActionByTag(Zone::CARD_TRANSFORM_TO_ZONE_ACTION_TAG);  
+        this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);  
     }
 
     if (_isDragging)
@@ -130,7 +146,7 @@ bool Card::onMouseUp(ax::Event* event)
         EventCard* event = new EventCard(this, mousePos);
         _eventDispatcher->dispatchEvent(event);
     }
-    this->setGlobalZOrder(0);
+    this->setGlobalZOrder(ZOrder::CARD_DEFAULT);
     _isDragging = false;
     _clicktimer.reset();
 
@@ -152,7 +168,7 @@ void Card::setGlobalZOrder(int z) {
 }
 
 void Card::flip(float duration) {
-    auto runningFlipAction = this->getActionByTag(FLIP_ACTION_TAG);
+    auto runningFlipAction = this->getActionByTag(ActionTag::CARD_FLIP);
     if (runningFlipAction)
     {
         return;
@@ -175,13 +191,11 @@ void Card::flip(float duration) {
     });
 
     auto sequence    = ax::Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
-    sequence->setTag(FLIP_ACTION_TAG);
+    sequence->setTag(ActionTag::CARD_FLIP);
     this->runAction(sequence);
 
     EventCard* event = new EventCard(this, true);
 
-    _eventDispatcher->dispatchEvent(event);
-}
 
 void Card::reveal() {
     if(_isFaceUp) return;

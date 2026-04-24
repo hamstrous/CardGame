@@ -12,15 +12,6 @@
 
 class GameState{
 public:
-    static GameState* getInstance()
-    {
-        if (!_instance)
-        {
-            _instance = new GameState();
-        }
-        return _instance;
-    }
-
     std::vector<Card*> cardsInPlay;
     std::vector<Zone*> zonesInPlay;
 
@@ -28,8 +19,4 @@ public:
     int currentPlayerIndex = 0;
     std::vector<std::string> playerNames;
 
-private:
-    static GameState* _instance;
 };
-
-GameState* GameState::_instance = nullptr;

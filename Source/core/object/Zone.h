@@ -18,7 +18,6 @@
 class Zone : public ax::Node, public ILockableInput
 {
 public:
-    static const int CARD_TRANSFORM_TO_ZONE_ACTION_TAG = 2000;
 
     // Factory method
     static Zone* create(ZoneData* property);
