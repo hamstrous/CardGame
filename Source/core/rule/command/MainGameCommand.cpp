@@ -29,7 +29,7 @@ void MainGameCommand::execute()
     }
    
     this->scheduleUpdate();
-    setExecuting(true);
+    setRunning(true);
     setCurrentPlayerIndex(1 - _currentPlayerIndex);
 }
 
@@ -40,7 +40,7 @@ void MainGameCommand::onMainFieldCardReceived(EventZone* event) {
         return;  // Ignore events from other zones
     }
 
-    setExecuted(true);
+    setDone(true);
     for (auto input : _playerList[_currentPlayerIndex])
     {
         input->lockInput();

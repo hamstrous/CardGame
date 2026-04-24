@@ -13,7 +13,7 @@ class Rule : public ax::Node
 
 public:
     Rule(Turn* prepareTurn, Turn* mainTurn, Turn* endTurn);
-    ~Rule() { ax::Director::getInstance()->getScheduler()->unscheduleUpdate(this); }
+    ~Rule() { unscheduleUpdate(); }
 
     void startRule() {
         executeTurn();

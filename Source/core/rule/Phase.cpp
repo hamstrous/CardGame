@@ -12,18 +12,18 @@ void Phase::startPhase() {
 }
 
 void Phase::executeCommand() {
-    if (_commandList[_currentCommandIndex] && !_commandList[_currentCommandIndex]->isExecuted() && !_commandList[_currentCommandIndex]->isExecuting())
+    if (_commandList[_currentCommandIndex] && !_commandList[_currentCommandIndex]->isDone() && !_commandList[_currentCommandIndex]->isRunning())
     {
         _commandList[_currentCommandIndex]->execute();
     }
 }
 
 void Phase::update(float delta) {
-    if (_currentCommandIndex < _commandList.size() && _commandList[_currentCommandIndex]->isExecuted())
+    if (_currentCommandIndex < _commandList.size() && _commandList[_currentCommandIndex]->isDone())
     {
         _currentCommandIndex++;
     }
-    else if (_currentCommandIndex < _commandList.size() && !_commandList[_currentCommandIndex]->isExecuted())
+    else if (_currentCommandIndex < _commandList.size() && !_commandList[_currentCommandIndex]->isDone())
     {
         executeCommand();
 
@@ -37,8 +37,8 @@ void Phase::update(float delta) {
         _currentCommandIndex = 0;
         for (auto command : _commandList)
         {
-            command->setExecuted(false);
-            command->setExecuting(false);
+            command->setDone(false);
+            command->setRunning(false);
         }
     }
 }
