@@ -44,6 +44,9 @@ public:
     virtual void hide();
 
     // Getters and Setters
+    void setId(int id) { this->id = id; }
+    int getId() const { return id; }
+
     void setDraggable(bool draggable);
     bool getDraggable();
     void setFaceUp(bool faceUp);
@@ -71,7 +74,8 @@ protected:
     ax::Sprite* _frontSprite = nullptr;
     ax::Sprite* _backSprite = nullptr;
 
-    std::map<std::string, ax::Action*> _currentActions;
+    std::map<std::string, int> _valueMap;
+    int id = 0;  // Temp id for testing, should be replaced by a more robust system
 
     Zone* _currentZone = nullptr;
 

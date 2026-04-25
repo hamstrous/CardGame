@@ -7,7 +7,7 @@
 #include "core/view/Player.h"
 #include "core/model/StateManager.h"
 
-#include "network/HttpClient.h"
+#include "core/network/HttpRequestHandler.h"
 
 
 using namespace ax;
@@ -97,6 +97,7 @@ void GameScene::setUpObjects() {
     _gameState->zones.pushBack(zone3);
 
     // Set up 8 cards 4 for each side
+    int id = 0;
     for (auto i : {"0", "1"})
         for (auto color : {"blue", "red", "green", "yellow"})
         {
@@ -106,6 +107,7 @@ void GameScene::setUpObjects() {
             card->setContentSize(Size(100, 150));
             _gameState->cards.pushBack(card);
             card->setName(string(color) + string(i));
+            card->setId(id++);
         }
 
 }
@@ -190,11 +192,8 @@ void GameScene::onEnter() {
     Player* player           = new Player("Test", 0);
     _gameState->clientPlayer = player;
 
-    auto request = new HttpRequest();
-    request->setRequestType(HttpRequest::Type::GET);
-    request->setUrl("http://localhost:5284");
-
-    request->setCompleteCallback([player, this](HttpClient* client, HttpResponse* response) {
+    HttpRequestHandler::sendGetRequest("http://localhost:5284",
+                                       [player, this](HttpClient* client, HttpResponse* response) {
         if (response->getResponseCode() == 200)
         {
             auto* data = response->getResponseData();
@@ -212,9 +211,6 @@ void GameScene::onEnter() {
             AXLOG("HTTP error: %d", response->getResponseCode());
         }
     });
-
-    HttpClient::getInstance()->send(request);
-    request->release();  // send() retains internally
 }
 
 GameScene::~GameScene() {}
