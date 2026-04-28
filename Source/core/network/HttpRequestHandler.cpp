@@ -1,22 +1,24 @@
 #include "HttpRequestHandler.h"
 
-void HttpRequestHandler::sendGetRequest(std::string url,
+string HttpRequestHandler::_url = "http://localhost:5284/";
+
+void HttpRequestHandler::sendGetRequest(std::string path,
                                                function<void(HttpClient* client, HttpResponse* response)> callback)
 {
     auto request = new HttpRequest();
     request->setRequestType(HttpRequest::Type::GET);
-    request->setUrl(url.c_str());
+    request->setUrl(_url + path);
     request->setResponseCallback(callback);
     HttpClient::getInstance()->send(request);
     request->release();  // send() retains internally
 }
 
-void HttpRequestHandler::sendPostRequest(std::string url,
+void HttpRequestHandler::sendPostRequest(std::string path,
                                         function<void(HttpClient* client, HttpResponse* response)> callback)
 {
     auto request = new HttpRequest();
     request->setRequestType(HttpRequest::Type::POST);
-    request->setUrl(url.c_str());
+    request->setUrl(_url + path);
     request->setResponseCallback(callback);
     HttpClient::getInstance()->send(request);
     request->release();  // send() retains internally
