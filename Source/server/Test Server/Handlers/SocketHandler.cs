@@ -71,7 +71,7 @@ public class SocketHandler
                             return;
                         }
 
-                        foreach (var kvp in WebSocketEndpoint.ConnectedSockets)
+                        foreach (var kvp in WebSocketEndpoint.connectedSockets)
                         {
                             if (kvp.Value != socket)
                             {
@@ -106,7 +106,7 @@ public class SocketHandler
         try
         {
             MainEndpoints.validUsers.TryRemove(session, out _);
-            WebSocketEndpoint.ConnectedSockets.TryRemove(session, out _);
+            WebSocketEndpoint.connectedSockets.TryRemove(session, out _);
         }
         catch (Exception ex)
         {

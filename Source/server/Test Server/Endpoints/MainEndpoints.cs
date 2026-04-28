@@ -16,14 +16,11 @@ public static class MainEndpoints
             var request = await context.Request.ReadFromJsonAsync<LoginRequest>();
             if (request is null)
             {
-                context.Response.StatusCode = 400;
-                await context.Response.WriteAsJsonAsync(new { error = "Invalid request body" });
-                return Results.BadRequest();
+                return Results.BadRequest(new { error = "Invalid request body" });
             }
             var authToken = Guid.NewGuid().ToString();
             validUsers[authToken] = request.Username;
-            await context.Response.WriteAsJsonAsync(new { authToken });
-            return Results.Ok();
+            return Results.Ok(new { authToken });
         });
 
 
