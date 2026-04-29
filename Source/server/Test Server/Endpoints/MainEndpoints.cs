@@ -23,7 +23,7 @@ public static class MainEndpoints
             var player = new PlayerInfo { Username = request.Username, Password = request.Password, AuthToken = authToken };
             if (playerService.AddPlayerAndToken(authToken, player))
             {
-                return Results.Ok(new { authToken });
+                return Results.Ok(new { auth_token = authToken });
             }
 
             return Results.BadRequest(new { error = "Failed to create player" });

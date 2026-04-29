@@ -2,16 +2,19 @@
 
 #include "network/HttpClient.h"
 #include "core/network/HttpRequestHandler.h"
+#include "core/network/SocketNetworkManager.h"
 
 #include "ui/UIEditBox/UIEditBox.h"
 #include "ui/UIButton.h"
 
 #include <format>
+#include "utils/json.hpp"
 
 using namespace ax;
 using namespace ax::network;
 using namespace ax::ui;
 using namespace std;
+using json = lib::json;
 
 bool LoginScene::init()
 {
@@ -63,8 +66,14 @@ bool LoginScene::init()
                                             [this](HttpClient* client, HttpResponse* response) {
             if (response->isSucceed())
             {
+                string responseStr = HttpRequestHandler::convertBufferToString(response->getResponseData());
                 // Handle successful login
-                AXLOGD("Login successful: {}", HttpRequestHandler::convertBufferToString(response->getResponseData()));
+                json responseJson = json::parse(responseStr);
+                AXLOGD("Login successful: {}", responseJson["auth_token"]);
+                _socketManager = new SocketNetworkManager();
+                _socketManager->setAuthorizationHeader(responseJson["auth_token"]);
+                _socketManager->connect("ws://localhost:5284/ws");
+                
             }
             else
             {
@@ -99,8 +108,17 @@ bool LoginScene::onMouseMove(Event* event)
     return true;
 }
 
-void LoginScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
+void LoginScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {
+    if (code == EventKeyboard::KeyCode::KEY_J)
+    {
+        _socketManager->sendMessage("{\"cmd\": \"join_room\", \"room_id\": \"room\"}");
+    }
+}
 
 void LoginScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+
+void LoginScene::startSocket(string authToken) {
+    
+}
 
 LoginScene::~LoginScene() {}

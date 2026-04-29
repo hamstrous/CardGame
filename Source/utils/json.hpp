@@ -2781,7 +2781,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #define NLOHMANN_DEFINE_TYPE_INTRUSIVE(Type, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
 
 /*!
@@ -2793,7 +2793,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #define NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Type, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
 
 /*!
@@ -2815,7 +2815,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #define NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Type, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
 
 /*!
@@ -2827,7 +2827,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #define NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Type, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
     void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
 
 /*!
@@ -2848,9 +2848,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_INTRUSIVE(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { nlohmann::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
+    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { lib::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
 
 /*!
 @brief macro
@@ -2860,9 +2860,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_INTRUSIVE_WITH_DEFAULT(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { nlohmann::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
+    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    friend void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { lib::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
 
 /*!
 @brief macro
@@ -2872,7 +2872,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_INTRUSIVE_ONLY_SERIALIZE(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) }
+    friend void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) }
 
 /*!
 @brief macro
@@ -2882,9 +2882,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_NON_INTRUSIVE(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { nlohmann::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
+    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { lib::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }
 
 /*!
 @brief macro
@@ -2894,9 +2894,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
-    template<typename BasicJsonType, nlohmann::detail::enable_if_t<nlohmann::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { nlohmann::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
+    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } \
+    template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
+    void from_json(const BasicJsonType& nlohmann_json_j, Type& nlohmann_json_t) { lib::from_json(nlohmann_json_j, static_cast<BaseType&>(nlohmann_json_t)); const Type nlohmann_json_default_obj{}; NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM_WITH_DEFAULT, __VA_ARGS__)) }
 
 /*!
 @brief macro
@@ -2906,7 +2906,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 */
 #define NLOHMANN_DEFINE_DERIVED_TYPE_NON_INTRUSIVE_ONLY_SERIALIZE(Type, BaseType, ...)  \
     template<typename BasicJsonType, lib::detail::enable_if_t<lib::detail::is_basic_json<BasicJsonType>::value, int> = 0> \
-    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { nlohmann::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) }
+    void to_json(BasicJsonType& nlohmann_json_j, const Type& nlohmann_json_t) { lib::to_json(nlohmann_json_j, static_cast<const BaseType &>(nlohmann_json_t)); NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) }
 
 // inspired from https://stackoverflow.com/a/26745591
 // allows calling any std function as if (e.g., with begin):
@@ -2936,7 +2936,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     template<typename... T>                                                       \
     struct would_call_std_##std_name                                              \
     {                                                                             \
-        static constexpr auto const value = ::nlohmann::detail::                  \
+        static constexpr auto const value = ::lib::detail::                  \
                                             is_detected_exact<std_name##_tag, result_of_##std_name, T...>::value; \
     };                                                                            \
     } /* namespace detail2 */ \
@@ -8847,7 +8847,7 @@ NLOHMANN_JSON_NAMESPACE_BEGIN
 /*!
 @brief SAX interface
 
-This class describes the SAX interface used by @ref nlohmann::json::sax_parse.
+This class describes the SAX interface used by @ref lib::json::sax_parse.
 Each function is called in different situations while the input is parsed. The
 boolean return value informs the parser whether to continue processing the
 input.
@@ -19764,7 +19764,7 @@ class serializer
     void dump_float(number_float_t x, std::true_type /*is_ieee_single_or_double*/)
     {
         auto* begin = number_buffer.data();
-        auto* end = ::nlohmann::detail::to_chars(begin, begin + number_buffer.size(), x);
+        auto* end = ::lib::detail::to_chars(begin, begin + number_buffer.size(), x);
 
         o->write_characters(begin, static_cast<size_t>(end - begin));
     }
@@ -19963,7 +19963,7 @@ NLOHMANN_JSON_NAMESPACE_END
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
 /// ordered_map: a minimal map-like container that preserves insertion order
-/// for use within nlohmann::basic_json<ordered_map>
+/// for use within lib::basic_json<ordered_map>
 template <class Key, class T, class IgnoredLess = std::less<Key>,
           class Allocator = std::allocator<std::pair<const Key, T>>>
               struct ordered_map : std::vector<std::pair<const Key, T>, Allocator>
@@ -20341,7 +20341,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     template<typename>
     friend class ::lib::json_pointer;
     // can be restored when json_pointer backwards compatibility is removed
-    // friend ::nlohmann::json_pointer<StringType>;
+    // friend ::lib::json_pointer<StringType>;
 
     template<typename BasicJsonType, typename InputType>
     friend class ::lib::detail::parser;
@@ -20401,7 +20401,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
   public:
     using value_t = detail::value_t;
-    /// JSON Pointer, see @ref nlohmann::json_pointer
+    /// JSON Pointer, see @ref lib::json_pointer
     using json_pointer = ::lib::json_pointer<StringType>;
     template<typename T, typename SFINAE>
     using json_serializer = JSONSerializer<T, SFINAE>;
@@ -20415,7 +20415,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     using initializer_list_t = std::initializer_list<detail::json_ref<basic_json>>;
 
     using input_format_t = detail::input_format_t;
-    /// SAX interface type, see @ref nlohmann::json_sax
+    /// SAX interface type, see @ref lib::json_sax
     using json_sax_t = json_sax<basic_json>;
 
     ////////////////
@@ -25514,7 +25514,7 @@ JSON_HEDLEY_NON_NULL(1)
     inline lib::json operator""_json(const char* s, std::size_t n)
 #else
     // GCC 4.8 requires a space between "" and suffix
-    inline nlohmann::json operator"" _json(const char* s, std::size_t n)
+    inline lib::json operator"" _json(const char* s, std::size_t n)
 #endif
 {
     return lib::json::parse(s, s + n);
@@ -25522,9 +25522,9 @@ JSON_HEDLEY_NON_NULL(1)
 
 #if defined(__cpp_char8_t)
 JSON_HEDLEY_NON_NULL(1)
-inline nlohmann::json operator""_json(const char8_t* s, std::size_t n)
+inline lib::json operator""_json(const char8_t* s, std::size_t n)
 {
-    return nlohmann::json::parse(reinterpret_cast<const char*>(s),
+    return lib::json::parse(reinterpret_cast<const char*>(s),
                                  reinterpret_cast<const char*>(s) + n);
 }
 #endif
@@ -25536,16 +25536,16 @@ JSON_HEDLEY_NON_NULL(1)
     inline lib::json::json_pointer operator""_json_pointer(const char* s, std::size_t n)
 #else
     // GCC 4.8 requires a space between "" and suffix
-    inline nlohmann::json::json_pointer operator"" _json_pointer(const char* s, std::size_t n)
+    inline lib::json::json_pointer operator"" _json_pointer(const char* s, std::size_t n)
 #endif
 {
     return lib::json::json_pointer(std::string(s, n));
 }
 
 #if defined(__cpp_char8_t)
-inline nlohmann::json::json_pointer operator""_json_pointer(const char8_t* s, std::size_t n)
+inline lib::json::json_pointer operator""_json_pointer(const char8_t* s, std::size_t n)
 {
-    return nlohmann::json::json_pointer(std::string(reinterpret_cast<const char*>(s), n));
+    return lib::json::json_pointer(std::string(reinterpret_cast<const char*>(s), n));
 }
 #endif
 
@@ -25567,7 +25567,7 @@ struct hash<lib::NLOHMANN_BASIC_JSON_TPL> // NOLINT(cert-dcl58-cpp)
 {
     std::size_t operator()(const lib::NLOHMANN_BASIC_JSON_TPL& j) const
     {
-        return nlohmann::detail::hash(j);
+        return lib::detail::hash(j);
     }
 };
 
@@ -25585,7 +25585,7 @@ struct less< ::lib::detail::value_t> // do not remove the space after '<', see h
 #if JSON_HAS_THREE_WAY_COMPARISON
         return std::is_lt(lhs <=> rhs); // *NOPAD*
 #else
-        return ::nlohmann::detail::operator<(lhs, rhs);
+        return ::lib::detail::operator<(lhs, rhs);
 #endif
     }
 };
@@ -25596,9 +25596,9 @@ struct less< ::lib::detail::value_t> // do not remove the space after '<', see h
 /// @brief exchanges the values of two JSON objects
 /// @sa https://json.nlohmann.me/api/basic_json/std_swap/
 NLOHMANN_BASIC_JSON_TPL_DECLARATION
-inline void swap(nlohmann::NLOHMANN_BASIC_JSON_TPL& j1, nlohmann::NLOHMANN_BASIC_JSON_TPL& j2) noexcept(  // NOLINT(readability-inconsistent-declaration-parameter-name, cert-dcl58-cpp)
-    is_nothrow_move_constructible<nlohmann::NLOHMANN_BASIC_JSON_TPL>::value&&                          // NOLINT(misc-redundant-expression,cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
-    is_nothrow_move_assignable<nlohmann::NLOHMANN_BASIC_JSON_TPL>::value)
+inline void swap(lib::NLOHMANN_BASIC_JSON_TPL& j1, lib::NLOHMANN_BASIC_JSON_TPL& j2) noexcept(  // NOLINT(readability-inconsistent-declaration-parameter-name, cert-dcl58-cpp)
+    is_nothrow_move_constructible<lib::NLOHMANN_BASIC_JSON_TPL>::value&&                          // NOLINT(misc-redundant-expression,cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
+    is_nothrow_move_assignable<lib::NLOHMANN_BASIC_JSON_TPL>::value)
 {
     j1.swap(j2);
 }
@@ -25613,8 +25613,8 @@ inline void swap(nlohmann::NLOHMANN_BASIC_JSON_TPL& j1, nlohmann::NLOHMANN_BASIC
         using lib::literals::json_literals::operator""_json_pointer; //NOLINT(misc-unused-using-decls,google-global-names-in-headers)
     #else
         // GCC 4.8 requires a space between "" and suffix
-        using nlohmann::literals::json_literals::operator"" _json; // NOLINT(misc-unused-using-decls,google-global-names-in-headers)
-        using nlohmann::literals::json_literals::operator"" _json_pointer; //NOLINT(misc-unused-using-decls,google-global-names-in-headers)
+        using lib::literals::json_literals::operator"" _json; // NOLINT(misc-unused-using-decls,google-global-names-in-headers)
+        using lib::literals::json_literals::operator"" _json_pointer; //NOLINT(misc-unused-using-decls,google-global-names-in-headers)
     #endif
 #endif
 
