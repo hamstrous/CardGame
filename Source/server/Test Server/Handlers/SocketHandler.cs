@@ -73,6 +73,12 @@ public class SocketHandler(PlayerService playerService)
                             return;
                         }
 
+                        if (string.IsNullOrEmpty(user.CurrentRoomId))
+                        {
+                            await SendErrorMessageAsync(socket, "User must be in a room to broadcast messages");
+                            return;
+                        }
+
                         foreach (var kvp in playerService.GetAllPlayers())
                         {
                             if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.Socket != socket && kvp.Value.CurrentRoomId == user.CurrentRoomId)
@@ -87,10 +93,10 @@ public class SocketHandler(PlayerService playerService)
                         await SendSuccessMessageAsync(socket, new { roomId = createdRoomId });
                         break;
                     case "join_room":
-                        var joinedRoomId = root.GetProperty("roomId").GetString();
+                        var joinedRoomId = root.GetProperty("room_id").GetString();
                         if (joinedRoomId == null)
                         {
-                            await SendErrorMessageAsync(socket, "Missing roomId property");
+                            await SendErrorMessageAsync(socket, "Missing room_id property");
                             return;
                         }
                         user.CurrentRoomId = joinedRoomId;

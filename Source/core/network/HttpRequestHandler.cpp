@@ -1,6 +1,7 @@
 #include "HttpRequestHandler.h"
 
-string HttpRequestHandler::_url = "http://localhost:5284/";
+string HttpRequestHandler::_url = "http://localhost:5284";
+bool HttpRequestHandler::_isJsonRequest = false;
 
 void HttpRequestHandler::sendGetRequest(std::string path,
                                                function<void(HttpClient* client, HttpResponse* response)> callback)
@@ -13,12 +14,21 @@ void HttpRequestHandler::sendGetRequest(std::string path,
     request->release();  // send() retains internally
 }
 
-void HttpRequestHandler::sendPostRequest(std::string path,
+void HttpRequestHandler::sendPostRequest(std::string path, std::string body,
                                         function<void(HttpClient* client, HttpResponse* response)> callback)
 {
     auto request = new HttpRequest();
     request->setRequestType(HttpRequest::Type::POST);
     request->setUrl(_url + path);
+    if(!body.empty())
+    {
+        request->setRequestData(body.c_str(), body.length());
+    }
+    if (_isJsonRequest)
+    {
+        vector<string> headers = {"Content-Type: application/json;charset=UTF-8"};
+        request->setHeaders(headers);
+    }
     request->setResponseCallback(callback);
     HttpClient::getInstance()->send(request);
     request->release();  // send() retains internally

@@ -160,11 +160,11 @@ void MenuScene::processStartFile() {
     //    }
     //}
     MenuButton* button = MenuButton::create<GameScene>("icon/uno.png", "uno");
-        if (button)
-        {
-            button->setContentSize(Size(100, 50));
-            _menuButtonList.pushBack(button);
-        }
+    if (button)
+    {
+        button->setContentSize(Size(100, 50));
+        _menuButtonList.pushBack(button);
+    }
 }
 
 void MenuScene::setUpButtonsPanel() {

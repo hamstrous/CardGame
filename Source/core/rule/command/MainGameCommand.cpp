@@ -52,7 +52,9 @@ void MainGameCommand::onMainFieldCardReceived(EventZone* event) {
     _playerList[_currentPlayerIndex].erase(std::remove(_playerList[_currentPlayerIndex].begin(), _playerList[_currentPlayerIndex].end(), card), _playerList[_currentPlayerIndex].end());
 
 
-    HttpRequestHandler::sendPostRequest("http://localhost:5284/play/" + std::to_string(_currentPlayerIndex) + "/" + std::to_string(card->getId()),
+    HttpRequestHandler::sendPostRequest(
+        "/play/" + std::to_string(_currentPlayerIndex) + "/" + std::to_string(card->getId()),
+        "",
         [this](HttpClient* client, HttpResponse* response) {
             if (response->getResponseCode() == 200)
             {

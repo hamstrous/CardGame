@@ -1,8 +1,16 @@
 #include "LoginScene.h"
+
 #include "network/HttpClient.h"
+#include "core/network/HttpRequestHandler.h"
+
+#include "ui/UIEditBox/UIEditBox.h"
+#include "ui/UIButton.h"
+
+#include <format>
 
 using namespace ax;
 using namespace ax::network;
+using namespace ax::ui;
 using namespace std;
 
 bool LoginScene::init()
@@ -31,26 +39,41 @@ bool LoginScene::init()
 
     scheduleUpdate();
 
-    auto request = new HttpRequest();
-    request->setRequestType(HttpRequest::Type::GET);
-    request->setUrl("http://localhost:5284");
+    ui::EditBox* usernameEditBox = EditBox::create(Size(200, 40), "background.png");
+    usernameEditBox->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
+    this->addChild(usernameEditBox);
+    ui::EditBox* passwordEditBox = EditBox::create(Size(200, 40), "background.png");    
+    passwordEditBox->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 50));
+    this->addChild(passwordEditBox);
 
-    request->setCompleteCallback([](HttpClient* client, HttpResponse* response) {
-        if (response->getResponseCode() == 200)
-        {
-            auto* data = response->getResponseData();
-            std::string body(data->data(), data->size());
-            AXLOG("Player data: %s", body.c_str());
-            // Parse JSON and update UI here
-        }
-        else
-        {
-            AXLOG("HTTP error: %d", response->getResponseCode());
-        }
+    Button* loginButton = Button::create("background.png");
+    loginButton->ignoreContentAdaptWithSize(false);
+    loginButton->setContentSize(Size(100, 50));
+    loginButton->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 100));
+    this->addChild(loginButton);
+
+    loginButton->addClickEventListener([this, usernameEditBox, passwordEditBox](ax::Object* sender) {
+        // Handle login button click
+        // You can retrieve the username and password from the edit boxes and perform login logic here
+        string loginBody = std::format("{{\"username\": \"{}\", \"password\": \"{}\"}}", usernameEditBox->getText(),
+                                       passwordEditBox->getText());
+        AXLOGD("Login button clicked, sending POST request with body: {}", loginBody);
+        HttpRequestHandler::setJsonRequest(true);
+        HttpRequestHandler::sendPostRequest("/login", loginBody,
+                                            [this](HttpClient* client, HttpResponse* response) {
+            if (response->isSucceed())
+            {
+                // Handle successful login
+                AXLOGD("Login successful: {}", HttpRequestHandler::convertBufferToString(response->getResponseData()));
+            }
+            else
+            {
+                // Handle login failure
+                AXLOGD("Login failed");
+            }
+        });
+        
     });
-
-    HttpClient::getInstance()->send(request);
-    request->release();  // send() retains internally
 
     return true;
 }
