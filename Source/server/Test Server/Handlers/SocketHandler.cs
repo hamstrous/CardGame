@@ -4,16 +4,18 @@ using System.Text;
 using System.Text.Json;
 
 using Test_Server.Endpoints;
+using Test_Server.Models;
+using Test_Server.Services;
 
 namespace Test_Server.Handlers;
 
 
-public class SocketHandler
+public class SocketHandler(PlayerService playerService)
 {
-    public async Task HandleAsync(WebSocket socket, string user)
+    public async Task HandleAsync(WebSocket socket, PlayerInfo user)
     {
         var buffer = new byte[1024 * 4];
-        Console.WriteLine($"[WebSocket] Connected: {user}");
+        Console.WriteLine($"[WebSocket] Connected: {user.Username}");
 
         while (socket.State == WebSocketState.Open)
         {
@@ -23,29 +25,29 @@ public class SocketHandler
 
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    Console.WriteLine($"[WebSocket] Disconnected: {user}");
+                    Console.WriteLine($"[WebSocket] Disconnected: {user.Username}");
                 }
                 else
                 {
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    await HandleMessageAsync(socket, message);
+                    await HandleMessageAsync(socket, message, user);
                 }
             }
             catch (WebSocketException)
             {
-                Console.WriteLine($"[WebSocket] Connection error with {user}");
+                Console.WriteLine($"[WebSocket] Connection error with {user.Username}");
                 await HandleCloseAsync(socket, user);
                 break;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WebSocket] Error with {user}: {ex.Message}");
+                Console.WriteLine($"[WebSocket] Error with {user.Username}: {ex.Message}");
                 break;
             }
         }
     }
 
-    private async Task HandleMessageAsync(WebSocket socket, string json)
+    private async Task HandleMessageAsync(WebSocket socket, string json, PlayerInfo user)
     {
         try
         {
@@ -71,13 +73,28 @@ public class SocketHandler
                             return;
                         }
 
-                        foreach (var kvp in WebSocketEndpoint.connectedSockets)
+                        foreach (var kvp in playerService.GetAllPlayers())
                         {
-                            if (kvp.Value != socket)
+                            if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.Socket != socket && kvp.Value.CurrentRoomId == user.CurrentRoomId)
                             {
-                                await SendMessageAsync(kvp.Value, data);
+                                await SendMessageAsync(kvp.Value.Socket, data);
                             }
                         }
+                        break;
+                    case "create_room":
+                        var createdRoomId = Guid.NewGuid().ToString("N");
+                        user.CurrentRoomId = createdRoomId;
+                        await SendSuccessMessageAsync(socket, new { roomId = createdRoomId });
+                        break;
+                    case "join_room":
+                        var joinedRoomId = root.GetProperty("roomId").GetString();
+                        if (joinedRoomId == null)
+                        {
+                            await SendErrorMessageAsync(socket, "Missing roomId property");
+                            return;
+                        }
+                        user.CurrentRoomId = joinedRoomId;
+                        await SendSuccessMessageAsync(socket, new { message = "Joined room successfully" });
                         break;
                     default:
                         throw new InvalidOperationException($"Unknown command: {cmd}");
@@ -91,28 +108,29 @@ public class SocketHandler
         }
         catch (JsonException ex)
         {
-            Console.WriteLine($"[WebSocket] JSON parsing error from : {ex.Message}");
+            Console.WriteLine($"[WebSocket] JSON parsing error from {user.Username}: {ex.Message}");
             await SendErrorMessageAsync(socket, "Invalid JSON format");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[WebSocket] Error handling message from : {ex.Message}");
+            Console.WriteLine($"[WebSocket] Error handling message from {user.Username}: {ex.Message}");
             await SendErrorMessageAsync(socket, ex.Message);
         }
     }
 
-    public async Task HandleCloseAsync(WebSocket socket, string session)
+    public async Task HandleCloseAsync(WebSocket socket, PlayerInfo user)
     {
         try
         {
-            MainEndpoints.validUsers.TryRemove(session, out _);
-            WebSocketEndpoint.connectedSockets.TryRemove(session, out _);
+            playerService.RemovePlayerAndToken(user.AuthToken);
+            user.Socket = null;
+            user.Clear();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[WebSocket] Error during disconnect handling for {session}: {ex.Message}");
+            Console.WriteLine($"[WebSocket] Error during disconnect handling for {user.Username}: {ex.Message}");
         }
-        Console.WriteLine($"[WebSocket] Closing connection for {session}");
+        Console.WriteLine($"[WebSocket] Closing connection for {user.Username}");
     }
 
     public static async Task SendMessageAsync(WebSocket socket, string message)
