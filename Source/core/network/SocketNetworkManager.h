@@ -2,6 +2,7 @@
 
 #include "axmol.h"
 #include "network/WebSocket.h"
+#include "core/event/EventListenerWebSocket.h"
 
 #include <string>
 #include <map>
@@ -28,4 +29,5 @@ public:
 
 private:
     WebSocket* _ws;
+
 };

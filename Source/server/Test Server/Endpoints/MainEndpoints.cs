@@ -29,5 +29,29 @@ public static class MainEndpoints
             return Results.BadRequest(new { error = "Failed to create player" });
         });
 
+        route.MapPost("/logout", async (HttpContext context) =>
+        {
+            var authToken = context.Request.Headers["Authorization"].ToString();
+            var playerService = context.RequestServices.GetRequiredService<PlayerService>();
+            if (string.IsNullOrEmpty(authToken))
+            {
+                return Results.BadRequest(new { error = "Missing Authorization header" });
+            }
+
+            playerService.RemovePlayerAndToken(authToken);
+            return Results.Ok(new { message = "Logged out successfully" });
+        });
+
+        route.MapPost("/signup", async (HttpContext context) =>
+        {
+            var request = await context.Request.ReadFromJsonAsync<LoginRequest>();
+            if (request is null)
+            {
+                return Results.BadRequest(new { error = "Invalid request body" });
+            }
+
+            // In a real application, you would save the user to a database here
+            return Results.Ok(new { message = "Signup successful" });
+        });
     }
 }

@@ -1,4 +1,8 @@
 #include "SocketNetworkManager.h"
+#include "utils/json.hpp"
+#include "core/event/EventWebSocket.h"
+
+using json = lib::json;
 
 SocketNetworkManager::SocketNetworkManager()
 {
@@ -12,7 +16,20 @@ void SocketNetworkManager::onOpen(WebSocket* ws)
 }
 void SocketNetworkManager::onMessage(WebSocket* ws, const WebSocket::Data& data)
 {
-    AXLOGD("WebSocket message received.");
+    if (data.isBinary)
+    {
+
+    }
+    else
+    { // JSON
+        std::string message(data.bytes, data.len);
+        AXLOGD("Received message: {}", message);
+        json jsonMessage = json::parse(message);
+        std::string cmd  = jsonMessage["cmd"];
+
+        EventWebSocket *event = new EventWebSocket(cmd, jsonMessage);
+        ax::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
+    }
 }
 void SocketNetworkManager::onClose(WebSocket* ws, uint16_t code, std::string_view reason)
 {
@@ -20,7 +37,17 @@ void SocketNetworkManager::onClose(WebSocket* ws, uint16_t code, std::string_vie
 }
 void SocketNetworkManager::onError(WebSocket* ws, const WebSocket::ErrorCode& error)
 {
-    AXLOGD("WebSocket error occurred.");
+    switch (error)
+    {
+    case WebSocket::ErrorCode::TIME_OUT:
+        AXLOGD("WebSocket error: Time out");
+        break;
+    case WebSocket::ErrorCode::CONNECTION_FAILURE:
+        AXLOGD("WebSocket error: Connection failure");
+        break;
+    default:
+        AXLOGD("WebSocket error");
+    }
 }
 
 void SocketNetworkManager::connect(const std::string& url)
