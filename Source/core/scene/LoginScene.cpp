@@ -108,12 +108,7 @@ bool LoginScene::onMouseMove(Event* event)
     return true;
 }
 
-void LoginScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {
-    if (code == EventKeyboard::KeyCode::KEY_J)
-    {
-        _socketManager->sendMessage("{\"cmd\": \"join_room\", \"room_id\": \"room\"}");
-    }
-}
+void LoginScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void LoginScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 

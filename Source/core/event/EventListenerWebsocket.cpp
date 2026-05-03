@@ -2,9 +2,12 @@
 
 #include "EventWebSocket.h"
 
+const std::string EventListenerWebSocket::LISTENER_ID = "__ax_websocket";
+
+
 bool EventListenerWebSocket::checkAvailable()
 {
-    if (onWebSocketMessage == nullptr)
+    if (onWebSocketMessage == nullptr || onWebSocketOpen == nullptr || onWebSocketError == nullptr || onWebSocketClose == nullptr)
     {
         AXASSERT(false, "Invalid EventListenerWebSocket!");
         return false;
@@ -48,8 +51,30 @@ bool EventListenerWebSocket::init(const std::string& cmd)
 {
     auto listener = [this](ax::Event* event) {
         auto webSocketEvent = static_cast<EventWebSocket*>(event);
-        if (onWebSocketMessage != nullptr)
-            onWebSocketMessage(webSocketEvent);
+        switch (webSocketEvent->_eventType)
+        {
+        case EventWebSocket::WebSocketEventType::MESSAGE:
+            if (onWebSocketMessage != nullptr)
+                if (_messageCmd.empty() || _messageCmd == webSocketEvent->_cmd)
+                    onWebSocketMessage(webSocketEvent);
+            break;
+        case EventWebSocket::WebSocketEventType::OPEN:
+            if (onWebSocketOpen != nullptr)
+                onWebSocketOpen(webSocketEvent);
+            break;
+        #undef ERROR
+        case EventWebSocket::WebSocketEventType::ERROR:
+        #define ERROR 0
+            if (onWebSocketError != nullptr)
+                onWebSocketError(webSocketEvent);
+            break;
+        case EventWebSocket::WebSocketEventType::CLOSE:
+            if (onWebSocketClose != nullptr)
+                onWebSocketClose(webSocketEvent);
+            break;
+        default:
+            break;
+        }   
     };
 
     if (EventListenerCustom::init(cmd, listener))

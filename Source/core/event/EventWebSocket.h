@@ -10,11 +10,24 @@ using json = lib::json;
 class AX_DLL EventWebSocket : public ax::EventCustom
 {
 public:
-    EventWebSocket(const std::string& cmd, const json& data);
+    enum class WebSocketEventType
+    {
+        MESSAGE,
+        OPEN,
+        CLOSE,
+#undef ERROR
+        ERROR
+#define ERROR 0
+    };
+
+    EventWebSocket(const WebSocketEventType eventType, const std::string& cmd = "", const json& data = json());
 
 private:
     json _data;
+    WebSocketEventType _eventType;
+    std::string _cmd;
     
     friend class EventListenerWebSocket;
 };
+
 

@@ -12,7 +12,8 @@ SocketNetworkManager::SocketNetworkManager()
 void SocketNetworkManager::onOpen(WebSocket* ws)
 {
     AXLOGD("WebSocket connection opened.");
-    ws->send("{\"cmd\":\"join_room\",\"room_id\":\"123\"}");
+    EventWebSocket* event = new EventWebSocket(EventWebSocket::WebSocketEventType::OPEN);
+    ax::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
 }
 void SocketNetworkManager::onMessage(WebSocket* ws, const WebSocket::Data& data)
 {
@@ -27,7 +28,7 @@ void SocketNetworkManager::onMessage(WebSocket* ws, const WebSocket::Data& data)
         json jsonMessage = json::parse(message);
         std::string cmd  = jsonMessage["cmd"];
 
-        EventWebSocket *event = new EventWebSocket(cmd, jsonMessage);
+        EventWebSocket *event = new EventWebSocket(EventWebSocket::WebSocketEventType::MESSAGE, cmd, jsonMessage);
         ax::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
     }
 }
