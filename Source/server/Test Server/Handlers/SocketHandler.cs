@@ -51,23 +51,18 @@ public class SocketHandler(PlayerService playerService)
     {
         try
         {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            var message = JsonSerializer.Deserialize<WebSocketMessage>(json);
+            Console.WriteLine($"[WebSocket] Received message from {user.Username}: {json}");
 
-            if (!root.TryGetProperty("cmd", out var cmdElement))
-            {
-                await SendErrorMessageAsync(socket, "Missing cmd property");
-                return;
-            }
+            var data = message?.Data;
 
-            var cmd = cmdElement.GetString();
+            var cmd = message?.Command;
             try
             {
                 switch (cmd)
                 {
                     case "broadcast":
-                        var data = root.GetProperty("data").GetString();
-                        if (string.IsNullOrEmpty(data))
+                        if (data == null)
                         {
                             await SendErrorMessageAsync(socket, "Missing data property");
                             return;
@@ -83,24 +78,58 @@ public class SocketHandler(PlayerService playerService)
                         {
                             if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.Socket != socket && kvp.Value.CurrentRoomId == user.CurrentRoomId)
                             {
-                                await SendMessageAsync(kvp.Value.Socket, data);
+                                var broadcastData = new
+                                {
+                                    type = "broadcast",
+                                    command = "broadcast",
+                                    data,
+                                    time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                                    from = user.Username
+                                };
+                                await SendMessageAsync(kvp.Value.Socket, broadcastData);
                             }
                         }
                         break;
                     case "create_room":
                         var createdRoomId = Guid.NewGuid().ToString("N");
                         user.CurrentRoomId = createdRoomId;
-                        await SendSuccessMessageAsync(socket, new { room_id = createdRoomId });
+                        var roomData = new
+                        {
+                            type = "response",
+                            command = "create_room",
+                            data = new
+                            {
+                                room_id = createdRoomId
+                            },
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                        await SendMessageAsync(socket, roomData);
                         break;
                     case "join_room":
-                        var joinedRoomId = root.GetProperty("room_id").GetString();
+                        if (data == null)
+                        {
+                            await SendErrorMessageAsync(socket, "Missing data property");
+                            return;
+                        }
+                        var joinedRoomId = data.Value.GetProperty("room_id").GetString();
                         if (joinedRoomId == null)
                         {
                             await SendErrorMessageAsync(socket, "Missing room_id property");
                             return;
                         }
                         user.CurrentRoomId = joinedRoomId;
-                        await SendSuccessMessageAsync(socket, new { message = "Joined room successfully" });
+
+                        var joinRoomData = new
+                        {
+                            type = "response",
+                            command = "join_room",
+                            data = new
+                            {
+                                room_id = joinedRoomId
+                            },
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                        await SendMessageAsync(socket, joinRoomData);
                         break;
                     default:
                         throw new InvalidOperationException($"Unknown command: {cmd}");
@@ -143,6 +172,12 @@ public class SocketHandler(PlayerService playerService)
     {
         var buffer = Encoding.UTF8.GetBytes(message);
         await socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+    }
+
+    public static async Task SendMessageAsync(WebSocket socket, object data)
+    {
+        var json = JsonSerializer.Serialize(data);
+        await SendMessageAsync(socket, json);
     }
 
     static public async Task SendErrorMessageAsync(WebSocket socket, string errorMessage)
