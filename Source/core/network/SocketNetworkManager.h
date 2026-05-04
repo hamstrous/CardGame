@@ -15,7 +15,14 @@ class SocketNetworkManager : public WebSocket::Delegate
 {
 
 public:
-    SocketNetworkManager();
+    static SocketNetworkManager* getInstance()
+    {
+        if (_instance == nullptr)
+        {
+            _instance = new SocketNetworkManager();
+        }
+        return _instance;
+    }
 
     void onOpen(WebSocket* ws) override;
     void onMessage(WebSocket* ws, const WebSocket::Data& data) override;
@@ -28,6 +35,8 @@ public:
     void setAuthorizationHeader(const std::string& authToken);
 
 private:
-    WebSocket* _ws;
+    SocketNetworkManager();
 
+    WebSocket* _ws;
+    static SocketNetworkManager* _instance;
 };

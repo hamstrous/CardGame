@@ -8,7 +8,7 @@ class AX_DLL EventListenerWebSocket : public ax::EventListenerCustom
 public:
     static const std::string LISTENER_ID;
 
-    static EventListenerWebSocket* create(const std::string& cmd);
+    static EventListenerWebSocket* create();
 
     /// Overrides
     virtual EventListenerWebSocket* clone() override;
@@ -20,8 +20,5 @@ public:
     std::function<void(EventWebSocket*)> onWebSocketClose;
 
     EventListenerWebSocket();
-    bool init(const std::string& cmd);
-
-private:
-    std::string _messageCmd;
+    bool init();
 };

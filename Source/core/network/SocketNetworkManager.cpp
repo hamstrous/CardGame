@@ -4,6 +4,8 @@
 
 using json = lib::json;
 
+SocketNetworkManager* SocketNetworkManager::_instance = nullptr;
+
 SocketNetworkManager::SocketNetworkManager()
 {
     _ws = new WebSocket();
@@ -26,9 +28,7 @@ void SocketNetworkManager::onMessage(WebSocket* ws, const WebSocket::Data& data)
         std::string message(data.bytes, data.len);
         AXLOGD("Received message: {}", message);
         json jsonMessage = json::parse(message);
-        std::string cmd  = jsonMessage["cmd"];
-
-        EventWebSocket *event = new EventWebSocket(EventWebSocket::WebSocketEventType::MESSAGE, cmd, jsonMessage);
+        EventWebSocket *event = new EventWebSocket(EventWebSocket::WebSocketEventType::MESSAGE, jsonMessage);
         ax::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
     }
 }

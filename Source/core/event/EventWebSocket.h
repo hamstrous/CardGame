@@ -20,12 +20,14 @@ public:
 #define ERROR 0
     };
 
-    EventWebSocket(const WebSocketEventType eventType, const std::string& cmd = "", const json& data = json());
+    EventWebSocket(const WebSocketEventType eventType, const json& data = json());
+
+    json getData() const { return _data; }
+    WebSocketEventType getEventType() const { return _eventType; }
 
 private:
     json _data;
     WebSocketEventType _eventType;
-    std::string _cmd;
     
     friend class EventListenerWebSocket;
 };

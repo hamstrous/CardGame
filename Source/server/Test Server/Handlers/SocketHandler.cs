@@ -90,7 +90,7 @@ public class SocketHandler(PlayerService playerService)
                     case "create_room":
                         var createdRoomId = Guid.NewGuid().ToString("N");
                         user.CurrentRoomId = createdRoomId;
-                        await SendSuccessMessageAsync(socket, new { roomId = createdRoomId });
+                        await SendSuccessMessageAsync(socket, new { room_id = createdRoomId });
                         break;
                     case "join_room":
                         var joinedRoomId = root.GetProperty("room_id").GetString();

@@ -16,10 +16,10 @@ bool EventListenerWebSocket::checkAvailable()
     return true;
 }
 
-EventListenerWebSocket* EventListenerWebSocket::create(const std::string& cmd)
+EventListenerWebSocket* EventListenerWebSocket::create()
 {
     auto ret = new EventListenerWebSocket();
-    if (ret->init(cmd))
+    if (ret->init())
     {
         ret->autorelease();
     }
@@ -33,10 +33,13 @@ EventListenerWebSocket* EventListenerWebSocket::create(const std::string& cmd)
 EventListenerWebSocket* EventListenerWebSocket::clone()
 {
     auto ret = new EventListenerWebSocket();
-    if (ret->init(_listenerID))
+    if (ret->init())
     {
         ret->autorelease();
         ret->onWebSocketMessage = onWebSocketMessage;
+        ret->onWebSocketOpen    = onWebSocketOpen;
+        ret->onWebSocketError   = onWebSocketError;
+        ret->onWebSocketClose   = onWebSocketClose;
     }
     else
     {
@@ -45,9 +48,9 @@ EventListenerWebSocket* EventListenerWebSocket::clone()
     return ret;
 }
 
-EventListenerWebSocket::EventListenerWebSocket() : onWebSocketMessage(nullptr) {}
+EventListenerWebSocket::EventListenerWebSocket() : onWebSocketMessage(nullptr), onWebSocketOpen(nullptr), onWebSocketError(nullptr), onWebSocketClose(nullptr) {}
 
-bool EventListenerWebSocket::init(const std::string& cmd)
+bool EventListenerWebSocket::init()
 {
     auto listener = [this](ax::Event* event) {
         auto webSocketEvent = static_cast<EventWebSocket*>(event);
@@ -55,8 +58,7 @@ bool EventListenerWebSocket::init(const std::string& cmd)
         {
         case EventWebSocket::WebSocketEventType::MESSAGE:
             if (onWebSocketMessage != nullptr)
-                if (_messageCmd.empty() || _messageCmd == webSocketEvent->_cmd)
-                    onWebSocketMessage(webSocketEvent);
+                onWebSocketMessage(webSocketEvent);
             break;
         case EventWebSocket::WebSocketEventType::OPEN:
             if (onWebSocketOpen != nullptr)
@@ -77,7 +79,7 @@ bool EventListenerWebSocket::init(const std::string& cmd)
         }   
     };
 
-    if (EventListenerCustom::init(cmd, listener))
+    if (EventListenerCustom::init(EventListenerWebSocket::LISTENER_ID, listener))
     {
         return true;
     }
