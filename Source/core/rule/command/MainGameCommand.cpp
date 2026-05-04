@@ -118,7 +118,7 @@ void MainGameCommand::setCurrentPlayerIndex(int index) {
 
                 this->scheduleOnce([this](float dt) {
                     HttpRequestHandler::sendGetRequest(
-                        "http://localhost:5284/play/" +
+                        "/play/" +
                             std::to_string(StateManager::getInstance()->getGameState()->clientPlayer->getIndex()),
                         [this](HttpClient* client, HttpResponse* response) {
                             setCurrentPlayerIndex(_currentPlayerIndex);
@@ -128,7 +128,7 @@ void MainGameCommand::setCurrentPlayerIndex(int index) {
         };
         
         HttpRequestHandler::sendGetRequest(
-            "http://localhost:5284/play/" + std::to_string(gameState->clientPlayer->getIndex()), callable);
+            "/play/" + std::to_string(gameState->clientPlayer->getIndex()), callable);
         
     }
 }

@@ -171,7 +171,7 @@ void GameScene::onEnter() {
     Player* player           = new Player("Test", 0);
     _gameState->clientPlayer = player;
 
-    HttpRequestHandler::sendGetRequest("http://localhost:5284",
+    HttpRequestHandler::sendGetRequest("",
                                        [player, this](HttpClient* client, HttpResponse* response) {
         if (response->getResponseCode() == 200)
         {

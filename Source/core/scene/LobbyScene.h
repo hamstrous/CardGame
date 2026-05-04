@@ -8,9 +8,6 @@ class LobbyScene : public ax::Scene
 public:
     bool init() override;
 
-    void setUpObjects();
-    void setUpRule();
-
     // mouse
     bool onMouseDown(ax::Event* event);
     bool onMouseUp(ax::Event* event);
@@ -23,6 +20,8 @@ public:
 
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
+
+    void onEnter() override;
 
     void startSocket(std::string authToken);
 

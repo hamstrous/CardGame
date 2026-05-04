@@ -3,6 +3,8 @@
 #include <format>
 #include "utils/json.hpp"
 
+#include "core/scene/MenuScene.h"
+
 using namespace ax;
 using namespace ax::ui;
 using namespace std;
@@ -33,6 +35,7 @@ bool LobbyScene::init()
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
     scheduleUpdate();
+
     return true;
 }
 
@@ -60,6 +63,10 @@ bool LobbyScene::onMouseMove(Event* event)
 void LobbyScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void LobbyScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+
+void LobbyScene::onEnter() {
+    _director->replaceScene(utils::createInstance<MenuScene>());
+}
 
 void LobbyScene::startSocket(string authToken) {}
 

@@ -60,6 +60,7 @@ void SocketNetworkManager::sendMessage(const std::string& message)
 {
     if (_ws && _ws->getReadyState() == WebSocket::State::OPEN)
     {
+        AXLOGD("Sending message: {}", message);
         _ws->send(message);
     }
 }

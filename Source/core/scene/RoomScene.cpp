@@ -6,6 +6,8 @@
 #include "core/event/EventListenerWebsocket.h"
 #include "core/event/EventWebsocket.h"
 
+#include "core/scene/LobbyScene.h"
+
 using namespace ax;
 using namespace ax::ui;
 using namespace std;
@@ -27,7 +29,7 @@ bool RoomScene::init()
     safeOrigin  = safeArea.origin;
 
     _websocketListener = EventListenerWebSocket::create();
-    _websocketListener->onWebSocketMessage = AX_CALLBACK_1(RoomScene::onCreateRoomMessage, this);
+    _websocketListener->onWebSocketMessage = AX_CALLBACK_1(RoomScene::onWebSocketMessage, this);
     _websocketListener->onWebSocketOpen    = [](EventWebSocket* event) {};
     _websocketListener->onWebSocketError   = [](EventWebSocket* event) {};
     _websocketListener->onWebSocketClose   = [](EventWebSocket* event) {};
@@ -54,7 +56,12 @@ bool RoomScene::init()
     _createRoomButton->setTitleLabel(Label::createWithSystemFont("create room", "Arial", 24));
 
     _createRoomButton->addClickEventListener([this](ax::Object* sender) {
-        _socketManager->sendMessage("{\"cmd\": \"create_room\"}");
+        json message;
+        message["command"] = "create_room";
+        message["type"] = "request";
+        message["id"] = 0;
+        message["data"] = json::object();
+        _socketManager->sendMessage(message);
     });
 
     this->addChild(_createRoomButton);
@@ -65,6 +72,21 @@ bool RoomScene::init()
     _joinRoomButton->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 160));
     _joinRoomButton->setTitleLabel(Label::createWithSystemFont("join room", "Arial", 24));
     this->addChild(_joinRoomButton);
+
+    _joinRoomButton->addClickEventListener([this](ax::Object* sender) {
+        string roomId = _roomIdEditBox->getText();
+        if (roomId.empty())
+        {
+            AXLOGD("Join room button clicked, but room ID is empty");
+            return;
+        }
+        json message;
+        message["command"]  = "join_room";
+        message["type"] = "request";
+        message["id"]   = 0;
+        message["data"] = {{"room_id", roomId}};
+        _socketManager->sendMessage(message);
+    });
 
     _roomIdEditBox = EditBox::create(Size(200, 40), "background.png");
     _roomIdEditBox->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 50));
@@ -98,11 +120,27 @@ void RoomScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void RoomScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 
+void RoomScene::onWebSocketMessage(EventWebSocket* event) {
+    json data = event->getData();
+    string cmd = data["command"];
+
+    if (cmd == "create_room")
+    {
+        onCreateRoomMessage(event);
+    }
+    else if (cmd == "join_room")
+    {
+        onJoinRoomMessage(event);
+    }
+    else
+    {
+        AXLOGD("Received unknown WebSocket message: {}", cmd);
+
+    }
+}
+
 void RoomScene::onCreateRoomMessage(EventWebSocket* event)
 {
-    //if (event->getCmd() != "create_room")
-    //    return;
-
     json data = event->getData();
 
     std::string roomId = data["data"]["room_id"];
@@ -112,10 +150,20 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
         return;
     }
     AXLOGD("Received create room message, room ID: {}", roomId);
+    _director->replaceScene(utils::createInstance<LobbyScene>());
+    
 }
 
 void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
-
+    json data = event->getData();
+    std::string roomId = data["data"]["room_id"];
+    if (roomId.empty())
+    {
+        AXLOGD("Received join room message, but room ID is missing");
+        return;
+    }
+    AXLOGD("Received join room message, room ID: {}", roomId);
+    _director->replaceScene(utils::createInstance<LobbyScene>());
 }
 
 void RoomScene::startSocket(string authToken) {

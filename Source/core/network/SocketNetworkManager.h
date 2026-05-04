@@ -4,6 +4,8 @@
 #include "network/WebSocket.h"
 #include "core/event/EventListenerWebSocket.h"
 
+#include "utils/json.hpp"
+
 #include <string>
 #include <map>
 
@@ -31,6 +33,7 @@ public:
 
     void connect(const std::string& url);
     void sendMessage(const std::string& message);
+    void sendMessage(const lib::json& message) { sendMessage(message.dump()); }
 
     void setAuthorizationHeader(const std::string& authToken);
 

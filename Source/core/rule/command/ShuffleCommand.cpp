@@ -17,7 +17,7 @@ void ShuffleCommand::execute()
     setRunning(true);
     auto& gameCards = StateManager::getInstance()->getGameState()->cards;
 
-    HttpRequestHandler::sendGetRequest("http://localhost:5284/shuffle/" + std::to_string(gameCards.size()),
+    HttpRequestHandler::sendGetRequest("/shuffle/" + std::to_string(gameCards.size()),
                                                             [this, &gameCards](HttpClient* client, HttpResponse* response) {
         if (response->getResponseCode() == 200)
         {
