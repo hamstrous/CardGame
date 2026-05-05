@@ -17,8 +17,22 @@ public:
         return _instance;
     }
     
-    void setGameState(GameState* gameState){ _gameState = gameState; }
-    GameState* getGameState() const { return _gameState; }
+    void setGameState(GameState* gameState){
+        if (_gameState)
+        {
+            AXLOGD("GameState already set, ignoring new GameState");
+            return;
+        }
+        _gameState = gameState;
+    }
+    GameState* getGameState() {
+        if (!_gameState)
+        {
+            _gameState = new GameState();
+            AXLOGD("GameState not set yet, returning new instance");
+        }
+        return _gameState;
+    }
 
 private:
     StateManager() = default;  // Private constructor to prevent instantiation

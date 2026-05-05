@@ -130,6 +130,101 @@ public class SocketHandler(PlayerService playerService)
                             time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         };
                         await SendMessageAsync(socket, joinRoomData);
+
+                        // broadcast to other users in the room that a new user has joined
+                        foreach (var kvp in playerService.GetAllPlayers())
+                        {
+                            if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.Socket != socket && kvp.Value.CurrentRoomId == user.CurrentRoomId)
+                            {
+                                var userJoinedData = new
+                                {
+                                    type = "broadcast",
+                                    command = "user_joined",
+                                    data = new
+                                    {
+                                        username = user.Username
+                                    },
+                                    time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                                };
+                                await SendMessageAsync(kvp.Value.Socket, userJoinedData);
+                            }
+                        }
+
+                        break;
+                    case "leave_room":
+                        // broadcast to other users in the room that a user has left
+                        foreach (var kvp in playerService.GetAllPlayers())
+                        {
+                            if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.Socket != socket && kvp.Value.CurrentRoomId == user.CurrentRoomId)
+                            {
+                                var userLeftData = new
+                                {
+                                    type = "broadcast",
+                                    command = "user_left",
+                                    data = new
+                                    {
+                                        username = user.Username
+                                    },
+                                    time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                                };
+                                await SendMessageAsync(kvp.Value.Socket, userLeftData);
+                            }
+                        }
+                        user.CurrentRoomId = string.Empty;
+                        var leaveRoomData = new
+                        {
+                            type = "response",
+                            command = "leave_room",
+                            data = new { },
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                        await SendMessageAsync(socket, leaveRoomData);
+                        break;
+                    case "list_rooms":
+                        var rooms = playerService.GetAllPlayers()
+                            .Where(kvp => !string.IsNullOrEmpty(kvp.Value.CurrentRoomId))
+                            .GroupBy(kvp => kvp.Value.CurrentRoomId)
+                            .Select(g => new
+                            {
+                                room_id = g.Key,
+                                users = g.Select(kvp => kvp.Value.Username).ToList()
+                            })
+                            .ToList();
+
+                        var listRoomsData = new
+                        {
+                            type = "response",
+                            command = "list_rooms",
+                            data = rooms,
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                        await SendMessageAsync(socket, listRoomsData);
+                        break;
+                    case "list_users_in_room":
+                        if (string.IsNullOrEmpty(user.CurrentRoomId))
+                        {
+                            await SendErrorMessageAsync(socket, "User must be in a room to list users");
+                            return;
+                        }
+
+                        var usersInRoom = playerService.GetAllPlayers()
+                            .Where(kvp => kvp.Value.CurrentRoomId == user.CurrentRoomId)
+                            .Select(kvp => kvp.Value.Username)
+                            .ToList();
+
+                        var usersInRoomData = new
+                        {
+                            user_list = usersInRoom
+                        };
+
+                        var listUsersInRoomData = new
+                        {
+                            type = "response",
+                            command = "list_users_in_room",
+                            data = usersInRoomData,
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                        await SendMessageAsync(socket, listUsersInRoomData);
                         break;
                     default:
                         throw new InvalidOperationException($"Unknown command: {cmd}");

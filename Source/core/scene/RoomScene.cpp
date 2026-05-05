@@ -6,6 +6,8 @@
 #include "core/event/EventListenerWebsocket.h"
 #include "core/event/EventWebsocket.h"
 
+#include "core/model/StateManager.h"
+
 #include "core/scene/LobbyScene.h"
 
 using namespace ax;
@@ -150,6 +152,9 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
         return;
     }
     AXLOGD("Received create room message, room ID: {}", roomId);
+
+    StateManager::getInstance()->getGameState()->roomId = roomId;
+
     _director->replaceScene(utils::createInstance<LobbyScene>());
     
 }
@@ -163,6 +168,9 @@ void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
         return;
     }
     AXLOGD("Received join room message, room ID: {}", roomId);
+
+    StateManager::getInstance()->getGameState()->roomId = roomId;
+
     _director->replaceScene(utils::createInstance<LobbyScene>());
 }
 
@@ -170,4 +178,13 @@ void RoomScene::startSocket(string authToken) {
     
 }
 
-RoomScene::~RoomScene() {}
+RoomScene::~RoomScene() {
+    // Explicitly clean up game objects before scene destruction
+
+    if (_keyboardListener)
+        _eventDispatcher->removeEventListener(_keyboardListener);
+    if (_mouseListener)
+        _eventDispatcher->removeEventListener(_mouseListener);
+    if (_websocketListener)
+        _eventDispatcher->removeEventListener(_websocketListener);
+}

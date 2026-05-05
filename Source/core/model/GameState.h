@@ -23,6 +23,8 @@ public:
     int currentPlayerIndex = 0;
     std::vector<std::string> playerNames;
 
+    std::string roomId = "";
+
     // local
     Player* clientPlayer = nullptr;
 
