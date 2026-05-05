@@ -12,6 +12,8 @@
 
 //global game state that everything can access
 
+class GameScene;
+
 class GameState{
 public:
     GameState() = default;
@@ -24,6 +26,8 @@ public:
     std::vector<std::string> playerNames;
 
     std::string roomId = "";
+
+    GameScene* gameScene = nullptr;
 
     // local
     Player* clientPlayer = nullptr;

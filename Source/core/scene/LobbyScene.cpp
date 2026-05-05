@@ -5,6 +5,8 @@
 #include "core/event/EventWebSocket.h"
 #include "core/network/SocketNetworkManager.h"
 
+#include "ui/UIButton.h"
+
 #include <format>
 #include "utils/json.hpp"
 
@@ -58,6 +60,16 @@ bool LobbyScene::init()
                                                           {"data", json::object()},
                                                           {"id", 0},
                                                           {"time_stamp", 0}});
+
+    auto _joinGameButton = Button::create("background.png");
+    _joinGameButton->ignoreContentAdaptWithSize(false);
+    _joinGameButton->setContentSize(Size(150, 50));
+    _joinGameButton->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 100));
+    _joinGameButton->setTitleText("Join Game");
+    _joinGameButton->addClickEventListener([this](ax::Object* sender) {
+        _director->replaceScene(StateManager::getInstance()->getGameState()->gameScene);
+    });
+    this->addChild(_joinGameButton);
 
     return true;
 }

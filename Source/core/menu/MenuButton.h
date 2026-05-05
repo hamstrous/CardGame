@@ -3,6 +3,9 @@
 #include "axmol.h"
 #include "ui/UIButton.h"
 #include "core/scene/GameScene.h"
+#include "core/scene/RoomScene.h"
+
+#include "core/model/StateManager.h"
 
 #include <string>
 
@@ -41,9 +44,12 @@ public:
         this->setSwallowMouse(true);
         this->addClickEventListener([this](ax::Object* sender) {
             auto director = ax::Director::getInstance();
-            auto scene    = ax::utils::createInstance<T>();
-            AXASSERT(scene != nullptr, "Scene connected to menu button is null");
-            director->replaceScene(scene);
+            auto gameScene    = ax::utils::createInstance<T>();
+            gameScene->retain();
+            auto roomScene = ax::utils::createInstance<RoomScene>();
+            AXASSERT(gameScene != nullptr, "Scene connected to menu button is null");
+            StateManager::getInstance()->getGameState()->gameScene = gameScene;
+            director->replaceScene(roomScene);
             return true;
         });
         return true;

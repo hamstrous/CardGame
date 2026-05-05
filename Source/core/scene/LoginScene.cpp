@@ -8,6 +8,7 @@
 #include "ui/UIButton.h"
 
 #include "core/scene/RoomScene.h"
+#include "core/scene/MenuScene.h"
 
 #include <format>
 #include "utils/json.hpp"
@@ -75,7 +76,7 @@ bool LoginScene::init()
                 _socketManager = SocketNetworkManager::getInstance();
                 _socketManager->setAuthorizationHeader(responseJson["auth_token"]);
                 _socketManager->connect("ws://localhost:5284/ws");
-                _director->replaceScene(utils::createInstance<RoomScene>());
+                _director->replaceScene(utils::createInstance<MenuScene>());
             }
             else
             {

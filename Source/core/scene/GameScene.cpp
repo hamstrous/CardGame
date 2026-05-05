@@ -14,6 +14,18 @@ using namespace ax;
 using namespace ax::network;
 using namespace std;
 
+GameScene* GameScene::create()
+{
+    GameScene* gameScene = new (std::nothrow) GameScene();
+    if (gameScene && gameScene->init())
+    {
+        gameScene->autorelease();
+        return gameScene;
+    }
+    AX_SAFE_DELETE(gameScene);
+    return nullptr;
+}
+
 bool GameScene::init()
 {
     // super init first

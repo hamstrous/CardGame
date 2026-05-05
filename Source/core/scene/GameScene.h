@@ -14,6 +14,9 @@
 class GameScene : public ax::Scene
 {
 public:
+
+    static GameScene* create();
+
     bool init() override;
     void update(float delta) override;
 
