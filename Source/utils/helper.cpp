@@ -55,58 +55,12 @@ bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition)
     return rect.containsPoint(node->getParent()->convertToNodeSpace(worldPosition));
 }
 
-void reparentPreserveTransform(ax::Node* child, ax::Node* newParent)
-{
-    // 1. Capture world matrix BEFORE any reparenting
-    ax::Mat4 worldMat  = child->getNodeToWorldTransform();
-    ax::Mat4 parentInv = newParent->getNodeToWorldTransform().getInversed();
-
-    // local = what child's node-to-parent transform must be after reparenting
-    ax::Mat4 local = parentInv * worldMat;
-
-    // 2. Extract scale from column lengths
-    float m00 = local.m[0], m01 = local.m[1];
-    float m10 = local.m[4], m11 = local.m[5];
-
-    float sx = sqrtf(m00 * m00 + m01 * m01);
-    float sy = sqrtf(m10 * m10 + m11 * m11);
-
-    // 3. Extract skew rotations
-    float rotZX = -AX_RADIANS_TO_DEGREES(atan2f(m01, m00));
-    float rotZY = -AX_RADIANS_TO_DEGREES(atan2f(-m10, m11));
-
-    // 4. Extract position — must account for anchor point
-    //    Axmol's setPosition places the anchor, not the origin.
-    //    The local matrix translates the node ORIGIN, so we must
-    //    subtract the anchor offset (already in local space post-reparent).
-    ax::Vec2 anchorNorm  = child->getAnchorPoint();
-    ax::Size contentSize = child->getContentSize();
-
-    // Anchor offset in the child's own local space (scaled)
-    float anchorOffsetX = anchorNorm.x * contentSize.width * sx;
-    float anchorOffsetY = anchorNorm.y * contentSize.height * sy;
-
-    // Rotate the anchor offset by the node's own rotation (rotZX for X axis)
-    float angleRad = AX_DEGREES_TO_RADIANS(-rotZX);
-    float cosA = cosf(angleRad), sinA = sinf(angleRad);
-    float rotatedAnchorX = anchorOffsetX * cosA - anchorOffsetY * sinA;
-    float rotatedAnchorY = anchorOffsetX * sinA + anchorOffsetY * cosA;
-
-    float posX = local.m[12] + rotatedAnchorX;
-    float posY = local.m[13] + rotatedAnchorY;
-
-    // 5. Apply all transforms BEFORE reparenting
-    child->setScaleX(sx);
-    child->setScaleY(sy);
-    child->setRotationSkewX(rotZX);
-    child->setRotationSkewY(rotZY);
-    child->setPosition(ax::Vec2(posX, posY));
-
-    // 6. Reparent
-    child->retain();
-    child->removeFromParentAndCleanup(false);
-    newParent->addChild(child);
-    child->release();
+void moveNodeToFront(ax::Node* node) {
+    ax::Node* parent = node->getParent();  // save parent first
+    node->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
+    node->removeFromParentAndCleanup(false);          
+    parent->addChild(node); // bring to front    
+    node->release(); // balance the retain, scene graph hold the only reference again
 }
 
 void setNewParentWithNoSideEffect(ax::Node* child, ax::Node* newParent)

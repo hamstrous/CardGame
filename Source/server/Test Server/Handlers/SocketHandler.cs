@@ -53,7 +53,6 @@ public class SocketHandler(PlayerService playerService)
         {
             var message = JsonSerializer.Deserialize<WebSocketMessage>(json);
             Console.WriteLine($"[WebSocket] Received message from {user.Username}: {json}");
-
             var data = message?.Data;
 
             var cmd = message?.Command;

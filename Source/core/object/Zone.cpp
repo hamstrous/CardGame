@@ -105,17 +105,16 @@ void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
     // Card must be a child of this zone already
     AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
 
-    // ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
-    ////ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0); // from temp back to 0 to equal to
-    ///parent transform
-    // ax::ActionInterval* rotateSkewXAction = ax::ActionFloat::create(
-    //     duration, card->getRotationSkewX(), 0, [card](float value) { card->setRotationSkewX(value); });
-    // ax::ActionInterval* rotateSkewYAction = ax::ActionFloat::create(
-    //     duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
+     ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
+    //ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0); // from temp back to 0 to equal to parent transform
+     ax::ActionInterval* rotateSkewXAction = ax::ActionFloat::create(
+         duration, card->getRotationSkewX(), 0, [card](float value) { card->setRotationSkewX(value); });
+     ax::ActionInterval* rotateSkewYAction = ax::ActionFloat::create(
+         duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
 
-    // ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
-    // ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction,
-    // scaleAction, nullptr); spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE); card->runAction(spawnAction);
+     ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
+     ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction,
+     scaleAction, nullptr); spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE); card->runAction(spawnAction);
 }
 
 void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card)

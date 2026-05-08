@@ -27,6 +27,7 @@ public:
 
     // Actions
     void shuffleCards();
+    void moveCardListToTop(ax::Vector<Card*> cardList);
 
     // Overrides
     void lockInput() override;
