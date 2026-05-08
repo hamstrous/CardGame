@@ -34,17 +34,17 @@ public:
     // Actions
     std::vector<ax::Vec2> getCurrentPositionList(ax::Vector<Card*> cardList = ax::Vector<Card*>()); //List of positions for cards in this zone, used to update card positions when a change happens
     void moveCard(Card* card, const ax::Vec2& targetPosition, float duration = 1.f);
-    void shuffleCards();
     void sendCardToAnotherZone(Zone* targetZone, Card* card);
     void sortCards();
     void moveCardToThisZone(Card* card, float duration = 1.f);
+    void moveCardToThisZone(ax::Vector<Card*> cards, float duration = 1.f);
     void getNewCardIndex(Card* card); 
     void getNewCardPosition(Card* card);
 
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
-    void lockInput() override;
-    void unlockInput() override;
+    virtual void lockInput() override;
+    virtual void unlockInput() override;
     // Getters and Setters
     
     // Constructor and Destructor

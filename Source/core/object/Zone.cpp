@@ -9,6 +9,7 @@
 #include <algorithm>
 
 using Random = lib::random_static;
+using namespace helper;
 
 Zone* Zone::create(ZoneData* property)
 {
@@ -30,7 +31,7 @@ bool Zone::init(ZoneData* property)
     this->addChild(_rectNode);
     _rectNode->drawRect(ax::Vec2::ZERO, ax::Vec2::ZERO, ax::Color4F::WHITE);
 
-    _cardListener = EventListenerCard::create();
+    _cardListener                 = EventListenerCard::create();
     _cardListener->onCardReleased = AX_CALLBACK_1(Zone::OnCardMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
 
@@ -43,8 +44,9 @@ bool Zone::init(ZoneData* property)
 
 void Zone::update(float delta) {}
 
-void Zone::OnCardMouseUp(ax::Event* event) {
-    EventCard* cardEvent = static_cast<EventCard*>(event);
+void Zone::OnCardMouseUp(ax::Event* event)
+{
+    EventCard* cardEvent     = static_cast<EventCard*>(event);
     ax::Vec2 releasePosition = cardEvent->getReleasePosition();
     // Check if the card belongs to this zone
     if (isWorldPositionInNode(this, releasePosition))  // containPoint(this,mousePos))
@@ -56,7 +58,8 @@ void Zone::OnCardMouseUp(ax::Event* event) {
             _eventDispatcher->dispatchEvent(zoneEvent);
         }
         moveCardToThisZone(cardEvent->getCard(), 0.5f);
-        cardEvent->stopPropagation();  // Stop propagation to prevent multiple zones from responding to the same card release
+        cardEvent
+            ->stopPropagation();  // Stop propagation to prevent multiple zones from responding to the same card release
     }
 }
 
@@ -73,17 +76,23 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
     for (auto card : cardList)
     {
         AXASSERT(card->getParent() == this, "Card list should only contain cards that are children of this zone");
-        originOffset += ax::Vec2(card->getContentSize().width/ 2, 0);  // Assuming the anchor point of the card is at its center
+        originOffset +=
+            ax::Vec2(card->getContentSize().width / 2, 0);  // Assuming the anchor point of the card is at its center
     }
     std::vector<ax::Vec2> positions;
     if (size > 0)
     {
-        ax::Vec2 previousCardEnd = ax::Vec2(std::max((origin - originOffset).x, origin.x - this->getContentSize().width / 2), origin.y);
-        float overflow           = originOffset.x * 2 > this->getContentSize().width ? originOffset.x * 2 - this->getContentSize().width : 0;
+        ax::Vec2 previousCardEnd =
+            ax::Vec2(std::max((origin - originOffset).x, origin.x - this->getContentSize().width / 2), origin.y);
+        float overflow =
+            originOffset.x * 2 > this->getContentSize().width ? originOffset.x * 2 - this->getContentSize().width : 0;
         for (int i = 0; i < size; ++i)
         {
-            float spacing = (i == 0) ? 0 : overflow * (cardList.at(i)->getContentSize().width / (originOffset.x * 2 - cardList.at(0)->getContentSize().width));
-            positions.push_back(previousCardEnd + ax::Vec2(cardList.at(i)->getContentSize().width / 2, 0) - ax::Vec2(spacing, 0));
+            float spacing = (i == 0) ? 0
+                                     : overflow * (cardList.at(i)->getContentSize().width /
+                                                   (originOffset.x * 2 - cardList.at(0)->getContentSize().width));
+            positions.push_back(previousCardEnd + ax::Vec2(cardList.at(i)->getContentSize().width / 2, 0) -
+                                ax::Vec2(spacing, 0));
             previousCardEnd += ax::Vec2(cardList.at(i)->getContentSize().width - spacing, 0);
         }
     }
@@ -91,24 +100,26 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
     return positions;
 }
 
-void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration) {
+void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
+{
     // Card must be a child of this zone already
     AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
 
-    ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
-    ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0);
-    ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
-    ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateAction, scaleAction, nullptr);
-    spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE); 
-    card->runAction(spawnAction);
+    // ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
+    ////ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0); // from temp back to 0 to equal to
+    ///parent transform
+    // ax::ActionInterval* rotateSkewXAction = ax::ActionFloat::create(
+    //     duration, card->getRotationSkewX(), 0, [card](float value) { card->setRotationSkewX(value); });
+    // ax::ActionInterval* rotateSkewYAction = ax::ActionFloat::create(
+    //     duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
+
+    // ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
+    // ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction,
+    // scaleAction, nullptr); spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE); card->runAction(spawnAction);
 }
 
-void Zone::shuffleCards()
+void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card)
 {
-    Random::shuffle(_cardList.begin(), _cardList.end());
-}
-
-void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card) {
     _cardList.erase(std::remove(_cardList.begin(), _cardList.end(), card), _cardList.end());
     targetZone->moveCardToThisZone(card);
 }
@@ -122,24 +133,45 @@ void Zone::setContentSize(const ax::Size& contentSize)
     _rectNode->drawRect(ax::Vec2::ZERO, contentSize, ax::Color4F::WHITE);
 }
 
-void Zone::lockInput() {
+void Zone::lockInput()
+{
     _mouseListener->setEnabled(false);
     _cardListener->setEnabled(false);
 }
 
-void Zone::unlockInput() {
+void Zone::unlockInput()
+{
     _mouseListener->setEnabled(true);
     _cardListener->setEnabled(true);
 }
 
-void Zone::moveCardToThisZone(Card* card, float duration) {
-    // Set temporary transform for smooth animation
-    card->setRotation(getWorldRotation(card) - getWorldRotation(this));  // To get the absolute difference in rotation between the card and the zone and rotate it accordingly
-    card->setVecScale(getWorldScale(card) / getWorldScale(this));  // To get the absolute difference in scale between the card and the zone and scale it accordingly
-    
-    setNewParentWithNoEffect(card, this);
+void Zone::moveCardToThisZone(Card* card, float duration)
+{
+    setNewParentWithNoSideEffect(card, this);
 
-    ax::Vector<Card*> _cardList = castToVectorOfType<Card*>(this->getChildren());
+    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
+    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+    for (int i = 0; i < _cardList.size(); i++)
+    {
+        _cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+        moveCard(_cardList.at(i), newPositions.at(i), duration);
+    }
+}
+
+void Zone::moveCardToThisZone(ax::Vector<Card*> cards, float duration)
+{
+    for (auto card : cards)
+    {
+        card->setRotation(getWorldRotation(card) -
+                          getWorldRotation(this));  // To get the absolute difference in rotation between the card and
+                                                    // the zone and rotate it accordingly
+        card->setVecScale(getWorldScale(card) /
+                          getWorldScale(this));  // To get the absolute difference in scale between the card and the
+                                                 // zone and scale it accordingly
+        setNewParentWithNoSideEffect(card, this);
+    }
+
+    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
     std::vector<ax::Vec2> newPositions = getCurrentPositionList();
     for (int i = 0; i < _cardList.size(); i++)
     {

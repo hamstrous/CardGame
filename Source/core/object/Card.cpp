@@ -3,6 +3,8 @@
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
 
+using namespace helper;
+
 Card* Card::create(CardData* property)
 {
     Card* card = new (std::nothrow) Card();
@@ -69,7 +71,7 @@ bool Card::onMouseDown(ax::Event* event)
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
-        moveNodeToFront(this);
+        helper::moveNodeToFront(this);
         this->setGlobalZOrder(ZOrder::CARD_DRAGGING); 
         _clicktimer.reset();
         //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
