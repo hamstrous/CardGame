@@ -7,8 +7,12 @@
 #include "core/event/EventWebsocket.h"
 
 #include "core/model/StateManager.h"
+#include "core/model/GameState.h"
 
 #include "core/scene/LobbyScene.h"
+#include "core/scene/GameScene.h"
+
+#include "game/uno/UnoScene.h"
 
 using namespace ax;
 using namespace ax::ui;
@@ -59,10 +63,12 @@ bool RoomScene::init()
 
     _createRoomButton->addClickEventListener([this](ax::Object* sender) {
         json message;
+        json data;
+        data["user_count"] = 4;
         message["command"] = "create_room";
         message["type"] = "request";
         message["id"] = 0;
-        message["data"] = json::object();
+        message["data"] = data;
         _socketManager->sendMessage(message);
     });
 
@@ -146,6 +152,8 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
     json data = event->getData();
 
     std::string roomId = data["data"]["room_id"];
+    int playerId       = data["data"]["player_index"];
+
     if (roomId.empty())
     {
         AXLOGD("Received create room message, but room ID is missing");
@@ -155,6 +163,13 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
 
     StateManager::getInstance()->getGameState()->roomId = roomId;
 
+    auto unoScene = dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene);
+    if (unoScene)
+        unoScene->setOnlineInformation(false, playerId, 4);
+    else
+        AXLOGD("Failed");
+
+
     _director->replaceScene(utils::createInstance<LobbyScene>());
     
 }
@@ -162,6 +177,9 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
 void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     json data = event->getData();
     std::string roomId = data["data"]["room_id"];
+    int playerId       = data["data"]["player_index"];
+    int userCount      = data["data"]["user_count"];
+    
     if (roomId.empty())
     {
         AXLOGD("Received join room message, but room ID is missing");
@@ -170,6 +188,7 @@ void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     AXLOGD("Received join room message, room ID: {}", roomId);
 
     StateManager::getInstance()->getGameState()->roomId = roomId;
+    dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene)->setOnlineInformation(false, playerId, userCount);
 
     _director->replaceScene(utils::createInstance<LobbyScene>());
 }

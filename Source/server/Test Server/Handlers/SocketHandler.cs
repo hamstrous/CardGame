@@ -92,13 +92,18 @@ public class SocketHandler(PlayerService playerService)
                     case "create_room":
                         var createdRoomId = Guid.NewGuid().ToString("N");
                         user.CurrentRoomId = createdRoomId;
+
+                        var requiredAmountOfUsers = data?.GetProperty("user_count").GetInt32() ?? 0;
+                        user.PlayerCount = requiredAmountOfUsers;
+                        user.IsHost = true;
                         var roomData = new
                         {
                             type = "response",
                             command = "create_room",
                             data = new
                             {
-                                room_id = createdRoomId
+                                room_id = createdRoomId,
+                                player_index = user.Index,
                             },
                             time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         };
@@ -117,6 +122,25 @@ public class SocketHandler(PlayerService playerService)
                             return;
                         }
                         user.CurrentRoomId = joinedRoomId;
+                        // find the player with largerst index in the room and set the new user's index to that + 1
+                        var maxIndex = playerService.GetAllPlayers()
+                            .Where(kvp => kvp.Value.CurrentRoomId == joinedRoomId)
+                            .Select(kvp => kvp.Value.Index)
+                            .DefaultIfEmpty(-1)
+                            .Max();
+                        user.Index = maxIndex + 1;
+
+                        // get player count from host
+                        var hostPlayer = playerService.GetAllPlayers()
+                            .Where(kvp => kvp.Value.CurrentRoomId == joinedRoomId && kvp.Value.IsHost)
+                            .Select(kvp => kvp.Value)
+                            .FirstOrDefault();
+                        if (hostPlayer == null)
+                        {
+                            await SendErrorMessageAsync(socket, "Host player not found in the room");
+                            return;
+                        }
+                        user.PlayerCount = hostPlayer.PlayerCount;
 
                         var joinRoomData = new
                         {
@@ -124,7 +148,9 @@ public class SocketHandler(PlayerService playerService)
                             command = "join_room",
                             data = new
                             {
-                                room_id = joinedRoomId
+                                room_id = joinedRoomId,
+                                player_index = user.Index,
+                                user_count = user.PlayerCount
                             },
                             time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         };
@@ -148,6 +174,16 @@ public class SocketHandler(PlayerService playerService)
                                 await SendMessageAsync(kvp.Value.Socket, userJoinedData);
                             }
                         }
+
+                        //await 5 seconds
+                        await Task.Delay(5000);
+                        await BroadcastMessageAsync(user, new
+                        {
+                            type = "broadcast",
+                            command = "start",
+                            data = new { },
+                            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        });
 
                         break;
                     case "leave_room":
@@ -225,6 +261,10 @@ public class SocketHandler(PlayerService playerService)
                         };
                         await SendMessageAsync(socket, listUsersInRoomData);
                         break;
+                    case "is_host":
+                        break;
+                    case "get_player_index":
+                        break;
                     default:
                         throw new InvalidOperationException($"Unknown command: {cmd}");
                 }
@@ -272,6 +312,20 @@ public class SocketHandler(PlayerService playerService)
     {
         var json = JsonSerializer.Serialize(data);
         await SendMessageAsync(socket, json);
+    }
+
+    public async Task BroadcastMessageAsync(PlayerInfo info, object data)
+    {
+        var json = JsonSerializer.Serialize(data);
+
+
+        foreach (var kvp in playerService.GetAllPlayers())
+        {
+            if (kvp.Value.Socket != null && kvp.Value.Socket.State == WebSocketState.Open && kvp.Value.CurrentRoomId == info.CurrentRoomId)
+            {
+                await SendMessageAsync(kvp.Value.Socket, json);
+            }
+        }
     }
 
     static public async Task SendErrorMessageAsync(WebSocket socket, string errorMessage)

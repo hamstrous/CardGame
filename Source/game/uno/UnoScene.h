@@ -9,12 +9,14 @@
 #include "core/event/EventListenerWebSocket.h"
 #include "core/network/SocketNetworkManager.h"
 
+#include "core/scene/GameScene.h"
+
 #include "core/rule/Rule.h"
 #include "core/rule/LogicUnit.h"
 #include "core/model/GameState.h"
 
 
-class UnoScene : public ax::Scene
+class UnoScene : public GameScene
 {
 public:
     enum class Phase
@@ -53,6 +55,12 @@ public:
     // Player actions
     void onPlayCard(EventCard* event);
 
+    void setOnlineInformation(bool isHost, int playerId, int playerCount)
+    {
+        _isHost = isHost;
+        _playerId = playerId;
+        _playerCount = playerCount;
+    }
 
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
@@ -66,6 +74,7 @@ protected:
     SocketNetworkManager* _socketManager = nullptr;
 
     bool _isHost = false;
+    bool _clockWise                            = true;
     int _playerId = -1;
     int _playerCount = 0;
     EventListenerWebSocket* _websocketListener = nullptr;

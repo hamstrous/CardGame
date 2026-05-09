@@ -164,27 +164,6 @@ void UnoScene::onPlayCard(EventCard* event) {}
 
 void UnoScene::onEnter() {
     Scene::onEnter();
-    Player* player           = new Player("Test", 0);
-    _gameState->clientPlayer = player;
-
-    HttpRequestHandler::sendGetRequest("",
-                                       [player, this](HttpClient* client, HttpResponse* response) {
-        if (response->getResponseCode() == 200)
-        {
-            auto* data = response->getResponseData();
-            std::string body(data->data(), data->size());
-            int id = stoi(body);
-            AXLOG("Player data: %d", id);
-            player->setIndex(id);
-            View* playerView = new View();
-            playerView->setUpObjectsForScene();
-            delete playerView;
-        }
-        else
-        {
-            AXLOG("HTTP error: %d", response->getResponseCode());
-        }
-    });
 }
 
 UnoScene::~UnoScene() {}

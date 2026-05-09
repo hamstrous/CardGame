@@ -17,6 +17,7 @@ namespace Test_Server.Services
         private readonly ConcurrentDictionary<string, PlayerInfo> _players = new ConcurrentDictionary<string, PlayerInfo>();
         private readonly HashSet<string> _validAuthTokens = new HashSet<string>();
 
+
         public bool AddPlayerAndToken(string authToken, PlayerInfo player)
         {
             if (_validAuthTokens.Contains(authToken))

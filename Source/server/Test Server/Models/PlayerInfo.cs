@@ -12,7 +12,8 @@ public class PlayerInfo
 
     public string CurrentRoomId { get; set; } = string.Empty;
     public bool IsHost { get; set; } = false;
-
+    public int Index { get; set; } = 0; // 0 is host
+    public int PlayerCount { get; set; } = 0; // Total players in the room, including self
     public void Clear()
     {
         AuthToken = string.Empty;
