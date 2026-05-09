@@ -47,6 +47,7 @@ protected:
 
     Deck* _deck = nullptr;
     Card* _card = nullptr;
+    ax::Vector<Zone*> _zones;
 
     ax::Vec2 visibleSize = _director->getVisibleSize();
     ax::Vec2 origin      = _director->getVisibleOrigin();

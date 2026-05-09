@@ -61,8 +61,18 @@ bool TestScene::init()
     for (int i = 0; i < 10; ++i)
     {
         Card* card = Card::create(new CardData("card/uno/0_" "blue" ".png", "card/Card Back 1.png"));
-        card->setPosition(visibleSize / 2 + ax::Vec2(100 + i * 50, 0));
+        card->setPosition(visibleSize / 2 + ax::Vec2(50 + i * 50, 0));
         this->addChild(card);
+    }
+
+    // create 4 zones in four sides of the screen
+    for (int i = 0; i < 4; ++i)
+    {
+        Zone* zone = Zone::create(new ZoneData());
+        zone->setPosition(visibleSize / 2 + ax::Vec2((i - 1.5f) * 300, (i % 2 == 0 ? -1 : 1) * 200));
+        zone->setContentSize(ax::Size(100, 100));
+        this->addChild(zone);
+        _zones.pushBack(zone);
     }
 
     return true;
@@ -94,6 +104,10 @@ void TestScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {
 
      if(code == EventKeyboard::KeyCode::KEY_S) {
          _deck->shuffleCards();
+     }
+     else if (code == EventKeyboard::KeyCode::KEY_D)
+     {
+         _deck->dealCards(_zones, 2);
      }
 
     //if(code == EventKeyboard::KeyCode::KEY_Q) {

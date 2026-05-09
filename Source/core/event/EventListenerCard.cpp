@@ -5,7 +5,7 @@ const std::string EventListenerCard::LISTENER_ID = "__ax_card";
 
 bool EventListenerCard::checkAvailable()
 {
-    if (onCardFlipped == nullptr && onCardReleased == nullptr)
+    if (onCardFlipped == nullptr && onCardReleased == nullptr && onCardClicked == nullptr)
     {
         AXASSERT(false, "Invalid EventListenerCard!");
         return false;
@@ -36,6 +36,7 @@ EventListenerCard* EventListenerCard::clone()
         ret->autorelease();
         ret->onCardFlipped  = onCardFlipped;
         ret->onCardReleased = onCardReleased;
+        ret->onCardClicked  = onCardClicked;
     }
     else
     {
@@ -55,7 +56,11 @@ bool EventListenerCard::init()
             if (onCardFlipped != nullptr)
                 onCardFlipped(cardEvent);
         }
-        else
+        else if (cardEvent->_isCardClicked)
+        {
+            if (onCardClicked != nullptr)
+                onCardClicked(cardEvent);
+        }
         {
             if (onCardReleased != nullptr)
                 onCardReleased(cardEvent);

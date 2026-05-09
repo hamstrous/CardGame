@@ -6,7 +6,7 @@
 class AX_DLL EventCard : public ax::EventCustom
 {
 public:
-    EventCard(Card* card, bool isFlipped);
+    EventCard(Card* card, bool isFlipped, bool isClicked);
     EventCard(Card* card, ax::Vec2 releasePosition);
 
     bool isFlipped() const { return _isCardFlipped; }
@@ -16,6 +16,7 @@ public:
 private:
     Card* card;  // The card associated with this event
     bool _isCardFlipped;  // Whether the card is flipped or not
+    bool _isCardClicked;        // Whether the card is clicked (mouse down and up without dragging)
     ax::Vec2 _releasePosition;  // Position where the card was released (for drag-and-drop)
 
     friend class EventListenerCard;

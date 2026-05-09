@@ -17,6 +17,7 @@ public:
 
     std::function<void(EventCard*)> onCardFlipped;
     std::function<void(EventCard*)> onCardReleased;  // Mouse up after dragging a card
+    std::function<void(EventCard*)> onCardClicked;   // Mouse down and up without dragging
     EventListenerCard();
     bool init();
 };

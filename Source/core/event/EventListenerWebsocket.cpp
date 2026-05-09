@@ -7,7 +7,7 @@ const std::string EventListenerWebSocket::LISTENER_ID = "__ax_websocket";
 
 bool EventListenerWebSocket::checkAvailable()
 {
-    if (onWebSocketMessage == nullptr || onWebSocketOpen == nullptr || onWebSocketError == nullptr || onWebSocketClose == nullptr)
+    if (onWebSocketMessage == nullptr && onWebSocketOpen == nullptr && onWebSocketError == nullptr && onWebSocketClose == nullptr)
     {
         AXASSERT(false, "Invalid EventListenerWebSocket!");
         return false;

@@ -12,7 +12,6 @@ void DealCommand::execute() {
     for (int i = 0; i < cards.size(); ++i)
     {
         Card* card = cards.at(i);
-        card->moveToZone(_targetZones.at(currentZoneIndex), delay += 0.5f);
         currentZoneIndex = (currentZoneIndex + 1) % 2; // Temp: 2 player's zone at index 0, 1
     }
     auto delayAction = ax::DelayTime::create(delay);

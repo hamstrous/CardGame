@@ -10,6 +10,7 @@ namespace helper
 
 std::vector<std::string> split(const std::string& str, char delimiter = ' ');
 std::string getTextFileContent(const std::string& filePath);
+std::vector<std::string> getFileNamesInFolder(const std::string& folderPath);
 bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint);
 ax::Vec2 getNodePositionInWorldSpace(ax::Node* node);
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition);

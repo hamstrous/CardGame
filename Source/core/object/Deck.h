@@ -27,6 +27,7 @@ public:
 
     // Actions
     void shuffleCards();
+    void dealCards(ax::Vector<Zone*> &targetZones, int amount);
     void moveCardListToTop(ax::Vector<Card*> cardList);
 
     // Overrides

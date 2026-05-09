@@ -79,7 +79,10 @@ bool Card::onMouseDown(ax::Event* event)
         {
             // When cards are moving, clicking on it will consider as stopping it for dragging
             this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-            _isDragging = true;
+            if(_isDraggable)
+            {
+                _isDragging = true;
+            }
         }
         else
         {
@@ -126,6 +129,8 @@ bool Card::onMouseUp(ax::Event* event)
     {
         _dragOffset = ax::Vec2::ZERO;
         flip();
+        EventCard* event = new EventCard(this, false, true);  // click event
+        _eventDispatcher->dispatchEvent(event);
         ret = true;  // Event swallowed
     }
     else if (_isDragging)
@@ -155,6 +160,11 @@ void Card::setGlobalZOrder(int z) {
 }
 
 void Card::flip(float duration) {
+    if (!_isFlippable)
+    {
+        return;
+    }
+
     auto runningFlipAction = this->getActionByTag(ActionTag::CARD_FLIP);
     if (runningFlipAction)
     {
@@ -181,7 +191,7 @@ void Card::flip(float duration) {
     sequence->setTag(ActionTag::CARD_FLIP);
     this->runAction(sequence);
 
-    EventCard* event = new EventCard(this, true);
+    EventCard* event = new EventCard(this, true, false);  // flip event
     _eventDispatcher->dispatchEvent(event);
 }
 

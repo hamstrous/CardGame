@@ -40,6 +40,8 @@ bool Deck::init(ZoneData* property)
     scheduleUpdate();
 
     //this->setRotationSkewX(80);
+
+    _rectNode->setColor(ax::Color3B::RED);
     return true;
 }
 
@@ -148,6 +150,34 @@ void Deck::shuffleCards() {
         auto sequence = ax::Sequence::create(helper::castToVectorOfType<ax::FiniteTimeAction*>(actionList));
         card->runAction(sequence);
     }
+}
+
+void Deck::dealCards(ax::Vector<Zone*>& targetZones, int amountPerZone) {
+    ax::Vector<ax::FiniteTimeAction*> actionList;
+    float delay = 0.6f;
+    int cardIndex      = 0;
+    auto cardList      = helper::castToVectorOfType<Card*>(this->getChildren());
+
+    for (int c = 0; c < amountPerZone; c++)
+    {
+        for(int i = 0; i < targetZones.size(); i++)
+        {
+            actionList.pushBack(ax::DelayTime::create(delay));
+            auto moveCardAction = ax::CallFunc::create([this, cardList, cardIndex, targetZones, i]() {
+                targetZones.at(i)->moveCardToThisZone(cardList.at(cardIndex), 0.5f);
+            });
+            cardIndex++;
+            actionList.pushBack(moveCardAction);
+            if (cardIndex >= cardList.size()){
+                AXLOGD("Not enough cards in the deck to deal, stop at card index: {}", cardIndex);
+                auto sequence = ax::Sequence::create(actionList);
+                this->runAction(sequence);
+                break;
+            }
+        }
+    }
+    auto sequence = ax::Sequence::create(actionList);
+    this->runAction(sequence);
 }
 
 void Deck::moveCardListToTop(ax::Vector<Card*> cardList) {

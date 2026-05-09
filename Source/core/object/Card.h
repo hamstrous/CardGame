@@ -80,8 +80,11 @@ protected:
 
     Zone* _currentZone = nullptr;
 
+    bool _isFlippable = true;
+    bool _isDraggable = true;
+
     //alias for property
     bool& _isFaceUp = _property->isFaceUp;
-    bool& _isDraggable = _property->isDraggable;
+    //bool& _isDraggable = _property->isDraggable;
     
 };

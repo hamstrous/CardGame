@@ -95,9 +95,6 @@ void MainGameCommand::setCurrentPlayerIndex(int index) {
             {
                 int previousPlayedCardIndex = HttpRequestHandler::convertBufferToInt(response->getResponseData());
                 auto cards                  = StateManager::getInstance()->getGameState()->cards;
-                for (auto card : cards)
-                    if (card->getId() == previousPlayedCardIndex)
-                        card->moveToZone(_playField);
                 AXLOG("Checked turn successfully, current player index: %d", _currentPlayerIndex);
                 for (auto input : _playerList[_currentPlayerIndex])
                 {
