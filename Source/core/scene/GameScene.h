@@ -7,17 +7,13 @@
 #include "core/event/EventListenerZone.h"
 
 #include "core/rule/Rule.h"
-#include "core/rule/LogicUnit.h"
-#include "core/model/GameState.h"
 
 
 class GameScene : public ax::Scene
 {
 public:
 
-    static GameScene* create();
-
-    bool init() override;
+    bool init(Rule* rule);
     void update(float delta) override;
 
     void setUpObjects();
@@ -36,9 +32,6 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    // 
-    void onEnter() override;
-
     ~GameScene() override;
 
 protected:
@@ -47,14 +40,11 @@ protected:
     int _sceneID                                 = 0;
 
     Rule* _rule = nullptr;
-    std::vector<LogicUnit*> _flows;
 
     ax::Vec2 visibleSize = _director->getVisibleSize();
     ax::Vec2 origin      = _director->getVisibleOrigin();
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
-
-    GameState* _gameState = nullptr; 
 
     //EventListenerZone* _cardEventListener = nullptr;
 };

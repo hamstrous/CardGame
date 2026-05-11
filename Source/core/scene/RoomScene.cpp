@@ -6,9 +6,6 @@
 #include "core/event/EventListenerWebsocket.h"
 #include "core/event/EventWebsocket.h"
 
-#include "core/model/StateManager.h"
-#include "core/model/GameState.h"
-
 #include "core/scene/LobbyScene.h"
 #include "core/scene/GameScene.h"
 
@@ -161,13 +158,13 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
     }
     AXLOGD("Received create room message, room ID: {}", roomId);
 
-    StateManager::getInstance()->getGameState()->roomId = roomId;
+    //StateManager::getInstance()->getGameState()->roomId = roomId;
 
-    auto unoScene = dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene);
-    if (unoScene)
-        unoScene->setOnlineInformation(false, playerId, 4);
-    else
-        AXLOGD("Failed");
+    //auto unoScene = dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene);
+    //if (unoScene)
+    //    unoScene->setOnlineInformation(false, playerId, 4);
+    //else
+    //    AXLOGD("Failed");
 
 
     _director->replaceScene(utils::createInstance<LobbyScene>());
@@ -187,10 +184,10 @@ void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     }
     AXLOGD("Received join room message, room ID: {}", roomId);
 
-    StateManager::getInstance()->getGameState()->roomId = roomId;
-    dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene)->setOnlineInformation(false, playerId, userCount);
+    //StateManager::getInstance()->getGameState()->roomId = roomId;
+    //dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene)->setOnlineInformation(false, playerId, userCount);
 
-    _director->replaceScene(utils::createInstance<LobbyScene>());
+    //_director->replaceScene(utils::createInstance<LobbyScene>());
 }
 
 void RoomScene::startSocket(string authToken) {

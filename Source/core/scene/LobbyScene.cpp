@@ -1,7 +1,5 @@
 #include "LobbyScene.h"
 
-#include "core/model/StateManager.h"
-
 #include "core/event/EventWebSocket.h"
 #include "core/network/SocketNetworkManager.h"
 
@@ -50,7 +48,7 @@ bool LobbyScene::init()
     scheduleUpdate();
 
     _roomIdText =
-        Label::createWithSystemFont("Room ID: " + StateManager::getInstance()->getGameState()->roomId, "Arial", 24);
+        Label::createWithSystemFont("Room ID: ", "Arial", 24);
     _roomIdText->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 + 100));
     _roomIdText->setTextColor(Color4B::WHITE);
     this->addChild(_roomIdText);
@@ -67,7 +65,7 @@ bool LobbyScene::init()
     _joinGameButton->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 100));
     _joinGameButton->setTitleText("Join Game");
     _joinGameButton->addClickEventListener([this](ax::Object* sender) {
-        _director->replaceScene(StateManager::getInstance()->getGameState()->gameScene);
+        //_director->replaceScene();
     });
     this->addChild(_joinGameButton);
 

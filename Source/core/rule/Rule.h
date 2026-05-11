@@ -1,38 +1,20 @@
 #pragma once
 
 #include "axmol.h"
-#include "Turn.h"
+
+#include <map>
+#include <vector>
 
 class Rule : public ax::Node
 {
-    enum class State {
-        start,
-        main,
-        end
-    };
-
 public:
-    Rule(Turn* prepareTurn, Turn* mainTurn, Turn* endTurn);
-    ~Rule() { unscheduleUpdate(); }
-
-    void startRule() {
-        executeTurn();
-    }
-
-    void executeTurn() {
-        if (_currentTurn) {
-            _currentTurn->startTurn();
-        }
-    }
-
-    void update(float delta);
+    Rule();
+    ~Rule() {}
+    void update(float delta) override;
 
 protected:
-    Turn* _startTurn;
-    Turn* _mainTurn;
-    Turn* _endTurn;
-    Turn* _currentTurn = nullptr;
+    int _clientId = 0;
+    int _playerCount = 0;
 
-    State _currentState = State::start;
-
+    std::string _userName = "";
 };

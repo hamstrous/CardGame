@@ -5,8 +5,6 @@
 #include "core/scene/GameScene.h"
 #include "core/scene/RoomScene.h"
 
-#include "core/model/StateManager.h"
-
 #include <string>
 
 class MenuButton : public ax::ui::Button
@@ -48,7 +46,6 @@ public:
             gameScene->retain();
             auto roomScene = ax::utils::createInstance<RoomScene>();
             AXASSERT(gameScene != nullptr, "Scene connected to menu button is null");
-            StateManager::getInstance()->getGameState()->gameScene = gameScene;
             director->replaceScene(roomScene);
             return true;
         });

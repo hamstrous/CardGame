@@ -12,8 +12,6 @@
 #include "core/scene/GameScene.h"
 
 #include "core/rule/Rule.h"
-#include "core/rule/LogicUnit.h"
-#include "core/model/GameState.h"
 
 
 class UnoScene : public GameScene
@@ -127,8 +125,6 @@ protected:
     ax::Vec2 origin      = _director->getVisibleOrigin();
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
-
-    GameState* _gameState = nullptr; 
 
     //EventListenerZone* _cardEventListener = nullptr;
 };

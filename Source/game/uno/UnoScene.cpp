@@ -1,11 +1,4 @@
 #include "UnoScene.h"
-#include "core/rule/command/DealCommand.h"
-#include "core/rule/command/ShuffleCommand.h"
-#include "core/rule/command/MainGameCommand.h"
-
-#include "core/view/View.h"
-#include "core/view/Player.h"
-#include "core/model/StateManager.h"
 
 #include "core/network/HttpRequestHandler.h"
 
@@ -51,10 +44,6 @@ bool UnoScene::init()
     _eventDispatcher->addEventListenerWithFixedPriority(_cardEventListener, 2);
 
     _socketManager = SocketNetworkManager::getInstance();
-
-    StateManager::getInstance()->setGameState(new GameState());
-    _gameState = StateManager::getInstance()->getGameState();
-
 
     setUpObjects();
 
