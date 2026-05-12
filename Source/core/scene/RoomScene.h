@@ -7,6 +7,8 @@
 #include "core/network/SocketNetworkManager.h"
 #include "core/event/EventListenerWebsocket.h"
 
+class GameScene;
+
 class RoomScene : public ax::Scene
 {
 
@@ -35,8 +37,6 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    void startSocket(std::string authToken);
-
     ~RoomScene() override;
 
 protected:
@@ -56,5 +56,6 @@ protected:
     ax::Vec2 safeOrigin  = safeArea.origin;
 
     SocketNetworkManager* _socketManager;
+    GameScene* _gameScene = nullptr;
 
 };

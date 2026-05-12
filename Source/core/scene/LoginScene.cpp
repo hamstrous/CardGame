@@ -75,6 +75,7 @@ bool LoginScene::init()
                 AXLOGD("Login successful: {}", responseJson["auth_token"]);
                 _socketManager = SocketNetworkManager::getInstance();
                 _socketManager->setAuthorizationHeader(responseJson["auth_token"]);
+
                 _socketManager->connect("ws://localhost:5284/ws");
                 _director->replaceScene(utils::createInstance<MenuScene>());
             }
@@ -114,9 +115,5 @@ bool LoginScene::onMouseMove(Event* event)
 void LoginScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void LoginScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
-
-void LoginScene::startSocket(string authToken) {
-    
-}
 
 LoginScene::~LoginScene() {}

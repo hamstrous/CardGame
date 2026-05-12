@@ -1,6 +1,7 @@
 #include "MenuScene.h"
 
 #include "game/uno/UnoScene.h"
+#include "core/rule/Rule.h"
 
 using namespace ax;
 
@@ -161,7 +162,7 @@ void MenuScene::processStartFile() {
     //        _menuButtonList.pushBack(button);
     //    }
     //}
-    MenuButton* button = MenuButton::create<UnoScene>("icon/uno.png", "uno");
+    MenuButton* button = MenuButton::create<Rule>("icon/uno.png", "uno");
     if (button)
     {
         button->setContentSize(Size(100, 50));

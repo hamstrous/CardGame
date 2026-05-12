@@ -6,13 +6,34 @@ using namespace ax;
 using namespace ax::network;
 using namespace std;
 
-bool GameScene::init(Rule* rule)
+GameScene* GameScene::_instance = nullptr;
+
+GameScene* GameScene::getInstance()
+{
+    if (_instance == nullptr)
+    {
+        _instance = new GameScene();
+        if (!_instance->init())
+        {
+            AX_SAFE_DELETE(_instance);
+        }
+    }
+    else
+    {
+        AXLOGD("GameScene instance already exists, returning existing instance");
+    }
+    return _instance;
+}
+
+bool GameScene::init()
 {
     // super init first
     if (!Scene::init())
     {
         return false;
     }
+
+    AXLOGD("GameScene init");
 
     visibleSize = _director->getVisibleSize();
     origin      = _director->getVisibleOrigin();
@@ -30,10 +51,7 @@ bool GameScene::init(Rule* rule)
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(GameScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
-    _rule = rule;
-    this->addChild(_rule);
-
-    //scheduleUpdate();
+    scheduleUpdate();
 
     return true;
 }
@@ -64,5 +82,38 @@ bool GameScene::onMouseMove(Event* event)
 void GameScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void GameScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
+
+void GameScene::setRoomId(std::string roomId) {
+    _roomId = roomId;
+}
+
+std::string GameScene::getRoomId()
+{
+    return _roomId;
+}
+
+void GameScene::setPlayerCount(int playerCount) {
+    _playerCount = playerCount;
+}
+
+int GameScene::getPlayerCount()
+{
+    return _playerCount;
+}
+
+void GameScene::setPlayerId(int playerId) {
+    _playerId = playerId;
+}
+
+int GameScene::getPlayerId()
+{
+    return _playerId;
+}
+
+void GameScene::onEnter()
+{
+    Scene::onEnter();
+    AXLOGD("GameScene onEnter");
+}
 
 GameScene::~GameScene() {}

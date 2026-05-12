@@ -9,7 +9,8 @@
 #include "utils/json.hpp"
 
 #include "core/scene/MenuScene.h"
-
+#include "core/scene/GameScene.h"
+ 
 using namespace ax;
 using namespace ax::ui;
 using namespace std;
@@ -47,25 +48,44 @@ bool LobbyScene::init()
     _eventDispatcher->addEventListenerWithFixedPriority(_websocketListener, 11);
     scheduleUpdate();
 
+    // All necessary online info is ready, init rule before switch scene
+    GameScene::getInstance()->initRule();
+
     _roomIdText =
-        Label::createWithSystemFont("Room ID: ", "Arial", 24);
+        Label::createWithSystemFont("Room ID: " + GameScene::getInstance()->getRoomId(), "Arial", 24);
     _roomIdText->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 + 100));
     _roomIdText->setTextColor(Color4B::WHITE);
     this->addChild(_roomIdText);
 
-    SocketNetworkManager::getInstance()->sendMessage(json{{"type", "request"},
-                                                          {"command", "list_users_in_room"},
-                                                          {"data", json::object()},
-                                                          {"id", 0},
-                                                          {"time_stamp", 0}});
+    SocketNetworkManager::getInstance()->sendMessage(
+        json{
+            {"type", "request"},
+            {"command", "list_users_in_room"},
+            {"data", json::object()},
+            {"id", 0},
+            {"time_stamp", 0}
+        }
+    );
 
     auto _joinGameButton = Button::create("background.png");
     _joinGameButton->ignoreContentAdaptWithSize(false);
     _joinGameButton->setContentSize(Size(150, 50));
     _joinGameButton->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2 - 100));
-    _joinGameButton->setTitleText("Join Game");
+    _joinGameButton->setTitleText("Ready");
     _joinGameButton->addClickEventListener([this](ax::Object* sender) {
-        //_director->replaceScene();
+        if (!_isReady)
+        {
+            json message{{"type", "notification"},
+                         {"command", "ready"},
+                         {"data", json::object()},
+                         {"id", 0},
+                         {"time_stamp", 0}};
+            SocketNetworkManager::getInstance()->sendMessage(json(
+                
+            ));
+            _isReady = true;
+            static_cast<Button*>(sender)->setTitleText("Cancel Ready");
+        }
     });
     this->addChild(_joinGameButton);
 
@@ -136,18 +156,14 @@ void LobbyScene::onWebSocketMessage(EventWebSocket* event)
             }
         }
     }
+    else if (command == "start_game")
+    {
+        _director->replaceScene(GameScene::getInstance());
+    }
     else
     {
         AXLOGD("Received unknown WebSocket message command: {}", command);
     }
 }
-
-void LobbyScene::onEnter()
-{
-    Scene::onEnter();
-    // _director->replaceScene(utils::createInstance<MenuScene>());
-}
-
-void LobbyScene::startSocket(string authToken) {}
 
 LobbyScene::~LobbyScene() {}

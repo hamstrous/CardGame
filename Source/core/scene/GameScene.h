@@ -12,12 +12,33 @@
 class GameScene : public ax::Scene
 {
 public:
+    // must be set before enabling
+    void setRule(Rule* rule) {
+        _rule = rule;
+        this->addChild(_rule);
+        _rule->setPosition(ax::Vec2::ZERO);
+        AXLOGD("Rule set in GameScene, needs rule initialization next");
+    }
 
-    bool init(Rule* rule);
+    void initRule()
+    {
+        if (_rule != nullptr)
+        {
+            // All the necessary information for the rule to function should be set before calling this method
+            _rule->setPlayerId(_playerId);
+            _rule->setPlayerCount(_playerCount);
+            AXLOGD("Rule initialized, game is ready", _playerId, _playerCount);
+        }
+    }
+
+public:
+    // Singleton pattern
+    // Only one instance of GameScene can exist at a time, and it can be accessed globally for convenience
+    static GameScene* getInstance();
+    static GameScene* _instance;
+
+    bool init();
     void update(float delta) override;
-
-    void setUpObjects();
-    void setUpRule();
 
     // mouse
     bool onMouseDown(ax::Event* event);
@@ -32,6 +53,15 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
+    void setRoomId(std::string roomId);
+    std::string getRoomId();
+    void setPlayerCount(int playerCount);
+    int getPlayerCount();
+    void setPlayerId(int playerId);
+    int getPlayerId();
+
+    void onEnter() override;
+
     ~GameScene() override;
 
 protected:
@@ -45,6 +75,12 @@ protected:
     ax::Vec2 origin      = _director->getVisibleOrigin();
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
+
+    int _playerId    = 0;
+    int _playerCount = 0;
+
+    std::string _userName = "";
+    std::string _roomId   = "";
 
     //EventListenerZone* _cardEventListener = nullptr;
 };

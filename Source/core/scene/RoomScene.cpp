@@ -52,6 +52,8 @@ bool RoomScene::init()
 
     scheduleUpdate();
 
+    _gameScene = GameScene::getInstance();
+
     _createRoomButton = Button::create("background.png");
     _createRoomButton->ignoreContentAdaptWithSize(false);
     _createRoomButton->setContentSize(Size(100, 50));
@@ -59,13 +61,18 @@ bool RoomScene::init()
     _createRoomButton->setTitleLabel(Label::createWithSystemFont("create room", "Arial", 24));
 
     _createRoomButton->addClickEventListener([this](ax::Object* sender) {
+        int playerCount = 4;  // For simplicity, we hardcode player count to 4. You can modify this to allow user input.
+
         json message;
         json data;
-        data["user_count"] = 4;
+        data["player_count"] = playerCount;
         message["command"] = "create_room";
         message["type"] = "request";
         message["id"] = 0;
         message["data"] = data;
+
+        _gameScene->setPlayerCount(playerCount);
+
         _socketManager->sendMessage(message);
     });
 
@@ -158,25 +165,20 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
     }
     AXLOGD("Received create room message, room ID: {}", roomId);
 
-    //StateManager::getInstance()->getGameState()->roomId = roomId;
+    _gameScene->setRoomId(roomId);
 
-    //auto unoScene = dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene);
-    //if (unoScene)
-    //    unoScene->setOnlineInformation(false, playerId, 4);
-    //else
-    //    AXLOGD("Failed");
-
-
-    _director->replaceScene(utils::createInstance<LobbyScene>());
-    
+    _director->replaceScene(utils::createInstance<LobbyScene>());    
 }
 
 void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     json data = event->getData();
     std::string roomId = data["data"]["room_id"];
     int playerId       = data["data"]["player_index"];
-    int userCount      = data["data"]["user_count"];
-    
+    int userCount      = data["data"]["player_count"];
+
+    _gameScene->setPlayerId(playerId);
+    _gameScene->setPlayerCount(userCount);
+
     if (roomId.empty())
     {
         AXLOGD("Received join room message, but room ID is missing");
@@ -184,14 +186,7 @@ void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     }
     AXLOGD("Received join room message, room ID: {}", roomId);
 
-    //StateManager::getInstance()->getGameState()->roomId = roomId;
-    //dynamic_cast<UnoScene*>(StateManager::getInstance()->getGameState()->gameScene)->setOnlineInformation(false, playerId, userCount);
-
-    //_director->replaceScene(utils::createInstance<LobbyScene>());
-}
-
-void RoomScene::startSocket(string authToken) {
-    
+    _gameScene->setRoomId(roomId);
 }
 
 RoomScene::~RoomScene() {

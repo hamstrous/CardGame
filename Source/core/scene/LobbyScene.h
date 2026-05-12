@@ -27,10 +27,6 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    void onEnter() override;
-
-    void startSocket(std::string authToken);
-
     ~LobbyScene() override;
 
 protected:
@@ -46,4 +42,6 @@ protected:
 
     ax::Vector<ax::Label*> _usersInRoom;
     ax::Label* _roomIdText = nullptr;
+
+    bool _isReady = false;
 };

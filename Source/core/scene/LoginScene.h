@@ -19,9 +19,6 @@ class LoginScene : public ax::Scene
 public:
     bool init() override;
 
-    void setUpObjects();
-    void setUpRule();
-
     // mouse
     bool onMouseDown(ax::Event* event);
     bool onMouseUp(ax::Event* event);

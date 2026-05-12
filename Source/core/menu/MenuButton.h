@@ -5,12 +5,14 @@
 #include "core/scene/GameScene.h"
 #include "core/scene/RoomScene.h"
 
+#include "core/rule/Rule.h"
+
 #include <string>
 
 class MenuButton : public ax::ui::Button
 {
 public:
-    template <typename T = GameScene>
+    template <typename T = Rule>
     static MenuButton* create(const std::string& imagePath, const std::string& buttonName)
     {
         MenuButton* menuButton = new (std::nothrow) MenuButton();
@@ -23,7 +25,7 @@ public:
         return nullptr;
     }
 
-    template <typename T = GameScene>
+    template <typename T = Rule>
     bool init(const std::string& imagePath, const std::string& buttonName)
     {
         if (!Button::init(imagePath))
@@ -42,10 +44,13 @@ public:
         this->setSwallowMouse(true);
         this->addClickEventListener([this](ax::Object* sender) {
             auto director = ax::Director::getInstance();
-            auto gameScene    = ax::utils::createInstance<T>();
-            gameScene->retain();
+            auto gameRule    = ax::utils::createInstance<T>();
+
             auto roomScene = ax::utils::createInstance<RoomScene>();
-            AXASSERT(gameScene != nullptr, "Scene connected to menu button is null");
+            AXASSERT(gameRule != nullptr, "Game rule created by button is null");
+
+            GameScene::getInstance()->setRule(gameRule);
+
             director->replaceScene(roomScene);
             return true;
         });
