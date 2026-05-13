@@ -5,8 +5,8 @@
 #include "core/network/SocketNetworkManager.h"
 #include "core/event/EventListenerWebsocket.h"
 
-#include "core/interface/IState.h"
 #include "core/interface/IContext.h"
+#include "core/rule/GameState.h"
 
 #include <map>
 #include <vector>
@@ -41,6 +41,8 @@ public:
     int getPlayerCount() const { return _playerCount; }
     void setUserName(const std::string& userName);
     std::string getUserName() const { return _userName; }
+
+    GameState* getCurrentState() const { return static_cast<GameState*>(_currentState); }
 
 protected:
 

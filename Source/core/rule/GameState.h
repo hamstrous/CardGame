@@ -2,7 +2,6 @@
 
 #include "axmol.h"
 
-#include "core/rule/Rule.h"
 #include "core/interface/IState.h"
 
 class EventWebSocket;
@@ -10,9 +9,9 @@ class EventWebSocket;
 class GameState : public IState
 {
 public:
-    virtual void onEnter() = 0;
+    virtual void onEnter()             = 0;
     virtual void onUpdate(float delta) = 0;
-    virtual void onExit()  = 0;
+    virtual void onExit()              = 0;
 
     // mouse
     virtual void onMouseDown(ax::Event* event)   = 0;

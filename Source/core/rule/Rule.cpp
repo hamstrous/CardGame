@@ -1,6 +1,6 @@
 #include "Rule.h"
 
-#include "core/rule/GameState.h"
+#include "GameState.h"
 
 bool Rule::init()
 {
@@ -30,7 +30,7 @@ bool Rule::onMouseDown(ax::Event* event)
 {
     if (_currentState)
     {
-       static_cast<GameState*>(_currentState)->onMouseDown(event);
+        getCurrentState()->onMouseDown(event);
     }
     return true;
 }
@@ -39,7 +39,7 @@ bool Rule::onMouseUp(ax::Event* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onMouseUp(event);
+        getCurrentState()->onMouseUp(event);
     }
     return true;
 }
@@ -48,7 +48,7 @@ bool Rule::onMouseMove(ax::Event* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onMouseMove(event);
+        getCurrentState()->onMouseMove(event);
     }
     return true;
 }
@@ -57,7 +57,7 @@ bool Rule::onMouseScroll(ax::Event* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onMouseScroll(event);
+        getCurrentState()->onMouseScroll(event);
     }
     return true;
 }
@@ -66,7 +66,7 @@ void Rule::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onKeyPressed(code, event);
+        getCurrentState()->onKeyPressed(code, event);
     }
 }
 
@@ -74,7 +74,7 @@ void Rule::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onKeyReleased(code, event);
+        getCurrentState()->onKeyReleased(code, event);
     }
 }
 
@@ -82,7 +82,7 @@ void Rule::onWebSocketMessage(EventWebSocket* event)
 {
     if (_currentState)
     {
-        static_cast<GameState*>(_currentState)->onWebSocketMessage(event);
+        getCurrentState()->onWebSocketMessage(event);
     }
 }
 

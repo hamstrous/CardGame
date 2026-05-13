@@ -11,10 +11,13 @@ public:
 
     // State management
     void changeState(IState* newState);
+
     void handleStateChange();
 
+    IState* getCurrentState() const { return _currentState; }
+
 protected:
-    IState* _currentState = nullptr;
+    IState* _currentState  = nullptr;
     IState* _previousState = nullptr;
     IState* _nextState     = nullptr;
 };

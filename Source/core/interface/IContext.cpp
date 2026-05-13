@@ -1,5 +1,4 @@
 #include "IContext.h"
-
 #include "IState.h"
 
 void IContext::changeState(IState* newState)
@@ -17,10 +16,11 @@ void IContext::handleStateChange()
         if (_currentState)
         {
             _currentState->onExit();
+            delete _previousState;  // Assuming ownership of the state
             _previousState = _currentState;
         }
         _currentState = _nextState;
-        AX_SAFE_DELETE(_nextState);
+        _nextState    = nullptr;
         _currentState->onEnter();
     }
 }
