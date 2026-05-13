@@ -93,7 +93,7 @@ public class SocketHandler(PlayerService playerService)
                         var createdRoomId = Guid.NewGuid().ToString("N");
                         user.CurrentRoomId = createdRoomId;
 
-                        var requiredAmountOfUsers = data?.GetProperty("user_count").GetInt32() ?? 0;
+                        var requiredAmountOfUsers = data?.GetProperty("player_count").GetInt32() ?? 0;
                         user.PlayerCount = requiredAmountOfUsers;
                         user.IsHost = true;
                         var roomData = new
@@ -150,7 +150,7 @@ public class SocketHandler(PlayerService playerService)
                             {
                                 room_id = joinedRoomId,
                                 player_index = user.Index,
-                                user_count = user.PlayerCount
+                                player_count = user.PlayerCount
                             },
                             time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         };
@@ -180,7 +180,7 @@ public class SocketHandler(PlayerService playerService)
                         await BroadcastMessageAsync(user, new
                         {
                             type = "broadcast",
-                            command = "start",
+                            command = "start_game",
                             data = new { },
                             time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         });
