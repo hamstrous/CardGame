@@ -80,11 +80,9 @@ bool LobbyScene::init()
                          {"data", json::object()},
                          {"id", 0},
                          {"time_stamp", 0}};
-            SocketNetworkManager::getInstance()->sendMessage(json(
-                
-            ));
+            SocketNetworkManager::getInstance()->sendMessage(message);
             _isReady = true;
-            static_cast<Button*>(sender)->setTitleText("Cancel Ready");
+            static_cast<Button*>(sender)->setTitleText("Cancel");
         }
     });
     this->addChild(_joinGameButton);

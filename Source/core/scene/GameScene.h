@@ -27,7 +27,7 @@ public:
             // All the necessary information for the rule to function should be set before calling this method
             _rule->setPlayerId(_playerId);
             _rule->setPlayerCount(_playerCount);
-            AXLOGD("Rule initialized, game is ready", _playerId, _playerCount);
+            AXLOGD("Rule initialized, game is ready");
         }
     }
 

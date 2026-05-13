@@ -166,6 +166,7 @@ void RoomScene::onCreateRoomMessage(EventWebSocket* event)
     AXLOGD("Received create room message, room ID: {}", roomId);
 
     _gameScene->setRoomId(roomId);
+    _gameScene->initRule();
 
     _director->replaceScene(utils::createInstance<LobbyScene>());    
 }
@@ -187,6 +188,9 @@ void RoomScene::onJoinRoomMessage(EventWebSocket* event) {
     AXLOGD("Received join room message, room ID: {}", roomId);
 
     _gameScene->setRoomId(roomId);
+    _gameScene->initRule();
+
+    _director->replaceScene(utils::createInstance<LobbyScene>());
 }
 
 RoomScene::~RoomScene() {

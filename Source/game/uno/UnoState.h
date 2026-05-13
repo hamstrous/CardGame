@@ -10,6 +10,8 @@
 class UnoState : public GameState
 {
 public:
+    UnoState(UnoRule* context) : GameState(context) {}
+
     UnoRule* getContext() { return static_cast<UnoRule*>(_context); }
 
 protected:

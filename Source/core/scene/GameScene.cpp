@@ -18,10 +18,6 @@ GameScene* GameScene::getInstance()
             AX_SAFE_DELETE(_instance);
         }
     }
-    else
-    {
-        AXLOGD("GameScene instance already exists, returning existing instance");
-    }
     return _instance;
 }
 

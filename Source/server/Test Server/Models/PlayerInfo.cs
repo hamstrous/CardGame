@@ -14,11 +14,13 @@ public class PlayerInfo
     public bool IsHost { get; set; } = false;
     public int Index { get; set; } = 0; // 0 is host
     public int PlayerCount { get; set; } = 0; // Total players in the room, including self
+    public bool IsReady { get; set; } = false;
     public void Clear()
     {
         AuthToken = string.Empty;
         Socket = null;
         CurrentRoomId = string.Empty;
         IsHost = false;
+        IsReady = false;
     }
 }

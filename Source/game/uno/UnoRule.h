@@ -10,7 +10,8 @@
 
 #include "core/rule/Rule.h"
 
-
+class UnoState;
+class UnoSetUpState;
 
 class UnoRule : public Rule
 {
@@ -54,12 +55,7 @@ public:
 
 public:
 
-    // WebSocket
-    void onWebSocketMessage(EventWebSocket* event) override;
-    void onAllPlayersReady(EventWebSocket* event);
-    void onShuffleComplete(EventWebSocket* event);
-    void onDealComplete(EventWebSocket* event);
-    void onCardPlayed(EventWebSocket* event);
+    bool init() override;
 
     // Player actions
     //void onPlayCard(EventCard* event);
@@ -67,7 +63,6 @@ public:
 protected:
 
     bool _clockWise                            = true;
-    EventListenerWebSocket* _websocketListener = nullptr;
     // state
     ax::Vector<Card*> _cards;
     ax::Vector<Zone*> _playerHands;  // represent player's hand
@@ -80,4 +75,6 @@ protected:
     Value _currentValue = Value::ZERO;
 
     Phase _currentPhase = Phase::WAIT;
+
+    friend class UnoSetUpState;
 };

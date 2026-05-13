@@ -3,13 +3,15 @@
 #include "axmol.h"
 
 #include "core/interface/IState.h"
+#include "Rule.h"
 
-class Rule;
 class EventWebSocket;
 
 class GameState : public IState
 {
 public:
+    GameState(Rule* context) : IState(context) {}
+
     virtual void onEnter()             = 0;
     virtual void onUpdate(float delta) = 0;
     virtual void onExit()              = 0;
