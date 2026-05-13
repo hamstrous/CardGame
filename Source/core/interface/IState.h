@@ -2,7 +2,7 @@
 
 #include "axmol.h"
 
-#include "core/interface/IContext.h"
+class IContext;
 
 class IState
 {
@@ -16,7 +16,7 @@ public:
     virtual void onExit()  = 0;
 
     virtual void setContext(IContext* context) { _context = context; }
-    virtual IContext* getContext() const { return _context; }
+    IContext* getContext() { return _context; }
 
 protected:
     IContext* _context = nullptr;

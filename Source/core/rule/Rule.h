@@ -6,10 +6,11 @@
 #include "core/event/EventListenerWebsocket.h"
 
 #include "core/interface/IContext.h"
-#include "core/rule/GameState.h"
 
 #include <map>
 #include <vector>
+
+class GameState;
 
 class Rule : public ax::Node, public IContext
 {
@@ -22,17 +23,17 @@ public:
     void update(float delta) override;
 
     // mouse
-    bool onMouseDown(ax::Event* event);
-    bool onMouseUp(ax::Event* event);
-    bool onMouseMove(ax::Event* event);
-    bool onMouseScroll(ax::Event* event);
+    virtual bool onMouseDown(ax::Event* event);
+    virtual bool onMouseUp(ax::Event* event);
+    virtual bool onMouseMove(ax::Event* event);
+    virtual bool onMouseScroll(ax::Event* event);
 
     // Keyboard
-    void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
-    void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
+    virtual void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
+    virtual void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
     // WebSocket
-    void onWebSocketMessage(EventWebSocket* event);
+    virtual void onWebSocketMessage(EventWebSocket* event);
 
     // Getters and Setters
     void setPlayerId(int playerId);
@@ -42,14 +43,25 @@ public:
     void setUserName(const std::string& userName);
     std::string getUserName() const { return _userName; }
 
-    GameState* getCurrentState() const override { return static_cast<GameState*>(_currentState); }
+    GameState* getCurrentState();
 
 protected:
 
+    bool _isHost     = false;
     int _playerId = 0;
     int _playerCount = 0;
 
     std::string _userName = "";
 
     SocketNetworkManager* _socketManager = nullptr;
+   
+    ax::EventListenerKeyboard* _keyboardListener = nullptr;
+    ax::EventListenerMouse* _mouseListener       = nullptr;
+    EventListenerWebSocket* _websocketListener   = nullptr;
+    int _sceneID                                 = 0;
+
+    ax::Vec2 visibleSize = _director->getVisibleSize();
+    ax::Vec2 origin      = _director->getVisibleOrigin();
+    ax::Rect safeArea    = _director->getSafeAreaRect();
+    ax::Vec2 safeOrigin  = safeArea.origin;
 };

@@ -4,6 +4,7 @@
 
 #include "core/interface/IState.h"
 
+class Rule;
 class EventWebSocket;
 
 class GameState : public IState
@@ -26,5 +27,5 @@ public:
     // WebSocket
     virtual void onWebSocketMessage(EventWebSocket* event) = 0;
 
-    Rule* getContext() const override { return static_cast<Rule*>(_context); }
+    Rule* getContext();
 };

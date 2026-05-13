@@ -14,7 +14,7 @@ public:
 
     void handleStateChange();
 
-    virtual IState* getCurrentState() const { return _currentState; }
+    IState* getCurrentState() { return _currentState; }
 
 protected:
     IState* _currentState  = nullptr;

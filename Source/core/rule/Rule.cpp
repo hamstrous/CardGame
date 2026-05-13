@@ -4,6 +4,20 @@
 
 bool Rule::init()
 {
+    //_mouseListener = ax::EventListenerMouse::create();
+    //_mouseListener->onMouseMove = AX_CALLBACK_1(Rule::onMouseMove, this);
+    //_mouseListener->onMouseUp   = AX_CALLBACK_1(Rule::onMouseUp, this);
+    //_mouseListener->onMouseDown = AX_CALLBACK_1(Rule::onMouseDown, this);
+    //_eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+
+    //_keyboardListener = ax::EventListenerKeyboard::create();
+    //_keyboardListener->onKeyPressed = AX_CALLBACK_2(Rule::onKeyPressed, this);
+    //_keyboardListener->onKeyReleased = AX_CALLBACK_2(Rule::onKeyReleased, this);
+    //_eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
+
+    //_websocketListener = EventListenerWebSocket::create();
+    //_websocketListener->onWebSocketMessage = AX_CALLBACK_1(Rule::onWebSocketMessage, this);
+    //_eventDispatcher->addEventListenerWithSceneGraphPriority(_websocketListener, this);
 
     return true;
 }
@@ -90,6 +104,8 @@ void Rule::onWebSocketMessage(EventWebSocket* event)
 void Rule::setPlayerId(int playerId)
 {
     _playerId = playerId;
+    if (_playerId == 0)
+        _isHost = true;
 }
 
 void Rule::setPlayerCount(int playerCount) {
@@ -98,4 +114,9 @@ void Rule::setPlayerCount(int playerCount) {
 
 void Rule::setUserName(const std::string& userName) {
     _userName = userName;
+}
+
+GameState* Rule::getCurrentState()
+{
+    return static_cast<GameState*>(_currentState);
 }
