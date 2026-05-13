@@ -42,7 +42,7 @@ public:
     void setUserName(const std::string& userName);
     std::string getUserName() const { return _userName; }
 
-    GameState* getCurrentState() const { return static_cast<GameState*>(_currentState); }
+    GameState* getCurrentState() const override { return static_cast<GameState*>(_currentState); }
 
 protected:
 

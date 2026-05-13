@@ -25,4 +25,6 @@ public:
 
     // WebSocket
     virtual void onWebSocketMessage(EventWebSocket* event) = 0;
+
+    Rule* getContext() const override { return static_cast<Rule*>(_context); }
 };
