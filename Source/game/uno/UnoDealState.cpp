@@ -2,10 +2,13 @@
 
 void UnoDealState::onEnter() {
     auto& game = *getContext();
-    game._deck->shuffleCards();
-    // deal 7 cards to each player
-    game._deck->dealCards(game._playerHands, 7);
+    auto shuffleAction = ax::CallFunc::create([&game]() { game._deck->shuffleCards(); });
+    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 7); });
 
+    // deal the player with index 0 first
+    auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f),
+                                              dealAction, nullptr);
+    game.runAction(sequence);
 }
 
 void UnoDealState::onUpdate(float delta) {}

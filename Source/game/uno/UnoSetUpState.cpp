@@ -11,8 +11,8 @@ void UnoSetUpState::onEnter()
     // bind reference to the game rule for easy access
     auto& game = *getContext();
 
-    game._playerCount          = 4;
-    game._playerId             = 0;
+    AXLOGD("Player index: {}", game._playerId);
+
     auto handPositionList = vector<Vec2>{
         Vec2(game.visibleSize.width / 2 + game.origin.x, game.visibleSize.height / 2 + game.origin.y - 300),  // bottom
         Vec2(game.visibleSize.width / 2 + game.origin.x - 400, game.visibleSize.height / 2 + game.origin.y),  // right
@@ -20,6 +20,7 @@ void UnoSetUpState::onEnter()
         Vec2(game.visibleSize.width / 2 + game.origin.x + 400, game.visibleSize.height / 2 + game.origin.y)   // left
     };
     int listIndex = 0;
+    ax::Vector<Zone*> tempPlayerHands;
     for (int i = game._playerId; i < game._playerCount; i++)
     {
         Zone* playerHand = Zone::create(new ZoneData());
@@ -30,19 +31,24 @@ void UnoSetUpState::onEnter()
         playerHand->setPosition(handPositionList[listIndex++]);
         playerHand->setContentSize(Size(300, 100));
         game.addChild(playerHand);
-        game._playerHands.pushBack(playerHand);
+        tempPlayerHands.pushBack(playerHand);
         playerHand->lockInput();
     }
     for (int i = 0; i < game._playerId; i++)
     {
         Zone* playerHand = Zone::create(new ZoneData());
-        if (listIndex % 2 == 0)
+        if (listIndex % 2 == 1)
             playerHand->setRotation(90);
         playerHand->setPosition(handPositionList[listIndex++]);
         playerHand->setContentSize(Size(300, 100));
         game.addChild(playerHand);
         game._playerHands.pushBack(playerHand);
         playerHand->lockInput();
+    }
+    for (auto playerHand : tempPlayerHands)
+    {
+        // Make sure player contain hand from player index 0 -> n, not depend on player index
+        game._playerHands.pushBack(playerHand);
     }
 
     // load all card files from content/card/uno
@@ -60,8 +66,8 @@ void UnoSetUpState::onEnter()
         Card* card = Card::create(new CardData("card/uno/" + cardFile, "card/Card Back 1.png"));
         game._cards.pushBack(card);
         card->setId(cardIndex++);
-        game.addChild(
-            card);  // add to scene first to ensure the card can be move, and no problem with the remove parent
+        card->setContentSize(ax::Size(100, 150));
+        game.addChild(card);  // add to scene first to ensure the card can be move, and no problem with the remove parent
         game._deck->moveCardToThisZone(card);
     }
 
