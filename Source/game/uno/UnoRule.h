@@ -10,9 +10,6 @@
 
 #include "core/rule/Rule.h"
 
-class UnoState;
-class UnoSetUpState;
-
 class UnoRule : public Rule
 {
 public:
@@ -76,5 +73,10 @@ protected:
 
     Phase _currentPhase = Phase::WAIT;
 
+    // A game rule class will let all states access ít private members
+    friend class UnoState;
     friend class UnoSetUpState;
+    friend class UnoDealState;
+    friend class UnoPlayState;
+    friend class UnoResultState;
 };

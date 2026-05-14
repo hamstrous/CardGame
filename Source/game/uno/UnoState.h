@@ -6,7 +6,6 @@
 
 #include "UnoRule.h"
 
-
 class UnoState : public GameState
 {
 public:

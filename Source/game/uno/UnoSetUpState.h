@@ -5,15 +5,13 @@
 #include "UnoState.h"
 #include "UnoRule.h"
 
-
 class UnoSetUpState : public UnoState
 {
 public:
     UnoSetUpState(UnoRule* context) : UnoState(context) {}
 
-    void onEnter() override;
-
     // Inherited via UnoState
+    void onEnter() override;
     void onUpdate(float delta) override;
     void onExit() override;
     void onMouseDown(ax::Event* event) override;

@@ -1,5 +1,7 @@
 #include "UnoSetUpState.h"
 
+#include "UnoDealState.h"
+
 #include "utils/helper.h"
 
 void UnoSetUpState::onEnter()
@@ -67,6 +69,8 @@ void UnoSetUpState::onEnter()
     game._discardPile->setPosition(game.visibleSize / 2);
     game._discardPile->setContentSize(Size(150, 150));
     game.addChild(game._discardPile);
+
+    game.changeState(new UnoDealState(getContext()));
 }
 
 void UnoSetUpState::onUpdate(float delta) {}
