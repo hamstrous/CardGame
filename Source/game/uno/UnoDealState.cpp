@@ -1,8 +1,33 @@
 #include "UnoDealState.h"
+#include "utils/json.hpp"
+
+#include "core/event/EventWebsocket.h"
+
+using json = lib::json;
 
 void UnoDealState::onEnter() {
     auto& game = *getContext();
-    auto shuffleAction = ax::CallFunc::create([&game]() { game._deck->shuffleCards(); });
+
+    if (game._isHost)
+    {
+        shuffleSeed = game._deck->getRandomShuffleSeed();
+        game._socketManager->sendMessage(
+            json {
+                {"type","broadcast"},
+                {"command", "shuffle"},
+                {"data", json{{"shuffleSeed", shuffleSeed}}},
+                {"time_stamp", 0}
+            }
+        );
+    }
+
+    if (shuffleSeed.empty())
+    {
+        AXLOGD("Waiting for shuffle seed from host...");
+        return;
+    }
+
+    auto shuffleAction = ax::CallFunc::create([shuffleSeed = this->shuffleSeed, &game]() { game._deck->shuffleCardsWithSeed(shuffleSeed); });
     auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 7); });
 
     // deal the player with index 0 first
@@ -27,4 +52,17 @@ void UnoDealState::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* even
 
 void UnoDealState::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
 
-void UnoDealState::onWebSocketMessage(EventWebSocket* event) {}
+void UnoDealState::onWebSocketMessage(EventWebSocket* event) {
+    auto& game = *getContext();
+
+    json data = event->getData();
+
+    if (data["command"] == "shuffle")
+    {
+        shuffleSeed = data["data"]["shuffleSeed"];
+        AXLOGD("Received shuffle seed from host: {}", shuffleSeed);
+
+        // Try shuffle and deal again
+        onEnter();
+    }
+}

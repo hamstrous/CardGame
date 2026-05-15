@@ -27,8 +27,13 @@ public:
 
     // Actions
     void shuffleCards();
+    void shuffleCardsWithSeed(std::string seed);
+    std::string getRandomShuffleSeed();
+
     void dealCards(ax::Vector<Zone*> &targetZones, int amount);
     void moveCardListToTop(ax::Vector<Card*> cardList);
+
+    std::vector<ax::Vec2> getCurrentPositionList(ax::Vector<Card*> cardList = ax::Vector<Card*>()) override;
 
     // Overrides
     void lockInput() override;

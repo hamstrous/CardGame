@@ -56,10 +56,47 @@ public class SocketHandler(PlayerService playerService)
             var data = message?.Data;
 
             var cmd = message?.Command;
+			var type = message?.Type;
+			
             try
             {
+				if(type == "broadcast"){
+					if (data == null)
+					{
+						await SendErrorMessageAsync(socket, "Missing data property");
+						return;
+					}
+
+					if (string.IsNullOrEmpty(user.CurrentRoomId))
+					{
+						await SendErrorMessageAsync(socket, "User must be in a room to broadcast messages");
+						return;
+					}
+
+					var broadcastRoom = playerService.GetRoom(user.CurrentRoomId);
+					if (broadcastRoom != null)
+					{
+						foreach (var p in broadcastRoom.Players)
+						{
+							if (p.Socket != null && p.Socket.State == WebSocketState.Open && p.Socket != socket)
+							{
+								var broadcastData = new
+								{
+									type = "broadcast",
+									command = cmd,
+									data,
+									time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+									from = user.Username
+								};
+								await SendMessageAsync(p.Socket, broadcastData);
+							}
+						}
+					}		
+					return;
+				}
                 switch (cmd)
                 {
+					
                     case "broadcast":
                         if (data == null)
                         {

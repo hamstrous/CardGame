@@ -61,7 +61,7 @@ bool RoomScene::init()
     _createRoomButton->setTitleLabel(Label::createWithSystemFont("create room", "Arial", 24));
 
     _createRoomButton->addClickEventListener([this](ax::Object* sender) {
-        int playerCount = 4;  // For simplicity, we hardcode player count to 4. You can modify this to allow user input.
+        int playerCount = 2;  // For simplicity
 
         json message;
         json data;

@@ -23,4 +23,7 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onWebSocketMessage(EventWebSocket* event) override;
+
+protected:
+    std::string shuffleSeed;
 };
