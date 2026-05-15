@@ -5,7 +5,7 @@
 #include <string>
 #include "utils/json.hpp"
 
-using json = lib::json;
+using json = nlohmann::json;
 
 class AX_DLL EventWebSocket : public ax::EventCustom
 {

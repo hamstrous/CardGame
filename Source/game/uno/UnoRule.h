@@ -8,6 +8,8 @@
 #include "core/object/Zone.h"
 #include "core/object/Deck.h"
 
+#include "ui/UIText.h"
+
 #include "core/rule/Rule.h"
 
 class UnoRule : public Rule
@@ -53,6 +55,7 @@ public:
 public:
 
     bool init() override;
+    void update(float delta) override;  
 
     // Player actions
     //void onPlayCard(EventCard* event);
@@ -71,7 +74,7 @@ protected:
     Color _currentColor = Color::RED;
     Value _currentValue = Value::ZERO;
 
-    Phase _currentPhase = Phase::WAIT;
+    ax::ui::Text* _gameInfo = nullptr;
 
     // A game rule class will let all states access ít private members
     friend class UnoState;

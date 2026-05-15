@@ -9,7 +9,7 @@
 #include <algorithm>
 
 using namespace helper;
-using Random = lib::random_static;
+using Random = effolkronium::random_static;
 
 Deck* Deck::create(ZoneData* property)
 {
@@ -297,6 +297,8 @@ void Deck::dealCards(ax::Vector<Zone*>& targetZones, int amountPerZone) {
             }
         }
     }
+    auto resetPositionAction = ax::CallFunc::create([this, cardList]() { resetZoneCardPosition(0.5f); });
+    actionList.pushBack(resetPositionAction);
     auto sequence = ax::Sequence::create(actionList);
     this->runAction(sequence);
 }
@@ -316,7 +318,7 @@ std::vector<ax::Vec2> Deck::getCurrentPositionList(ax::Vector<Card*> cardList)
     }
     int size              = cardList.size();
     ax::Vec2 origin       = getAnchorPoint() * getContentSize();
-    ax::Vec2 offset       = ax ::Vec2(0, 5);
+    ax::Vec2 offset       = ax ::Vec2(0, 0.5);
     for (auto card : cardList)
     {
         AXASSERT(card->getParent() == this, "Card list should only contain cards that are children of this zone");

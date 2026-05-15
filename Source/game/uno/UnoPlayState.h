@@ -8,6 +8,8 @@
 class UnoPlayState : public UnoState
 {
 public:
+    UnoPlayState(UnoRule* context) : UnoState(context) {}
+
     // Inherited via UnoState
     void onEnter() override;
     void onUpdate(float delta) override;

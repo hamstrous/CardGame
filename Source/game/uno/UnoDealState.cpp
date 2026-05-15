@@ -2,8 +2,9 @@
 #include "utils/json.hpp"
 
 #include "core/event/EventWebsocket.h"
+#include "game/uno/UnoPlayState.h"
 
-using json = lib::json;
+using json = nlohmann::json;
 
 void UnoDealState::onEnter() {
     auto& game = *getContext();
@@ -15,7 +16,7 @@ void UnoDealState::onEnter() {
             json {
                 {"type","broadcast"},
                 {"command", "shuffle"},
-                {"data", json{{"shuffleSeed", shuffleSeed}}},
+                {"data", json{{"shuffle_seed", shuffleSeed}}},
                 {"time_stamp", 0}
             }
         );
@@ -28,11 +29,28 @@ void UnoDealState::onEnter() {
     }
 
     auto shuffleAction = ax::CallFunc::create([shuffleSeed = this->shuffleSeed, &game]() { game._deck->shuffleCardsWithSeed(shuffleSeed); });
-    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 7); });
 
+    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 7); });
     // deal the player with index 0 first
-    auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f),
-                                              dealAction, nullptr);
+
+    auto setFirstCardAction = ax::CallFunc::create([this, &game]() {
+        for (int i = game._deck->getChildren().size() - 1; i > 0; i--)
+        {
+            auto card = dynamic_cast<Card*> (game._deck->getChildren().at(i));
+            if (!isCardSpecial(card))
+            {
+                game._currentColor = static_cast<UnoRule::Color>(card->getValue("color"));
+                game._currentValue = static_cast<UnoRule::Value>(card->getValue("value"));
+                game._discardPile->moveCardToThisZone(card);
+                return;
+            }
+        }
+    });
+
+    auto playGame = ax::CallFunc::create([this, &game]() { game.changeState(new UnoPlayState(getContext())); });
+
+    auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f), dealAction,
+                             ax::DelayTime::create(10.0f), setFirstCardAction, playGame, nullptr);
     game.runAction(sequence);
 }
 
@@ -59,7 +77,7 @@ void UnoDealState::onWebSocketMessage(EventWebSocket* event) {
 
     if (data["command"] == "shuffle")
     {
-        shuffleSeed = data["data"]["shuffleSeed"];
+        shuffleSeed = data["data"]["shuffle_seed"];
         AXLOGD("Received shuffle seed from host: {}", shuffleSeed);
 
         // Try shuffle and deal again

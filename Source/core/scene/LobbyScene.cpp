@@ -14,7 +14,7 @@
 using namespace ax;
 using namespace ax::ui;
 using namespace std;
-using json = lib::json;
+using json = nlohmann::json;
 
 bool LobbyScene::init()
 {

@@ -17,7 +17,7 @@ using namespace ax;
 using namespace ax::network;
 using namespace ax::ui;
 using namespace std;
-using json = lib::json;
+using json = nlohmann::json;
 
 bool TestScene::init()
 {

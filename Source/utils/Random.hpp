@@ -43,7 +43,7 @@ SOFTWARE.
 #include <ostream>
 #include <istream>
 
-namespace lib
+namespace effolkronium
 {
 
 namespace details

@@ -23,14 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#pragma once
 
 #ifndef CXX_TIMER_HPP
-#    define CXX_TIMER_HPP
+#define CXX_TIMER_HPP
 
-#    include <chrono>
+#include <chrono>
 
-namespace lib
+namespace cxxtimer
 {
 
 /**
@@ -137,7 +136,7 @@ private:
 
 }  // namespace cxxtimer
 
-inline lib::Timer::Timer(bool start)
+inline cxxtimer::Timer::Timer(bool start)
     : started_(false)
     , paused_(false)
     , reference_(std::chrono::steady_clock::now())
@@ -149,7 +148,7 @@ inline lib::Timer::Timer(bool start)
     }
 }
 
-inline void lib::Timer::start()
+inline void cxxtimer::Timer::start()
 {
     if (!started_)
     {
@@ -165,7 +164,7 @@ inline void lib::Timer::start()
     }
 }
 
-inline void lib::Timer::stop()
+inline void cxxtimer::Timer::stop()
 {
     if (started_ && !paused_)
     {
@@ -175,7 +174,7 @@ inline void lib::Timer::stop()
     }
 }
 
-inline void lib::Timer::reset()
+inline void cxxtimer::Timer::reset()
 {
     if (started_)
     {
@@ -187,7 +186,7 @@ inline void lib::Timer::reset()
 }
 
 template <class duration_t>
-typename duration_t::rep lib::Timer::count() const
+typename duration_t::rep cxxtimer::Timer::count() const
 {
     if (started_)
     {

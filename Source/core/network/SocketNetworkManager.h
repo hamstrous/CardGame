@@ -33,7 +33,7 @@ public:
 
     void connect(const std::string& url);
     void sendMessage(const std::string& message);
-    void sendMessage(const lib::json& message) { sendMessage(message.dump()); }
+    void sendMessage(const nlohmann::json& message) { sendMessage(message.dump()); }
 
     void setAuthorizationHeader(const std::string& authToken);
 

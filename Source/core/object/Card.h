@@ -48,6 +48,16 @@ public:
     void setId(int id) { this->id = id; }
     int getId() const { return id; }
 
+    void removeKey(const std::string& key) { _valueMap.erase(key); }
+    void setValue(const std::string& key, int value) { _valueMap[key] = value; }
+    int getValue(const std::string& key) const
+    {
+        auto it = _valueMap.find(key);
+        if (it != _valueMap.end())
+            return it->second;
+
+        return 0;  // Default value if key does not exist
+    }
     void setDraggable(bool draggable);
     bool getDraggable();
     void setFaceUp(bool faceUp);
@@ -63,7 +73,7 @@ public:
     ~Card() override;
 
 protected:
-    lib::Timer _clicktimer = lib::Timer(false);  // time elapsed since last click but not yet moved
+    cxxtimer::Timer _clicktimer = cxxtimer::Timer(false);  // time elapsed since last click but not yet moved
     ax::Vec2 _dragOffset;
     bool _isDragging = false;
 

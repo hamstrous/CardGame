@@ -1,6 +1,8 @@
 #include "UnoRule.h"
 #include "UnoSetUpState.h"
 
+#include "utils/magic_enum.hpp"
+
 bool UnoRule::init()
 {
     visibleSize = _director->getVisibleSize();
@@ -25,9 +27,24 @@ bool UnoRule::init()
 
     _socketManager = SocketNetworkManager::getInstance();
 
+    _gameInfo = ax::ui::Text::create("Order: \nCurrent turn: \nLast played card: ", "Arial", 20);
+    _gameInfo->setPositionX(origin.x + visibleSize.width - _gameInfo->getContentSize().width);
+    _gameInfo->setPositionY(origin.y + _gameInfo->getContentSize().height/2);
+    this->addChild(_gameInfo);
+
     scheduleUpdate();
 
     changeState(new UnoSetUpState(this));
 
     return true;
+}
+
+void UnoRule::update(float delta) {
+    Rule::update(delta);
+
+    // update game info
+    std::string orderText = "Order: " + std::string(_clockWise ? "Clockwise" : "Counter-clockwise");
+    std::string turnText  = "Current turn: Player " + std::to_string(_currentPlayerId);
+    std::string lastCardText = std::string("Last played card: ") + std::string(magic_enum::enum_name(_currentValue)) + "-" + std::string(magic_enum::enum_name(_currentColor));
+    _gameInfo->setString(orderText + "\n" + turnText + "\n" + lastCardText);
 }

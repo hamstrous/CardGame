@@ -1,5 +1,7 @@
 #include "Zone.h"
 
+#include "2d/ActionInterval.h"
+
 #include "utils/helper.h"
 #include "utils/random.hpp"
 
@@ -8,7 +10,7 @@
 
 #include <algorithm>
 
-using Random = lib::random_static;
+using Random = effolkronium::random_static;
 using namespace helper;
 
 Zone* Zone::create(ZoneData* property)
@@ -100,7 +102,7 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
     return positions;
 }
 
-void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
+ax::TargetedAction* Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
 {
     // Card must be a child of this zone already
     AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
@@ -113,8 +115,10 @@ void Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
          duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
 
      ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
-     ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction,
-     scaleAction, nullptr); spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE); card->runAction(spawnAction);
+     ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction, scaleAction, nullptr);
+     spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+     auto targetedAction = ax::TargetedAction::create(card, spawnAction);
+     return targetedAction;
 }
 
 void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card)
@@ -147,14 +151,7 @@ void Zone::unlockInput()
 void Zone::moveCardToThisZone(Card* card, float duration)
 {
     setNewParentWithNoSideEffect(card, this);
-
-    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
-    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
-    for (int i = 0; i < _cardList.size(); i++)
-    {
-        _cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-        moveCard(_cardList.at(i), newPositions.at(i), duration);
-    }
+    resetZoneCardPosition(duration);
 }
 
 void Zone::moveCardToThisZone(ax::Vector<Card*> cards, float duration)
@@ -172,11 +169,31 @@ void Zone::moveCardToThisZone(ax::Vector<Card*> cards, float duration)
 
     ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
     std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+
+    auto emptyAction                   = ax::CallFunc::create([](){});
+    auto spawn                      = ax::Spawn::create(emptyAction, nullptr);
+
     for (int i = 0; i < _cardList.size(); i++)
     {
         _cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
         moveCard(_cardList.at(i), newPositions.at(i), duration);
     }
+}
+
+void Zone::resetZoneCardPosition(float duration) {
+    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
+    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+    auto emptyAction                   = ax::CallFunc::create([]() {});
+    auto spawn                         = ax::Spawn::create(emptyAction, nullptr);
+    for (int i = 0; i < _cardList.size(); i++)
+    {
+        //_cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+        auto targetedAction = moveCard(_cardList.at(i), newPositions.at(i), duration);
+        spawn               = ax::Spawn::create(spawn, targetedAction, nullptr);
+    }
+    spawn->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    this->stopAllActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    this->runAction(spawn);
 }
 
 Zone::~Zone() {}

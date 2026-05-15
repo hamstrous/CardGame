@@ -62,8 +62,14 @@ void UnoSetUpState::onEnter()
     auto cardFiles = helper::getFileNamesInFolder("card/uno");
     for (const auto& cardFile : cardFiles)
     {
-        AXLOGD("Loading card file: {}", cardFile);
+        //AXLOGD("Loading card file: {}", cardFile);
+
+        auto cardName = helper::split(cardFile,'.')[0];
+        auto cardInfo = helper::split(cardName, '_');
+
         Card* card = Card::create(new CardData("card/uno/" + cardFile, "card/Card Back 1.png"));
+        card->setValue("value", static_cast<int>(convertStringToUnoValue(cardInfo[0])));
+        card->setValue("color", static_cast<int>(convertStringToUnoColor(cardInfo[1])));
         game._cards.pushBack(card);
         card->setId(cardIndex++);
         card->setContentSize(ax::Size(100, 150));

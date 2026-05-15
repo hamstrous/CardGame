@@ -2,7 +2,7 @@
 #include "utils/json.hpp"
 #include "core/event/EventWebSocket.h"
 
-using json = lib::json;
+using json = nlohmann::json;
 
 SocketNetworkManager* SocketNetworkManager::_instance = nullptr;
 

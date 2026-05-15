@@ -50,7 +50,7 @@ protected:
     bool _isHost     = false;
     int _playerId = 0;
     int _playerCount = 0;
-
+    int _currentPlayerId  = 0;
     std::string _userName = "";
 
     SocketNetworkManager* _socketManager = nullptr;
