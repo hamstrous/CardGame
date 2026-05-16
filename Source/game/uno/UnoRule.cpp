@@ -1,5 +1,9 @@
 #include "UnoRule.h"
 #include "UnoSetUpState.h"
+#include "UnoResultState.h"
+#include "UnoPlayState.h"
+
+#include "core/scene/GameScene.h"
 
 #include "utils/magic_enum.hpp"
 
@@ -25,9 +29,13 @@ bool UnoRule::init()
     _websocketListener->onWebSocketMessage = AX_CALLBACK_1(UnoRule::onWebSocketMessage, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_websocketListener, 1);
 
+    _cardListener = EventListenerCard::create();
+    _cardListener->onCardClicked = AX_CALLBACK_1(UnoRule::onCardClicked, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_cardListener, this);
+
     _socketManager = SocketNetworkManager::getInstance();
 
-    _gameInfo = ax::ui::Text::create("Order: \nCurrent turn: \nLast played card: ", "Arial", 20);
+    _gameInfo = ax::ui::Text::create("Name: \nOrder: \nCurrent turn: \nLast played card: ", "Arial", 20);
     _gameInfo->setPositionX(origin.x + visibleSize.width - _gameInfo->getContentSize().width);
     _gameInfo->setPositionY(origin.y + _gameInfo->getContentSize().height/2);
     this->addChild(_gameInfo);
@@ -40,11 +48,36 @@ bool UnoRule::init()
 }
 
 void UnoRule::update(float delta) {
-    Rule::update(delta);
-
     // update game info
     std::string orderText = "Order: " + std::string(_clockWise ? "Clockwise" : "Counter-clockwise");
     std::string turnText  = "Current turn: Player " + std::to_string(_currentPlayerId);
     std::string lastCardText = std::string("Last played card: ") + std::string(magic_enum::enum_name(_currentValue)) + "-" + std::string(magic_enum::enum_name(_currentColor));
-    _gameInfo->setString(orderText + "\n" + turnText + "\n" + lastCardText);
+    _gameInfo->setString(std::string("Name: ") + GameScene::getInstance()->getUserName() + "\n" + orderText + "\n" + turnText + "\n" + lastCardText);
+
+    if (dynamic_cast<UnoPlayState*>(_currentState))
+        for (int i = 0; i < _playerHands.size(); i++)
+        {
+            auto zone        = _playerHands[i];
+            auto cardsInHand = helper::castToVectorOfType<Card*>(zone->getChildren());
+            if (cardsInHand.empty())
+            {
+                if (i == _currentPlayerId)
+                {
+                    changeState(new UnoResultState(this, "You win!"));
+                }
+                else
+                {
+                    changeState(new UnoResultState(this, "You lose!"));
+                }
+                break;
+            }
+        }
+    Rule::update(delta);
+}
+
+void UnoRule::onCardClicked(EventCard* event) {
+    if (_currentState)
+    {
+        static_cast<UnoState*>(_currentState)->onCardClicked(event);
+    }
 }

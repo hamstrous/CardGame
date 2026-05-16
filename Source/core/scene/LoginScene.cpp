@@ -63,6 +63,7 @@ bool LoginScene::init()
         // You can retrieve the username and password from the edit boxes and perform login logic here
         string loginBody = std::format("{{\"username\": \"{}\", \"password\": \"{}\"}}", usernameEditBox->getText(),
                                        passwordEditBox->getText());
+        GameScene::getInstance()->setUserName(usernameEditBox->getText());
         AXLOGD("Login button clicked, sending POST request with body: {}", loginBody);
         HttpRequestHandler::setJsonRequest(true);
         HttpRequestHandler::sendPostRequest("/login", loginBody,
@@ -70,6 +71,7 @@ bool LoginScene::init()
             if (response->isSucceed())
             {
                 string responseStr = HttpRequestHandler::convertBufferToString(response->getResponseData());
+
                 // Handle successful login
                 json responseJson = json::parse(responseStr);
                 AXLOGD("Login successful: {}", responseJson["auth_token"]);

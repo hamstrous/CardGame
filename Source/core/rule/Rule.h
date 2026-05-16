@@ -37,7 +37,7 @@ public:
 
     // Getters and Setters
     void setPlayerId(int playerId);
-    int getPlayerId() const { return _playerId; }
+    int getPlayerId() const { return _clientPlayerId; }
     void setPlayerCount(int playerCount);
     int getPlayerCount() const { return _playerCount; }
     void setUserName(const std::string& userName);
@@ -48,7 +48,7 @@ public:
 protected:
 
     bool _isHost     = false;
-    int _playerId = 0;
+    int _clientPlayerId = 0;
     int _playerCount = 0;
     int _currentPlayerId  = 0;
     std::string _userName = "";

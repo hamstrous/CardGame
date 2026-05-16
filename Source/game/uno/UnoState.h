@@ -16,6 +16,8 @@ public:
     UnoRule::Value convertStringToUnoValue(const std::string& str);
     UnoRule::Color convertStringToUnoColor(const std::string& str);
 
+    virtual void onCardClicked(EventCard* event) {};
+
     bool isCardSpecial(Card* card);
 
 protected:

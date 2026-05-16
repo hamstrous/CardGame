@@ -1,6 +1,13 @@
 #include "UnoResultState.h"
 
-void UnoResultState::onEnter() {}
+void UnoResultState::onEnter() {
+    //Clear the screen
+    auto& game = *getContext();
+    game.removeAllChildrenWithCleanup(true);
+    auto resultText = ax::ui::Text::create(_resultText, "Arial", 60);
+    resultText->setPosition(game.visibleSize / 2);
+    game.addChild(resultText);
+}
 
 void UnoResultState::onUpdate(float delta) {}
 

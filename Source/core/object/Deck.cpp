@@ -293,10 +293,11 @@ void Deck::dealCards(ax::Vector<Zone*>& targetZones, int amountPerZone) {
                 AXLOGD("Not enough cards in the deck to deal, stop at card index: {}", cardIndex);
                 auto sequence = ax::Sequence::create(actionList);
                 this->runAction(sequence);
-                break;
+                goto skip;
             }
         }
     }
+    skip:
     auto resetPositionAction = ax::CallFunc::create([this, cardList]() { resetZoneCardPosition(0.5f); });
     actionList.pushBack(resetPositionAction);
     auto sequence = ax::Sequence::create(actionList);

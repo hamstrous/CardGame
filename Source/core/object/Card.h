@@ -60,10 +60,12 @@ public:
     }
     void setDraggable(bool draggable);
     bool getDraggable();
+    void setFlippable(bool flippable);
+    bool getFlippable();
     void setFaceUp(bool faceUp);
     bool getFaceUp();
     void setCurrentZone(Zone* zone);
-    Zone* getCurrentZone() const { return _currentZone; }
+    Zone* getCurrentZone();
 
     // Movement
     void moveToPosition(const ax::Vec2& position, float duration = 1.f);

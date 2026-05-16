@@ -5,6 +5,11 @@
 #include "UnoState.h"
 #include "UnoRule.h"
 
+#include "utils/helper.h"
+
+using json = nlohmann::json;
+
+
 class UnoPlayState : public UnoState
 {
 public:
@@ -21,4 +26,11 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onWebSocketMessage(EventWebSocket* event) override;
+
+    void onCardClicked(EventCard* event) override;
+
+    void setNewCurrentPlayer();
+
+protected:
+    json message;
 };

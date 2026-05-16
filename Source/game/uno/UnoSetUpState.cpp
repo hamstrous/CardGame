@@ -11,8 +11,6 @@ void UnoSetUpState::onEnter()
     // bind reference to the game rule for easy access
     auto& game = *getContext();
 
-    AXLOGD("Player index: {}", game._playerId);
-
     auto handPositionList = vector<Vec2>{
         Vec2(game.visibleSize.width / 2 + game.origin.x, game.visibleSize.height / 2 + game.origin.y - 300),  // bottom
         Vec2(game.visibleSize.width / 2 + game.origin.x - 400, game.visibleSize.height / 2 + game.origin.y),  // right
@@ -21,7 +19,7 @@ void UnoSetUpState::onEnter()
     };
     int listIndex = 0;
     ax::Vector<Zone*> tempPlayerHands;
-    for (int i = game._playerId; i < game._playerCount; i++)
+    for (int i = game._clientPlayerId; i < game._playerCount; i++)
     {
         Zone* playerHand = Zone::create(new ZoneData());
         // play the zone in a circular layout around the center of the screen, the bottom player is the client player,
@@ -34,7 +32,7 @@ void UnoSetUpState::onEnter()
         tempPlayerHands.pushBack(playerHand);
         playerHand->lockInput();
     }
-    for (int i = 0; i < game._playerId; i++)
+    for (int i = 0; i < game._clientPlayerId; i++)
     {
         Zone* playerHand = Zone::create(new ZoneData());
         if (listIndex % 2 == 1)
@@ -56,6 +54,7 @@ void UnoSetUpState::onEnter()
     game._deck = Deck::create(new ZoneData());
     game._deck->setPosition(150, game.visibleSize.height - 100);
     game._deck->setContentSize(Size(150, 100));
+    game._deck->lockInput();
     game.addChild(game._deck);
 
     int cardIndex  = 0;
@@ -67,9 +66,16 @@ void UnoSetUpState::onEnter()
         auto cardName = helper::split(cardFile,'.')[0];
         auto cardInfo = helper::split(cardName, '_');
 
+        if (cardInfo[0] != "0")
+            continue;
+
         Card* card = Card::create(new CardData("card/uno/" + cardFile, "card/Card Back 1.png"));
         card->setValue("value", static_cast<int>(convertStringToUnoValue(cardInfo[0])));
         card->setValue("color", static_cast<int>(convertStringToUnoColor(cardInfo[1])));
+
+        card->lockInput();
+        card->setDraggable(false);
+        card->setFlippable(false);
         game._cards.pushBack(card);
         card->setId(cardIndex++);
         card->setContentSize(ax::Size(100, 150));
@@ -80,9 +86,22 @@ void UnoSetUpState::onEnter()
     game._discardPile = Zone::create(new ZoneData());
     game._discardPile->setPosition(game.visibleSize / 2);
     game._discardPile->setContentSize(Size(150, 150));
+    game._discardPile->lockInput();
     game.addChild(game._discardPile);
 
     game.changeState(new UnoDealState(getContext()));
+
+    // set up four buttons
+    for (int i = 0; i < 4; i++)
+    {
+        auto button = ax::ui::Button::create();
+        button->setPosition(Vec2(game.visibleSize.width / 2 + game.origin.x - 150 + i * 100,
+                                 game.visibleSize.height / 2 + game.origin.y + 100));
+        button->setContentSize(Size(150, 150));
+        button->setVisible(false);
+        game.addChild(button);
+        game._colorButtons.pushBack(button);
+    }
 }
 
 void UnoSetUpState::onUpdate(float delta) {}

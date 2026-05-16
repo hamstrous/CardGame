@@ -79,7 +79,16 @@ void GameScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {}
 
 void GameScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}
 
-void GameScene::setRoomId(std::string roomId) {
+void GameScene::setUserName(std::string userName) {
+    _userName = userName;
+}
+
+std::string GameScene::getUserName() {
+    return _userName;
+}
+
+void GameScene::setRoomId(std::string roomId)
+{
     _roomId = roomId;
 }
 

@@ -27,6 +27,7 @@ public:
             // All the necessary information for the rule to function should be set before calling this method
             _rule->setPlayerId(_playerId);
             _rule->setPlayerCount(_playerCount);
+            _rule->setUserName(_userName);
             AXLOGD("Rule initialized, game is ready");
         }
     }
@@ -53,6 +54,8 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
+    void setUserName(std::string userName);
+    std::string getUserName();
     void setRoomId(std::string roomId);
     std::string getRoomId();
     void setPlayerCount(int playerCount);

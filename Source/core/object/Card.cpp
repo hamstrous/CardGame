@@ -214,6 +214,15 @@ bool Card::getDraggable()
     return _property->isDraggable;
 }
 
+void Card::setFlippable(bool flippable) {
+    _isFlippable = flippable;
+}
+
+bool Card::getFlippable()
+{
+    return _isFlippable;
+}
+
 void Card::setFaceUp(bool faceUp) {
     _property->isFaceUp = faceUp;
 }
@@ -225,6 +234,11 @@ bool Card::getFaceUp()
 
 void Card::setCurrentZone(Zone* zone) {
     _currentZone = zone;
+}
+
+Zone* Card::getCurrentZone()
+{
+    return dynamic_cast<Zone*>(getParent());   
 }
 
 void Card::moveToZone(Zone* targetZone, float duration) {

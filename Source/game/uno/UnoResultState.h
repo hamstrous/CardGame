@@ -8,6 +8,9 @@
 class UnoResultState : public UnoState
 {
 public:
+    UnoResultState(UnoRule* context) : UnoState(context) {}
+    UnoResultState(UnoRule* context, std::string resultText) : UnoState(context), _resultText(resultText) {}
+
     // Inherited via UnoState
     void onEnter() override;
     void onUpdate(float delta) override;
@@ -19,4 +22,7 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) override;
     void onWebSocketMessage(EventWebSocket* event) override;
+
+protected:
+    std::string _resultText;
 };

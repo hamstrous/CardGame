@@ -164,4 +164,7 @@ void LobbyScene::onWebSocketMessage(EventWebSocket* event)
     }
 }
 
-LobbyScene::~LobbyScene() {}
+LobbyScene::~LobbyScene() {
+    if (_websocketListener)
+        _eventDispatcher->removeEventListener(_websocketListener);
+}

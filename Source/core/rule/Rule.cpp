@@ -103,8 +103,8 @@ void Rule::onWebSocketMessage(EventWebSocket* event)
 
 void Rule::setPlayerId(int playerId)
 {
-    _playerId = playerId;
-    if (_playerId == 0)
+    _clientPlayerId = playerId;
+    if (_clientPlayerId == 0)
         _isHost = true;
 }
 
