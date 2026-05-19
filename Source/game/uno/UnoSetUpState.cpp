@@ -66,9 +66,6 @@ void UnoSetUpState::onEnter()
         auto cardName = helper::split(cardFile,'.')[0];
         auto cardInfo = helper::split(cardName, '_');
 
-        if (cardInfo[0] != "0")
-            continue;
-
         Card* card = Card::create(new CardData("card/uno/" + cardFile, "card/Card Back 1.png"));
         card->setValue("value", static_cast<int>(convertStringToUnoValue(cardInfo[0])));
         card->setValue("color", static_cast<int>(convertStringToUnoColor(cardInfo[1])));
