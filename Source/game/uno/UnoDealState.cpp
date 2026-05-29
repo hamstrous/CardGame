@@ -30,7 +30,7 @@ void UnoDealState::onEnter() {
 
     auto shuffleAction = ax::CallFunc::create([shuffleSeed = this->shuffleSeed, &game]() { game._deck->shuffleCardsWithSeed(shuffleSeed); });
 
-    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 7); });
+    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 2); });
     // deal the player with index 0 first
 
     auto setFirstCardAction = ax::CallFunc::create([this, &game]() {

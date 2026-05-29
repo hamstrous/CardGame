@@ -48,20 +48,25 @@ bool UnoRule::init()
 }
 
 void UnoRule::update(float delta) {
-    // update game info
-    std::string orderText = "Order: " + std::string(_clockWise ? "Clockwise" : "Counter-clockwise");
-    std::string turnText  = "Current turn: Player " + std::to_string(_currentPlayerId);
-    std::string lastCardText = std::string("Last played card: ") + std::string(magic_enum::enum_name(_currentValue)) + "-" + std::string(magic_enum::enum_name(_currentColor));
-    _gameInfo->setString(std::string("Name: ") + GameScene::getInstance()->getUserName() + "\n" + orderText + "\n" + turnText + "\n" + lastCardText);
-
+    
     if (dynamic_cast<UnoPlayState*>(_currentState))
+    {
+        // update game info
+        std::string orderText    = "Order: " + std::string(_clockWise ? "Clockwise" : "Counter-clockwise");
+        std::string turnText     = "Current turn: Player " + std::to_string(_currentPlayerId);
+        std::string lastCardText = std::string("Last played card: ") +
+                                   std::string(magic_enum::enum_name(_currentValue)) + "-" +
+                                   std::string(magic_enum::enum_name(_currentColor));
+        _gameInfo->setString(std::string("Name: ") + GameScene::getInstance()->getUserName() + "\n" + orderText + "\n" +
+                             turnText + "\n" + lastCardText);
+
         for (int i = 0; i < _playerHands.size(); i++)
         {
             auto zone        = _playerHands[i];
             auto cardsInHand = helper::castToVectorOfType<Card*>(zone->getChildren());
             if (cardsInHand.empty())
             {
-                if (i == _currentPlayerId)
+                if (i == _clientPlayerId)
                 {
                     changeState(new UnoResultState(this, "You win!"));
                 }
@@ -72,6 +77,7 @@ void UnoRule::update(float delta) {
                 break;
             }
         }
+    }
     Rule::update(delta);
 }
 
