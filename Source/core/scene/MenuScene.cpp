@@ -1,6 +1,8 @@
 #include "MenuScene.h"
 
 #include "game/uno/UnoRule.h"
+#include "game/test/TestRule.h"
+#include "game/tien_len/TienLenRule.h"
 
 using namespace ax;
 
@@ -161,10 +163,21 @@ void MenuScene::processStartFile() {
     //        _menuButtonList.pushBack(button);
     //    }
     //}
-    MenuButton* button = MenuButton::create<UnoRule>("icon/uno.png", "uno");
+    MenuButton* button = MenuButton::create<TestRule>("icon/test.png", "test");
     if (button)
     {
-        button->setContentSize(Size(100, 50));
+        _menuButtonList.pushBack(button);
+    }
+
+    button = MenuButton::create<UnoRule>("icon/uno.png", "uno");
+    if (button)
+    {
+        _menuButtonList.pushBack(button);
+    }
+
+    button = MenuButton::create<TienLenRule>("icon/tien_len.png", "tien_len");
+    if (button)
+    {
         _menuButtonList.pushBack(button);
     }
 }
@@ -181,8 +194,9 @@ void MenuScene::setUpButtonsPanel() {
             this->addChild(button);
             int row = i / rowMax;
             int col = i % rowMax;
+            button->ignoreContentAdaptWithSize(false);
             button->setPosition(Vec2(100 + col * 110, 400 - row * 60));
-            button->setContentSize(Size(1000, 50));
+            button->setContentSize(Size(50, 50));
         }
     }
 }

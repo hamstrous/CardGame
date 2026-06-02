@@ -56,47 +56,48 @@ public class SocketHandler(PlayerService playerService)
             var data = message?.Data;
 
             var cmd = message?.Command;
-			var type = message?.Type;
-			
+            var type = message?.Type;
+
             try
             {
-				if(type == "broadcast"){
-					if (data == null)
-					{
-						await SendErrorMessageAsync(socket, "Missing data property");
-						return;
-					}
+                if (type == "broadcast")
+                {
+                    if (data == null)
+                    {
+                        await SendErrorMessageAsync(socket, "Missing data property");
+                        return;
+                    }
 
-					if (string.IsNullOrEmpty(user.CurrentRoomId))
-					{
-						await SendErrorMessageAsync(socket, "User must be in a room to broadcast messages");
-						return;
-					}
+                    if (string.IsNullOrEmpty(user.CurrentRoomId))
+                    {
+                        await SendErrorMessageAsync(socket, "User must be in a room to broadcast messages");
+                        return;
+                    }
 
-					var broadcastRoom = playerService.GetRoom(user.CurrentRoomId);
-					if (broadcastRoom != null)
-					{
-						foreach (var p in broadcastRoom.Players)
-						{
-							if (p.Socket != null && p.Socket.State == WebSocketState.Open && p.Socket != socket)
-							{
-								var broadcastData = new
-								{
-									type = "broadcast",
-									command = cmd,
-									data,
-									time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-									from = user.Username
-								};
-								await SendMessageAsync(p.Socket, broadcastData);
-							}
-						}
-					}		
-					return;
-				}
+                    var broadcastRoom = playerService.GetRoom(user.CurrentRoomId);
+                    if (broadcastRoom != null)
+                    {
+                        foreach (var p in broadcastRoom.Players)
+                        {
+                            if (p.Socket != null && p.Socket.State == WebSocketState.Open && p.Socket != socket)
+                            {
+                                var broadcastData = new
+                                {
+                                    type = "broadcast",
+                                    command = cmd,
+                                    data,
+                                    time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                                    from = user.Username
+                                };
+                                await SendMessageAsync(p.Socket, broadcastData);
+                            }
+                        }
+                    }
+                    return;
+                }
                 switch (cmd)
                 {
-					
+
                     case "broadcast":
                         if (data == null)
                         {
@@ -131,10 +132,34 @@ public class SocketHandler(PlayerService playerService)
                         }
                         break;
                     case "create_room":
-                        var createdRoomId = Guid.NewGuid().ToString("N");
-                        user.CurrentRoomId = createdRoomId;
 
+                        var createdRoomId = string.Empty;
+                        if (data != null && data.Value.TryGetProperty("room_id", out var roomIdProperty))
+                        {
+                            var strRoomId = roomIdProperty.GetString();
+                            if (string.IsNullOrEmpty(strRoomId))
+                            {
+                                createdRoomId = Guid.NewGuid().ToString("N");
+                                return;
+                            }
+                            else if (playerService.GetRoom(strRoomId) != null)
+                            {
+                                await SendErrorMessageAsync(socket, "Room ID already exists");
+                                return;
+                            }
+                            else
+                            {
+                                createdRoomId = strRoomId;
+                            }
+                        }
+                        else
+                        {
+                            createdRoomId = Guid.NewGuid().ToString("N");
+                        }
+
+                        user.CurrentRoomId = createdRoomId;
                         var requiredAmountOfUsers = data?.GetProperty("player_count").GetInt32() ?? 0;
+                        var roomId = data?.GetProperty("room_id").GetString();
                         user.PlayerCount = requiredAmountOfUsers;
                         user.IsHost = true;
 

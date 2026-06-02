@@ -61,10 +61,14 @@ bool RoomScene::init()
     _createRoomButton->setTitleLabel(Label::createWithSystemFont("create room", "Arial", 24));
 
     _createRoomButton->addClickEventListener([this](ax::Object* sender) {
-        int playerCount = 2;  // For simplicity
-
+        int playerCount = 3;  // For simplicity
+        string roomId   = _roomIdEditBox->getText();
         json message;
         json data;
+        if (roomId != "")
+        {
+            data["room_id"] = roomId;
+        }
         data["player_count"] = playerCount;
         message["command"] = "create_room";
         message["type"] = "request";

@@ -1,12 +1,12 @@
-#include "UnoDealState.h"
+#include "TienLenDealState.h"
 #include "utils/json.hpp"
 
 #include "core/event/EventWebsocket.h"
-#include "game/uno/UnoPlayState.h"
+#include "game/tien_len/TienLenPlayState.h"
 
 using json = nlohmann::json;
 
-void UnoDealState::onEnter() {
+void TienLenDealState::onEnter() {
     auto& game = *getContext();
 
     if (game._isHost)
@@ -39,38 +39,38 @@ void UnoDealState::onEnter() {
             auto card = dynamic_cast<Card*> (game._deck->getChildren().at(i));
             if (!isCardSpecial(card))
             {
-                game._currentColor = static_cast<UnoRule::Color>(card->getValue("color"));
-                game._currentValue = static_cast<UnoRule::Value>(card->getValue("value"));
+                game._currentColor = static_cast<TienLenRule::Color>(card->getValue("color"));
+                game._currentValue = static_cast<TienLenRule::Value>(card->getValue("value"));
                 game._discardPile->moveCardToThisZone(card);
                 return;
             }
         }
     });
 
-    auto playGame = ax::CallFunc::create([this, &game]() { game.changeState(new UnoPlayState(getContext())); });
+    auto playGame = ax::CallFunc::create([this, &game]() { game.changeState(new TienLenPlayState(getContext())); });
 
     auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f), dealAction,
                              ax::DelayTime::create(6.0f), setFirstCardAction, playGame, nullptr);
     game.runAction(sequence);
 }
 
-void UnoDealState::onUpdate(float delta) {}
+void TienLenDealState::onUpdate(float delta) {}
 
-void UnoDealState::onExit() {}
+void TienLenDealState::onExit() {}
 
-void UnoDealState::onMouseDown(ax::Event* event) {}
+void TienLenDealState::onMouseDown(ax::Event* event) {}
 
-void UnoDealState::onMouseUp(ax::Event* event) {}
+void TienLenDealState::onMouseUp(ax::Event* event) {}
 
-void UnoDealState::onMouseMove(ax::Event* event) {}
+void TienLenDealState::onMouseMove(ax::Event* event) {}
 
-void UnoDealState::onMouseScroll(ax::Event* event) {}
+void TienLenDealState::onMouseScroll(ax::Event* event) {}
 
-void UnoDealState::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
+void TienLenDealState::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
 
-void UnoDealState::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
+void TienLenDealState::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
 
-void UnoDealState::onWebSocketMessage(EventWebSocket* event) {
+void TienLenDealState::onWebSocketMessage(EventWebSocket* event) {
     auto& game = *getContext();
 
     json data = event->getData();
