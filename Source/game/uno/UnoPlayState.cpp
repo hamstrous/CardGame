@@ -104,8 +104,11 @@ void UnoPlayState::onEnter()
         message["data"]["card_moved"]["new_zone_id"]  = clientId;
         message["data"]["new_plus2_stack_count"]  = 0;
         setNewCurrentPlayer();
-        game._socketManager->sendMessage(message);
-        game.changeState(new UnoPlayState(getContext()));
+        game.scheduleOnce([&game, this](float dt) {
+            game._socketManager->sendMessage(message);
+            game.changeState(new UnoPlayState(getContext()));
+        }, 2.0f, "wait_after_draw_card" 
+        );
 
     }
 }
@@ -220,9 +223,6 @@ void UnoPlayState::onCardClicked(EventCard* event) {
 
     Card* clickedCard = event->getCard();
     clickedCard->lockInput();
-    // Move the card to the discard pile
-    game._discardPile->moveCardToThisZone(clickedCard);
-    game._playerHands.at(clientId)->resetZoneCardPosition();
 
     message["data"]["card_moved"]["card_ids"] = vector<int>{clickedCard->getId()};
     message["data"]["card_moved"]["new_zone_id"] = -1;
@@ -267,7 +267,10 @@ void UnoPlayState::onCardClicked(EventCard* event) {
         {
             button->setVisible(true);
             static_cast<ax::ui::Button*>(button)->setTitleText(magic_enum::enum_name(static_cast<UnoRule::Color>(i)));
-            game._colorButtons.at(i)->addClickEventListener([this, &game, i](ax::Object* sender) {
+            game._colorButtons.at(i)->addClickEventListener([this, &game, i, clickedCard](ax::Object* sender) {
+                // Move the card to the discard pile
+                game._discardPile->moveCardToThisZone(clickedCard);
+                game._playerHands.at(game._currentPlayerId)->resetZoneCardPosition();
                 game._currentColor = static_cast<UnoRule::Color>(i);
                 message["data"]["new_current_color"] = game._currentColor;
                 setNewCurrentPlayer();
@@ -279,6 +282,11 @@ void UnoPlayState::onCardClicked(EventCard* event) {
         }
         return;
     }
+
+    // Move the card to the discard pile
+    game._discardPile->moveCardToThisZone(clickedCard);
+    game._playerHands.at(clientId)->resetZoneCardPosition();
+
 
     setNewCurrentPlayer();
     game._socketManager->sendMessage(message);
