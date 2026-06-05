@@ -12,8 +12,6 @@ void TienLenPlayState::onEnter()
 
     message      = json::object();
     int clientId = game._clientPlayerId;
-    auto currentSuit = static_cast<TienLenRule::Suit>(game._currentSuit);
-    auto currentRank = static_cast<TienLenRule::Rank>(game._currentRank);
 
     if (clientId != game._currentPlayerId)
         return;
@@ -91,29 +89,32 @@ void TienLenPlayState::onCardClicked(EventCard* event) {
 }
 
 void TienLenPlayState::playerPlayCards() {
-    const auto& game = *getContext();
-    const auto& hand = game._playerHands.at(getContext()->_clientPlayerId);
-    auto& pickedCards = hand->getPickedCards();
+    auto& game = *getContext();
+
+    auto& pickedCards = game._playerHands.at(game._clientPlayerId)->getPickedCards();
     if (pickedCards.empty())
     {
         // No card picked, do nothing
         return;
     }
 
-    if (!getContext()->isValidPlay(pickedCards))
+    if (!game.isValidPlay(pickedCards))
     {
         // Invalid play, do nothing or show some warning
-        return;
+        //return;
     }
     //game._discardPile->removeAllChildren();
     for (const auto& card : helper::castToVectorOfType<Card*>(game._discardPile->getChildren()))
     {
          game._discardPile->removeChild(card);
+        AXLOGD("Removed card {} from discard pile", card->getId());
     }
     AXLOGD("Picked cards count: {}", pickedCards.size());
     for (auto& card : pickedCards)
     {
         game._discardPile->moveCardToThisZone(card);
+        card->lockInput();
+        AXLOGD("Moved card {} to discard pile", card->getId());
     }
     pickedCards.clear();  // Clear picked cards after playing
     // send play card message to server

@@ -16,6 +16,8 @@ public:
     TienLenRule::Rank convertStringToTienLenRank(const std::string& str);
     TienLenRule::Suit convertStringToTienLenSuit(const std::string& str);
 
+    int convertTienLenCardToValue(Card* card);
+
     virtual void onCardClicked(EventCard* event) {};
 
 protected:

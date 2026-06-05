@@ -44,6 +44,17 @@ public:
         HEARTS,
     };
 
+    enum class Combination
+    {
+        SINGLE = 0,
+        PAIR,
+        TRIPLE,
+        STRAIGHT,
+        THREE_DOUBLE_SEQUENCE,
+        FOUR_OF_A_KIND,
+        FOUR_DOUBLE_SEQUENCE,
+    };
+
 public:
 
     bool init() override;
@@ -53,7 +64,10 @@ public:
     void onCardClicked(EventCard* event);
 
     bool isWinHand(const ax::Vector<Card*>& hand);
-    bool isValidPlay(const std::set<Card*>& hand);   
+    bool isValidPlay(const std::set<Card*>& hand);
+    bool isValidCombination(const std::set<Card*>& hand);
+
+    int convertTienLenCardToValue(Card* card);
 
 protected:
 
@@ -68,8 +82,11 @@ protected:
 
     EventListenerCard* _cardListener = nullptr;
 
-    Rank _currentRank = Rank::THREE;
-    Suit _currentSuit = Suit::CLUBS;
+    int _currentLargestCardValue = -1;
+    int _currentConsecutiveCount = 0;
+    int _currentSameRankCount    = 0;
+    bool _currentEndWithTwo      = false;
+    Combination _currentCombination = Combination::SINGLE;
 
     ax::ui::Text* _gameInfo = nullptr;
     ax::ui::Button* _playButton = nullptr;

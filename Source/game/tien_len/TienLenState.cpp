@@ -45,3 +45,4 @@ TienLenRule::Suit TienLenState::convertStringToTienLenSuit(const std::string& st
     AXLOGE("Invalid TienLen suit string: {}", str);
     return TienLenRule::Suit();
 }
+
