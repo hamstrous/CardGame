@@ -27,7 +27,14 @@ void TienLenSetUpState::onEnter()
         if (listIndex % 2 == 1)
             playerHand->setRotation(90);
         playerHand->setPosition(handPositionList[listIndex++]);
-        playerHand->setContentSize(Size(300, 100));
+        if (i == game._clientPlayerId)
+        {
+            playerHand->setContentSize(Size(450, 100));
+        }
+        else
+        {
+            playerHand->setContentSize(Size(300, 100));
+        }
         game.addChild(playerHand);
         tempPlayerHands.pushBack(playerHand);
         playerHand->lockInput();
@@ -63,7 +70,8 @@ void TienLenSetUpState::onEnter()
     {
         //AXLOGD("Loading card file: {}", cardFile);
 
-        auto cardInfo = helper::split(cardFile, ' ');
+        auto cardFileName = helper::split(cardFile, '.')[0];  // remove file extension
+        auto cardInfo = helper::split(cardFileName, ' ');
 
         Card* card = Card::create(new CardData("card/standard/" + cardFile, "card/Card Back 1.png"));
 
@@ -92,19 +100,27 @@ void TienLenSetUpState::onEnter()
     game._discardPile->lockInput();
     game.addChild(game._discardPile);
 
+    // set up play and pass button
+    game._playButton = ax::ui::Button::create("ui/button.png");
+    game._passButton = ax::ui::Button::create("ui/button.png");
+    game._playButton->ignoreContentAdaptWithSize(false);
+    game._passButton->ignoreContentAdaptWithSize(false);
+    game._playButton->setPosition(Vec2(game.visibleSize.width / 2 - 100, game.visibleSize.height / 2 - 200));
+    game._passButton->setPosition(Vec2(game.visibleSize.width / 2 + 100, game.visibleSize.height / 2 - 200));
+    game._playButton->setContentSize(Size(120, 60));
+    game._passButton->setContentSize(Size(120, 60));
+    game._playButton->setTitleText("Play");
+    game._passButton->setTitleText("Pass");
+    game._playButton->setTitleFontSize(24);
+    game._passButton->setTitleFontSize(24);
+    game._playButton->setVisible(false);
+    game._passButton->setVisible(false);
+
+    game.addChild(game._playButton);
+    game.addChild(game._passButton);
+
     game.changeState(new TienLenDealState(getContext()));
 
-    // set up four buttons
-    for (int i = 0; i < 4; i++)
-    {
-        auto button = ax::ui::Button::create();
-        button->setPosition(Vec2(game.visibleSize.width / 2 + game.origin.x - 150 + i * 100,
-                                 game.visibleSize.height / 2 + game.origin.y + 100));
-        button->setContentSize(Size(150, 150));
-        button->setVisible(false);
-        game.addChild(button);
-        game._colorButtons.pushBack(button);
-    }
 }
 
 void TienLenSetUpState::onUpdate(float delta) {

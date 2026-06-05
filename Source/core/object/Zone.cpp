@@ -196,4 +196,34 @@ void Zone::resetZoneCardPosition(float duration) {
     this->runAction(spawn);
 }
 
+void Zone::togglePickCard(Card* card) {
+    if (_pickedCards.find(card) != _pickedCards.end())
+    {
+        unpickCard(card);
+    }
+    else
+    {
+        pickCard(card);
+    }
+}
+
+void Zone::pickCard(Card* card)
+{
+    _pickedCards.insert(card);
+    // Move card up a bit
+    auto moveUpAction = ax::MoveBy::create(0.1f, ax::Vec2(0, 20));  // Move up by 20 units
+    moveUpAction->setTag(ActionTag::CARD_PICKED_MOVE);
+    auto targetedAction = ax::TargetedAction::create(card, moveUpAction);
+    card->runAction(targetedAction);
+}
+
+void Zone::unpickCard(Card* card) {
+    _pickedCards.erase(card);
+    // Move card back down
+    auto moveDownAction = ax::MoveBy::create(0.1f, ax::Vec2(0, -20));  // Move down by 20 units
+    moveDownAction->setTag(ActionTag::CARD_PICKED_MOVE);
+    auto targetedAction = ax::TargetedAction::create(card, moveDownAction);
+    card->runAction(targetedAction);
+}
+
 Zone::~Zone() {}

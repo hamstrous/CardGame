@@ -29,6 +29,9 @@ public:
 
     void onCardClicked(EventCard* event) override;
 
+    void playerPlayCards();
+    void playerPass();
+
     void setNewCurrentPlayer();
 
 protected:

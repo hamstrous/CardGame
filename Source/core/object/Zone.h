@@ -42,6 +42,12 @@ public:
     void getNewCardPosition(Card* card);
     void resetZoneCardPosition(float duration = 1.f);
 
+    // Picking cards
+    void togglePickCard(Card* card);
+    void pickCard(Card* card);
+    void unpickCard(Card* card);
+    std::set<Card*>& getPickedCards() { return _pickedCards; }
+
     // Overrides
     void setContentSize(const ax::Size& contentSize) override;
     virtual void lockInput() override;
@@ -54,7 +60,8 @@ public:
 protected:
     ax::DrawNode* _rectNode = nullptr;
 
-    ax::Vector<Card*> _cardList;  // currently using get all children and filter by tag
+    ax::Vector<Card*> _cardList;  // currently using get all children and filter
+    std::set<Card*> _pickedCards;  // use set for easy add/remove and check if a card is picked
 
     // Events
     ax::EventListenerKeyboard* _keyboardListener = nullptr;

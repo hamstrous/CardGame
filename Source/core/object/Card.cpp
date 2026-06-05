@@ -71,7 +71,6 @@ bool Card::onMouseDown(ax::Event* event)
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
-        helper::moveNodeToFront(this);
         this->setGlobalZOrder(ZOrder::CARD_DRAGGING); 
         _clicktimer.reset();
         //_dragOffset = mousePos - getNodePositionInWorldSpace(this);

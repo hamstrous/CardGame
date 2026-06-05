@@ -17,11 +17,28 @@ void TienLenPlayState::onEnter()
 
     if (clientId != game._currentPlayerId)
         return;
-    
+
+    game._playButton->setVisible(true);
+    game._passButton->setVisible(true);
+
+    game._playButton->addClickEventListener([this](ax::Object* sender) {
+        playerPlayCards();
+    });
+    game._passButton->addClickEventListener([this](ax::Object* sender) {
+        playerPass();
+    });
+
     message["type"] = "broadcast";
     message["command"] = "player_response";
     message["time_stamp"] = 0;
     message["data"]       = json::object();
+
+    auto hand = helper::castToVectorOfType<Card*>(game._playerHands.at(clientId)->getChildren());
+
+    for (const auto& card : hand)
+    {
+        card->unlockInput();
+    }
 
 }
 
@@ -69,9 +86,40 @@ void TienLenPlayState::onCardClicked(EventCard* event) {
     int clientId = game._clientPlayerId;
 
     Card* clickedCard = event->getCard();
-    clickedCard->lockInput();
+    game._playerHands[game._clientPlayerId]->togglePickCard(clickedCard);
     
 }
+
+void TienLenPlayState::playerPlayCards() {
+    const auto& game = *getContext();
+    const auto& hand = game._playerHands.at(getContext()->_clientPlayerId);
+    auto& pickedCards = hand->getPickedCards();
+    if (pickedCards.empty())
+    {
+        // No card picked, do nothing
+        return;
+    }
+
+    if (!getContext()->isValidPlay(pickedCards))
+    {
+        // Invalid play, do nothing or show some warning
+        return;
+    }
+    //game._discardPile->removeAllChildren();
+    for (const auto& card : helper::castToVectorOfType<Card*>(game._discardPile->getChildren()))
+    {
+         game._discardPile->removeChild(card);
+    }
+    AXLOGD("Picked cards count: {}", pickedCards.size());
+    for (auto& card : pickedCards)
+    {
+        game._discardPile->moveCardToThisZone(card);
+    }
+    pickedCards.clear();  // Clear picked cards after playing
+    // send play card message to server
+}
+
+void TienLenPlayState::playerPass() {}
 
 void TienLenPlayState::setNewCurrentPlayer() {
     auto& game = *getContext();

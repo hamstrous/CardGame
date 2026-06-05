@@ -84,3 +84,13 @@ void TienLenRule::onCardClicked(EventCard* event) {
         static_cast<TienLenState*>(_currentState)->onCardClicked(event);
     }
 }
+
+bool TienLenRule::isWinHand(const ax::Vector<Card*>& hand)
+{
+    return false;
+}
+
+bool TienLenRule::isValidPlay(const std::set<Card*>& hand)
+{
+    return true;
+}

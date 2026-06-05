@@ -21,7 +21,7 @@ class TienLenRule : public Rule
 public:
     enum class Rank
     {
-        THREE = 3,
+        THREE = 0,
         FOUR,
         FIVE,
         SIX,
@@ -38,10 +38,10 @@ public:
 
     enum class Suit
     {
+        SPADES = 0,
         CLUBS,
         DIAMONDS,
         HEARTS,
-        SPADES
     };
 
 public:
@@ -52,19 +52,19 @@ public:
     // Player actions
     void onCardClicked(EventCard* event);
 
+    bool isWinHand(const ax::Vector<Card*>& hand);
+    bool isValidPlay(const std::set<Card*>& hand);   
+
 protected:
 
-    bool _clockWise                            = true;
+    bool _clockWise                            = false;
     // state
     ax::Vector<Card*> _cards;
-    int _plus2StackCount = 0;  // count how many +2 cards have been stacked
-    bool _skipNextPlayer = false;    // whether the next player's turn should be skipped
-    bool _plus4Stacked   = false;    // whether a +4 card has been played and not yet resolved
     ax::Vector<Zone*> _playerHands;  // represent player's hand
     Zone* _discardPile = nullptr;    // represent the discard pile
     Deck* _deck        = nullptr;    // represent the deck
-
-    ax::Vector<ax::ui::Button*> _colorButtons;  // buttons for choosing color when playing wild cards
+    bool _isNewRound = true;
+    vector<int> _previousPlayedCards;  // card store by value = rank* 4 + suit
 
     EventListenerCard* _cardListener = nullptr;
 
@@ -72,6 +72,8 @@ protected:
     Suit _currentSuit = Suit::CLUBS;
 
     ax::ui::Text* _gameInfo = nullptr;
+    ax::ui::Button* _playButton = nullptr;
+    ax::ui::Button* _passButton = nullptr;
 
     // A game rule class will let all states access ít private members
     friend class TienLenState;

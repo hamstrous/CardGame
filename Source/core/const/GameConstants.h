@@ -3,7 +3,8 @@
 namespace ActionTag {
     static const int CARD_FLIP = 1001;
     static const int CARD_TRANSFORM_TO_ZONE = 2000;
-}
+    static const int CARD_PICKED_MOVE = 3000;
+    }
 
 namespace ObjectTag {
     static const int CARD = 10;
