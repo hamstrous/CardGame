@@ -171,7 +171,7 @@ void Deck::shuffleCardsWithSeed(std::string seed) {
     std::vector<ax::Vector<ax::FiniteTimeAction*>> actionListForEachCard(cardCount);
 
     // select random amount of consecutive card to move right
-    float spacing = 10.f;
+    float spacing = 0.5f;
 
     for (int i = 0; i < cardList.size(); i++)
     {

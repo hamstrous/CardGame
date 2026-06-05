@@ -33,28 +33,20 @@ void TienLenDealState::onEnter() {
     auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 2); });
     // deal the player with index 0 first
 
-    auto setFirstCardAction = ax::CallFunc::create([this, &game]() {
-        for (int i = game._deck->getChildren().size() - 1; i > 0; i--)
-        {
-            auto card = dynamic_cast<Card*> (game._deck->getChildren().at(i));
-            if (!isCardSpecial(card))
-            {
-                game._currentColor = static_cast<TienLenRule::Color>(card->getValue("color"));
-                game._currentValue = static_cast<TienLenRule::Value>(card->getValue("value"));
-                game._discardPile->moveCardToThisZone(card);
-                return;
-            }
-        }
-    });
-
     auto playGame = ax::CallFunc::create([this, &game]() { game.changeState(new TienLenPlayState(getContext())); });
 
     auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f), dealAction,
-                             ax::DelayTime::create(6.0f), setFirstCardAction, playGame, nullptr);
+                             ax::DelayTime::create(6.0f), playGame, nullptr);
     game.runAction(sequence);
 }
 
-void TienLenDealState::onUpdate(float delta) {}
+void TienLenDealState::onUpdate(float delta) {
+    auto& game = *getContext();
+    for (auto card : helper::castToVectorOfType<Card*>(game._playerHands[game._clientPlayerId]->getChildren()))
+    {
+        card->forceReveal();
+    }
+}
 
 void TienLenDealState::onExit() {}
 

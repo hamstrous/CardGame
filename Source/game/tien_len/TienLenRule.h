@@ -19,41 +19,29 @@
 class TienLenRule : public Rule
 {
 public:
-    enum class Color
+    enum class Rank
     {
-        RED,
-        YELLOW,
-        GREEN,
-        BLUE,
-        WILD
-    };
-
-    enum class Value
-    {
-        ZERO,
-        ONE,
-        TWO,
-        THREE,
+        THREE = 3,
         FOUR,
         FIVE,
         SIX,
         SEVEN,
         EIGHT,
         NINE,
-        SKIP,
-        REVERSE,
-        DRAW_TWO,
-        WILD,
-        WILD_DRAW_FOUR
+        TEN,
+        JACK,
+        QUEEN,
+        KING,
+        ACE,
+        TWO
     };
 
-    enum class Phase
+    enum class Suit
     {
-        WAIT,
-        SHUFFLE,
-        DEAL,
-        PLAY,
-        RESULT
+        CLUBS,
+        DIAMONDS,
+        HEARTS,
+        SPADES
     };
 
 public:
@@ -80,8 +68,8 @@ protected:
 
     EventListenerCard* _cardListener = nullptr;
 
-    Color _currentColor = Color::RED;
-    Value _currentValue = Value::ZERO;
+    Rank _currentRank = Rank::THREE;
+    Suit _currentSuit = Suit::CLUBS;
 
     ax::ui::Text* _gameInfo = nullptr;
 

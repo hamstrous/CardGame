@@ -16,8 +16,13 @@ void UnoPlayState::onEnter()
     auto currentValue = static_cast<UnoRule::Value>(game._currentValue);
 
     if (clientId != game._currentPlayerId)
+    {
+        myTurn = false;
         return;
-    
+    }
+    myTurn = true;
+
+
     message["type"] = "broadcast";
     message["command"] = "player_response";
     message["time_stamp"] = 0;
@@ -84,27 +89,33 @@ void UnoPlayState::onEnter()
                 continue;
             cardIds.push_back(card->getId());
         }
-        game._deck->dealCards(tempHand, game._plus2StackCount * 2);
-        message["data"]["card_moved"]["card_ids"] = cardIds;
-        message["data"]["card_moved"]["new_zone_id"]  = clientId;
-        game._plus2StackCount                         = 0;
-        message["data"]["new_plus2_stack_count"]      = 0;
-        setNewCurrentPlayer();
-        game._socketManager->sendMessage(message);
-        game.changeState(new UnoPlayState(getContext()));
+
+        game.scheduleOnce([&game, this, clientId, &tempHand, &cardIds](float dt) {
+            game._deck->dealCards(tempHand, game._plus2StackCount * 2);
+            message["data"]["card_moved"]["card_ids"]    = cardIds;
+            message["data"]["card_moved"]["new_zone_id"] = clientId;
+            game._plus2StackCount                        = 0;
+            message["data"]["new_plus2_stack_count"]     = 0;
+            setNewCurrentPlayer();
+            game._socketManager->sendMessage(message);
+            game.changeState(new UnoPlayState(getContext()));
+        }, 2.0f, "wait_after_draw_card");
+
+        
     }
     else if (!hasPlayableCard)
     {
         //auto tempHand = ax::Vector<Zone*>();
         //tempHand.pushBack(game.);
-        auto cardIds = vector<int>();
-        cardIds.push_back(dynamic_cast<Card*>(game._deck->getChildren().back())->getId());
-        game._playerHands.at(clientId)->moveCardToThisZone(dynamic_cast<Card*>(game._deck->getChildren().back()));
-        message["data"]["card_moved"]["card_ids"] = cardIds;
-        message["data"]["card_moved"]["new_zone_id"]  = clientId;
-        message["data"]["new_plus2_stack_count"]  = 0;
+        
         setNewCurrentPlayer();
-        game.scheduleOnce([&game, this](float dt) {
+        game.scheduleOnce([&game, this, clientId](float dt) {
+            auto cardIds = vector<int>();
+            cardIds.push_back(dynamic_cast<Card*>(game._deck->getChildren().back())->getId());
+            game._playerHands.at(clientId)->moveCardToThisZone(dynamic_cast<Card*>(game._deck->getChildren().back()));
+            message["data"]["card_moved"]["card_ids"]    = cardIds;
+            message["data"]["card_moved"]["new_zone_id"] = clientId;
+            message["data"]["new_plus2_stack_count"]     = 0;
             game._socketManager->sendMessage(message);
             game.changeState(new UnoPlayState(getContext()));
         }, 2.0f, "wait_after_draw_card" 
@@ -113,7 +124,13 @@ void UnoPlayState::onEnter()
     }
 }
 
-void UnoPlayState::onUpdate(float delta) {}
+void UnoPlayState::onUpdate(float delta) {
+    auto& game = *getContext();
+    for (auto card : helper::castToVectorOfType<Card*>(game._playerHands[game._clientPlayerId]->getChildren()))
+    {
+        card->forceReveal();
+    }
+}
 
 void UnoPlayState::onExit() {
     auto& game   = *getContext();
@@ -160,6 +177,7 @@ void UnoPlayState::onWebSocketMessage(EventWebSocket* event)
                     for (int id : cardIds)
                         if (card->getId() == id)
                         {
+                            card->forceReveal();
                             game._discardPile->moveCardToThisZone(card);
                             break;
                         }
@@ -218,6 +236,10 @@ void UnoPlayState::onWebSocketMessage(EventWebSocket* event)
 }
 
 void UnoPlayState::onCardClicked(EventCard* event) {
+    if (!myTurn)
+    {
+        return;
+    }
     auto& game   = *getContext();
     int clientId = game._clientPlayerId;
 
@@ -266,6 +288,7 @@ void UnoPlayState::onCardClicked(EventCard* event) {
         for (auto& button : game._colorButtons)
         {
             button->setVisible(true);
+            myTurn = false;  // prevent player from clicking other cards before choosing color
             static_cast<ax::ui::Button*>(button)->setTitleText(magic_enum::enum_name(static_cast<UnoRule::Color>(i)));
             game._colorButtons.at(i)->addClickEventListener([this, &game, i, clickedCard](ax::Object* sender) {
                 // Move the card to the discard pile

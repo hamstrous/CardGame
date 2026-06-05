@@ -54,11 +54,8 @@ void TienLenRule::update(float delta) {
         // update game info
         std::string orderText    = "Order: " + std::string(_clockWise ? "Clockwise" : "Counter-clockwise");
         std::string turnText     = "Current turn: Player " + std::to_string(_currentPlayerId);
-        std::string lastCardText = std::string("Last played card: ") +
-                                   std::string(magic_enum::enum_name(_currentValue)) + "-" +
-                                   std::string(magic_enum::enum_name(_currentColor));
         _gameInfo->setString(std::string("Name: ") + GameScene::getInstance()->getUserName() + "\n" + orderText + "\n" +
-                             turnText + "\n" + lastCardText);
+                             turnText);
 
         for (int i = 0; i < _playerHands.size(); i++)
         {

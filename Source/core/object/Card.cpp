@@ -200,9 +200,26 @@ void Card::reveal() {
     flip();
 }
 
+void Card::forceReveal() {
+    // Dont play animation
+    if (_isFaceUp)
+        return;
+    _isFaceUp = true;
+    _frontSprite->setVisible(true);
+    _backSprite->setVisible(false);
+}
+
 void Card::hide() {
     if (!_isFaceUp) return;
     flip();
+}
+
+void Card::forceHide() {
+    if (!_isFaceUp)
+        return;
+    _isFaceUp = false;
+    _frontSprite->setVisible(false);
+    _backSprite->setVisible(true);
 }   
 
 void Card::setDraggable(bool draggable) {

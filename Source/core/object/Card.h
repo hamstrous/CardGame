@@ -42,7 +42,10 @@ public:
     // Actions
     virtual void flip(float duration = 1.f);
     virtual void reveal();
+    virtual void forceReveal();
+
     virtual void hide();
+    virtual void forceHide();
 
     // Getters and Setters
     void setId(int id) { this->id = id; }

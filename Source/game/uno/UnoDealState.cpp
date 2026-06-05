@@ -42,6 +42,7 @@ void UnoDealState::onEnter() {
                 game._currentColor = static_cast<UnoRule::Color>(card->getValue("color"));
                 game._currentValue = static_cast<UnoRule::Value>(card->getValue("value"));
                 game._discardPile->moveCardToThisZone(card);
+                card->forceReveal();
                 return;
             }
         }
@@ -50,11 +51,18 @@ void UnoDealState::onEnter() {
     auto playGame = ax::CallFunc::create([this, &game]() { game.changeState(new UnoPlayState(getContext())); });
 
     auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f), dealAction,
-                             ax::DelayTime::create(6.0f), setFirstCardAction, playGame, nullptr);
+                             ax::DelayTime::create(10.0f), setFirstCardAction, playGame, nullptr);
     game.runAction(sequence);
 }
 
-void UnoDealState::onUpdate(float delta) {}
+void UnoDealState::onUpdate(float delta) {
+    // Reveal card that dealt to the player hand
+    auto& game = *getContext();
+    for (auto card : helper::castToVectorOfType<Card*>(game._playerHands[game._clientPlayerId]->getChildren()))
+    {
+        card->forceReveal();
+    }
+}
 
 void UnoDealState::onExit() {}
 

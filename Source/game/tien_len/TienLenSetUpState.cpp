@@ -58,18 +58,24 @@ void TienLenSetUpState::onEnter()
     game.addChild(game._deck);
 
     int cardIndex  = 0;
-    auto cardFiles = helper::getFileNamesInFolder("card/tien_len");
+    auto cardFiles = helper::getFileNamesInFolder("card/standard");
     for (const auto& cardFile : cardFiles)
     {
         //AXLOGD("Loading card file: {}", cardFile);
 
-        auto cardName = helper::split(cardFile,'.')[0];
-        auto cardInfo = helper::split(cardName, '_');
+        auto cardInfo = helper::split(cardFile, ' ');
 
-        Card* card = Card::create(new CardData("card/tien_len/" + cardFile, "card/Card Back 1.png"));
-        card->setValue("value", static_cast<int>(convertStringToTienLenValue(cardInfo[0])));
-        card->setValue("color", static_cast<int>(convertStringToTienLenColor(cardInfo[1])));
+        Card* card = Card::create(new CardData("card/standard/" + cardFile, "card/Card Back 1.png"));
 
+        if (cardInfo[0] == "Empty")
+        {
+            // This is a placeholder card, skip it
+            continue;
+        }
+
+        card->setValue("suit", static_cast<int>(convertStringToTienLenSuit(cardInfo[0])));
+        card->setValue("rank", static_cast<int>(convertStringToTienLenRank(cardInfo[1])));
+        card->forceHide();
         card->lockInput();
         card->setDraggable(false);
         card->setFlippable(false);
@@ -101,7 +107,13 @@ void TienLenSetUpState::onEnter()
     }
 }
 
-void TienLenSetUpState::onUpdate(float delta) {}
+void TienLenSetUpState::onUpdate(float delta) {
+    auto& game = *getContext();
+    for (auto card : helper::castToVectorOfType<Card*>(game._playerHands[game._clientPlayerId]->getChildren()))
+    {
+        card->forceReveal();
+    }
+}
 
 void TienLenSetUpState::onExit() {}
 

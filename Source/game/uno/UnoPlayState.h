@@ -33,4 +33,5 @@ public:
 
 protected:
     json message;
+    bool myTurn = false;
 };
