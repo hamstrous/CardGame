@@ -32,7 +32,7 @@ void TienLenDealState::onEnter() {
 
     auto shuffleAction = ax::CallFunc::create([shuffleSeed = this->shuffleSeed, &game]() { game._deck->shuffleCardsWithSeed(shuffleSeed); });
 
-    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 13); });
+    auto dealAction = ax::CallFunc::create([&game]() { game._deck->dealCards(game._playerHands, 40); });
 
     // Check who go first
     auto startCondition = ax::CallFunc::create([&game]() {
@@ -55,6 +55,8 @@ void TienLenDealState::onEnter() {
                 }
             }
         }
+        if (game._currentPlayerId == game._clientPlayerId)
+            game._isNewRound = true;
         return true;
     });
 
@@ -90,7 +92,7 @@ void TienLenDealState::onEnter() {
     );
 
     auto sequence      = ax::Sequence::create(ax::DelayTime::create(3.0f), shuffleAction, ax::DelayTime::create(5.0f),
-        dealAction, ax::DelayTime::create(18.0f), startCondition, checkInstantWinCondition, nullptr);
+        dealAction, ax::DelayTime::create(36.0f), startCondition, checkInstantWinCondition, nullptr);
     game.runAction(sequence);
 }
 

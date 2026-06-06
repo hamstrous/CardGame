@@ -29,7 +29,7 @@ void TienLenSetUpState::onEnter()
         playerHand->setPosition(handPositionList[listIndex++]);
         if (i == game._clientPlayerId)
         {
-            playerHand->setContentSize(Size(450, 100));
+            playerHand->setContentSize(Size(850, 100));
         }
         else
         {
@@ -59,8 +59,8 @@ void TienLenSetUpState::onEnter()
     // load all card files from content/card/tien_len
 
     game._deck = Deck::create(new ZoneData());
-    game._deck->setPosition(150, game.visibleSize.height - 100);
-    game._deck->setContentSize(Size(150, 100));
+    game._deck->setPosition(150, game.visibleSize.height - 120);
+    game._deck->setContentSize(Size(130, 150));
     game._deck->lockInput();
     game.addChild(game._deck);
 
@@ -96,7 +96,7 @@ void TienLenSetUpState::onEnter()
 
     game._discardPile = Zone::create(new ZoneData());
     game._discardPile->setPosition(game.visibleSize / 2);
-    game._discardPile->setContentSize(Size(150, 150));
+    game._discardPile->setContentSize(Size(300, 150));
     game._discardPile->lockInput();
     game.addChild(game._discardPile);
 
@@ -105,8 +105,8 @@ void TienLenSetUpState::onEnter()
     game._passButton = ax::ui::Button::create("ui/button.png");
     game._playButton->ignoreContentAdaptWithSize(false);
     game._passButton->ignoreContentAdaptWithSize(false);
-    game._playButton->setPosition(Vec2(game.visibleSize.width / 2 - 100, game.visibleSize.height / 2 - 200));
-    game._passButton->setPosition(Vec2(game.visibleSize.width / 2 + 100, game.visibleSize.height / 2 - 200));
+    game._playButton->setPosition(Vec2(game.visibleSize.width / 2 - 100, game.visibleSize.height / 2 - 150));
+    game._passButton->setPosition(Vec2(game.visibleSize.width / 2 + 100, game.visibleSize.height / 2 - 150));
     game._playButton->setContentSize(Size(120, 60));
     game._passButton->setContentSize(Size(120, 60));
     game._playButton->setTitleText("Play");

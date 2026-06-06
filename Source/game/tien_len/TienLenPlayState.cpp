@@ -101,20 +101,18 @@ void TienLenPlayState::playerPlayCards() {
     if (!game.isValidPlay(pickedCards))
     {
         // Invalid play, do nothing or show some warning
-        //return;
+        return;
     }
     //game._discardPile->removeAllChildren();
     for (const auto& card : helper::castToVectorOfType<Card*>(game._discardPile->getChildren()))
     {
          game._discardPile->removeChild(card);
-        AXLOGD("Removed card {} from discard pile", card->getId());
     }
     AXLOGD("Picked cards count: {}", pickedCards.size());
     for (auto& card : pickedCards)
     {
         game._discardPile->moveCardToThisZone(card);
         card->lockInput();
-        AXLOGD("Moved card {} to discard pile", card->getId());
     }
     pickedCards.clear();  // Clear picked cards after playing
     // send play card message to server

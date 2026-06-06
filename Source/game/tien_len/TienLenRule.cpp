@@ -94,7 +94,6 @@ bool TienLenRule::isValidPlay(const std::set<Card*>& hand)
 {
     vector<int> handValues;
     vector<int> rankCount(13, 0);
-    int previousRank     = -1;
     int consecutiveCount = 0;
     int maxSameRankCount = 0;
     int minSameRankCount = INT_MAX;
@@ -104,43 +103,67 @@ bool TienLenRule::isValidPlay(const std::set<Card*>& hand)
     }
 
     sort(handValues.begin(), handValues.end());
-    int rank = -1;
+    int rank;
+    int previousRank = handValues.front() / 4;
     for (int value : handValues)
     {
         rank = value / 4;  // Get the rank of the card
         rankCount[rank]++;
-        if (rank != previousRank)
+        if ((rank != previousRank && rank == previousRank + 1) || (previousRank == -1))
         {
             consecutiveCount++;
-            maxSameRankCount = max(maxSameRankCount, rankCount[rank]);
-            minSameRankCount = min(minSameRankCount, rankCount[rank]);
+            maxSameRankCount = max(maxSameRankCount, rankCount[previousRank]);
+            minSameRankCount = min(minSameRankCount, rankCount[previousRank]);
             previousRank     = rank;
+        }
+        else if (previousRank != -1 && rank != previousRank && rank != previousRank + 1)
+        {
+            return false;
         }
     }
     consecutiveCount++;
-    maxSameRankCount = max(maxSameRankCount, rankCount[rank]);
-    minSameRankCount = min(minSameRankCount, rankCount[rank]);
-    previousRank     = rank;
+    maxSameRankCount = max(maxSameRankCount, rankCount[previousRank]);
+    minSameRankCount = min(minSameRankCount, rankCount[previousRank]);
+    AXLOGD("Consecutive count: {}", consecutiveCount);
+    AXLOGD("Max same rank count: {}", maxSameRankCount);
+    AXLOGD("Min same rank count: {}", minSameRankCount);
 
     // Valid combination
     if (!((consecutiveCount == 1 || consecutiveCount > 2) && maxSameRankCount == minSameRankCount))
         return false;
-
     int sameRankCount = maxSameRankCount;
-
+    if (consecutiveCount > 1 && sameRankCount > 2)
+        return false;
    
-    Combination combination =
-        (consecutiveCount == 1)
-            ? (maxSameRankCount == 1 ? Combination::SINGLE
-                                     : (maxSameRankCount == 2 ? Combination::PAIR
-                                                              : (maxSameRankCount == 3 ? Combination::TRIPLE
-                                                                                       : Combination::FOUR_OF_A_KIND)))
-            : (maxSameRankCount == 2
-                   ? (consecutiveCount == 3 ? Combination::THREE_DOUBLE_SEQUENCE
-                                            : (maxSameRankCount == 4 ? Combination::FOUR_DOUBLE_SEQUENCE
-                                                                     : Combination::STRAIGHT))
-                   : Combination::SINGLE);  // Default to SINGLE if it doesn't fit other combinations
+    Combination combination;
 
+    if (consecutiveCount == 1)
+    {
+        if (maxSameRankCount == 1)
+            combination = Combination::SINGLE;
+        else if (maxSameRankCount == 2)
+            combination = Combination::PAIR;
+        else if (maxSameRankCount == 3)
+            combination = Combination::TRIPLE;
+        else
+            combination = Combination::FOUR_OF_A_KIND;
+    }
+    else
+    {
+        if (sameRankCount == 2)
+        {
+            if (consecutiveCount == 3)
+                combination = Combination::THREE_DOUBLE_SEQUENCE;
+            else if (consecutiveCount == 4)
+                combination = Combination::FOUR_DOUBLE_SEQUENCE;
+            else
+                combination = Combination::SINGLE; // fallback
+        }
+        else
+        {
+            combination = Combination::STRAIGHT;  
+        }
+    }
     bool endWithTwo = handValues.back() / 4 == static_cast<int>(Rank::TWO);
 
     bool valid = false;
@@ -148,15 +171,20 @@ bool TienLenRule::isValidPlay(const std::set<Card*>& hand)
      if (_isNewRound)
      {
         valid = true;
+         _isNewRound = false;
      }
 
+     AXLOGD("Current combination: {}, Previous combination: {}, End with two: {}", magic_enum::enum_name(combination),
+            magic_enum::enum_name(_currentCombination), endWithTwo);
+     AXLOGD("Current largest card value: {}, Previous largest card value: {}", handValues.back(),
+            _currentLargestCardValue);
 
-    if (_currentCombination == combination && handValues.back() >= _currentLargestCardValue)
+    if (_currentCombination == combination && consecutiveCount == _currentConsecutiveCount && handValues.back() > _currentLargestCardValue)
         valid = true;
     else if (_currentCombination != combination)
     {
         if (_currentCombination == Combination::SINGLE && _currentEndWithTwo)
-            valid |= static_cast<int>(combination) > static_cast<int>(Combination::THREE_DOUBLE_SEQUENCE);
+            valid |= static_cast<int>(combination) >= static_cast<int>(Combination::THREE_DOUBLE_SEQUENCE);
         else if (_currentCombination == Combination::PAIR && _currentEndWithTwo)
             valid |= combination == Combination::FOUR_DOUBLE_SEQUENCE;
         else if (_currentCombination >= Combination::THREE_DOUBLE_SEQUENCE)
