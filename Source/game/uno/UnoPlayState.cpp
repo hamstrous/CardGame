@@ -89,18 +89,14 @@ void UnoPlayState::onEnter()
                 continue;
             cardIds.push_back(card->getId());
         }
-
-        game.scheduleOnce([&game, this, clientId, &tempHand, &cardIds](float dt) {
-            game._deck->dealCards(tempHand, game._plus2StackCount * 2);
-            message["data"]["card_moved"]["card_ids"]    = cardIds;
-            message["data"]["card_moved"]["new_zone_id"] = clientId;
-            game._plus2StackCount                        = 0;
-            message["data"]["new_plus2_stack_count"]     = 0;
-            setNewCurrentPlayer();
-            game._socketManager->sendMessage(message);
-            game.changeState(new UnoPlayState(getContext()));
-        }, 2.0f, "wait_after_draw_card");
-
+        game._deck->dealCards(tempHand, game._plus2StackCount * 2);
+        message["data"]["card_moved"]["card_ids"]    = cardIds;
+        message["data"]["card_moved"]["new_zone_id"] = clientId;
+        game._plus2StackCount                        = 0;
+        message["data"]["new_plus2_stack_count"]     = 0;
+        setNewCurrentPlayer();
+        game._socketManager->sendMessage(message);
+        game.changeState(new UnoPlayState(getContext()));
         
     }
     else if (!hasPlayableCard)
