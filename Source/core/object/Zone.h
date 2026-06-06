@@ -42,6 +42,8 @@ public:
     void getNewCardPosition(Card* card);
     void resetZoneCardPosition(float duration = 1.f);
 
+    void sortCardsByValue(std::function<int(const Card*)>);  // Example sorting method, can be modified to sort by different criteria
+
     // Picking cards
     void togglePickCard(Card* card);
     void pickCard(Card* card);

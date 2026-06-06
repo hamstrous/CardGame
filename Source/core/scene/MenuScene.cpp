@@ -169,13 +169,13 @@ void MenuScene::processStartFile() {
         _menuButtonList.pushBack(button);
     }
 
-    button = MenuButton::create<UnoRule>("icon/uno.png", "uno");
+    button = MenuButton::create<UnoRule>("icon/uno.png", "");
     if (button)
     {
         _menuButtonList.pushBack(button);
     }
 
-    button = MenuButton::create<TienLenRule>("icon/tien_len.png", "tien_len");
+    button = MenuButton::create<TienLenRule>("icon/tien_len.png", "");
     if (button)
     {
         _menuButtonList.pushBack(button);
@@ -189,14 +189,15 @@ void MenuScene::setUpButtonsPanel() {
     for (int i = 0; i < size; ++i)
     {
         MenuButton* button = _menuButtonList.at(i);
+        button->ignoreContentAdaptWithSize(true);
         if (button)
         {
             this->addChild(button);
             int row = i / rowMax;
             int col = i % rowMax;
             button->ignoreContentAdaptWithSize(false);
-            button->setPosition(Vec2(100 + col * 110, 400 - row * 60));
-            button->setContentSize(Size(50, 50));
+            button->setPosition(Vec2(200 + col * 110, 400 - row * 60));
+            button->setContentSize(Size(100, 100));
         }
     }
 }

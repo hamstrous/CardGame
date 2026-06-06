@@ -16,8 +16,13 @@ void TienLenPlayState::onEnter()
     if (clientId != game._currentPlayerId)
         return;
 
-    game._playButton->setVisible(true);
-    game._passButton->setVisible(true);
+    message["type"]       = "broadcast";
+    message["command"]    = "player_response";
+    message["time_stamp"] = 0;
+    message["data"]       = json::object();
+
+    game._playButton->setEnabled(true);
+    game._passButton->setEnabled(true);
 
     game._playButton->addClickEventListener([this](ax::Object* sender) {
         playerPlayCards();
@@ -25,11 +30,6 @@ void TienLenPlayState::onEnter()
     game._passButton->addClickEventListener([this](ax::Object* sender) {
         playerPass();
     });
-
-    message["type"] = "broadcast";
-    message["command"] = "player_response";
-    message["time_stamp"] = 0;
-    message["data"]       = json::object();
 
     auto hand = helper::castToVectorOfType<Card*>(game._playerHands.at(clientId)->getChildren());
 
@@ -50,6 +50,9 @@ void TienLenPlayState::onExit() {
     {
         card->lockInput();
     }
+
+    game._playButton->setEnabled(false);
+    game._passButton->setEnabled(false);
     
 }
 
@@ -75,7 +78,50 @@ void TienLenPlayState::onWebSocketMessage(EventWebSocket* event)
     if (cmd == "player_response")
     {
         json payload = data["data"];
-        
+        // Update game state based on the player's response
+        game._currentPlayerId = payload["new_current_player"];
+        game._currentCombination = payload["combination"];
+        game._currentLargestCardValue = payload["largest_card_value"];
+        game._currentConsecutiveCount = payload["consecutive_count"];
+        game._currentCombination      = static_cast<TienLenRule::Combination>(payload["combination"]);
+        game._currentEndWithTwo = payload["end_with_two"];
+        game._currentSameRankCount = payload["same_rank_count"];
+        game._recentlyPlayedPlayerId = payload["recently_played_player_id"];
+        if (game._recentlyPlayedPlayerId == game._clientPlayerId)
+            game._isNewRound = true;
+        else
+            game._isNewRound = false;
+
+        if (payload.contains("discarded_cards"))
+        {
+            if (payload["discarded_cards"].get<bool>())
+            {
+                for (const auto& card : helper::castToVectorOfType<Card*>(game._discardPile->getChildren()))
+                {
+                    game._discardPile->removeChild(card);
+                }
+            }
+        }
+        if (payload.contains("played_cards"))
+        {
+            auto playedCards = payload["played_cards"];
+            for (const auto& cardValue : playedCards)
+            {
+                int rank = cardValue.get<int>() / 4;
+                int suit = cardValue.get<int>() % 4;
+                for (auto zone: game._playerHands)
+                    for (auto card : helper::castToVectorOfType<Card*>(zone->getChildren()))
+                    {
+                        if (card->getValue("rank") == rank && card->getValue("suit") == suit)
+                        {
+                            game._discardPile->moveCardToThisZone(card);
+                            card->forceReveal();
+                            break;
+                        }
+                    }
+            }
+        }
+        game.changeState(new TienLenPlayState(getContext()));
     }
 }
 
@@ -103,10 +149,12 @@ void TienLenPlayState::playerPlayCards() {
         // Invalid play, do nothing or show some warning
         return;
     }
-    //game._discardPile->removeAllChildren();
+    //game._discardPile->removeAllChildren();`
+    message["data"]["discarded_cards"] = false;
     for (const auto& card : helper::castToVectorOfType<Card*>(game._discardPile->getChildren()))
     {
          game._discardPile->removeChild(card);
+        message["data"]["discarded_cards"] = true;
     }
     AXLOGD("Picked cards count: {}", pickedCards.size());
     for (auto& card : pickedCards)
@@ -116,9 +164,39 @@ void TienLenPlayState::playerPlayCards() {
     }
     pickedCards.clear();  // Clear picked cards after playing
     // send play card message to server
+    setNewCurrentPlayer();
+    message["data"]["recently_played_player_id"] = game._clientPlayerId;
+    message["data"]["combination"]               = static_cast<int>(game._currentCombination);
+    message["data"]["largest_card_value"]        = game._currentLargestCardValue;
+    message["data"]["consecutive_count"]         = game._currentConsecutiveCount;
+    message["data"]["same_rank_count"]           = game._currentSameRankCount;
+    message["data"]["end_with_two"]              = game._currentEndWithTwo;
+
+    // Add played cards to message
+
+    message["data"]["played_cards"] = game._previousPlayedCards;
+    message["data"]["discarded_cards"] = true;
+
+    game._socketManager->sendMessage(message);
+
+    game.changeState(new TienLenPlayState(getContext()));
+    
 }
 
-void TienLenPlayState::playerPass() {}
+void TienLenPlayState::playerPass() {
+    auto& game = *getContext();
+    setNewCurrentPlayer();
+    message["data"]["recently_played_player_id"] = game._recentlyPlayedPlayerId;
+    message["data"]["combination"]               = static_cast<int>(game._currentCombination);
+    message["data"]["largest_card_value"]        = game._currentLargestCardValue;
+    message["data"]["consecutive_count"]        = game._currentConsecutiveCount;
+    message["data"]["same_rank_count"]         = game._currentSameRankCount;
+    message["data"]["end_with_two"]              = game._currentEndWithTwo;
+    message["data"]["discarded_cards"]           = false;
+
+    game._socketManager->sendMessage(message);
+    game.changeState(new TienLenPlayState(getContext()));
+}
 
 void TienLenPlayState::setNewCurrentPlayer() {
     auto& game = *getContext();

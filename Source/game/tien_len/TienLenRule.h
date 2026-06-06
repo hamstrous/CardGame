@@ -86,6 +86,7 @@ protected:
     int _currentConsecutiveCount = 0;
     int _currentSameRankCount    = 0;
     bool _currentEndWithTwo      = false;
+    int _recentlyPlayedPlayerId     = -1;
     Combination _currentCombination = Combination::SINGLE;
 
     ax::ui::Text* _gameInfo = nullptr;

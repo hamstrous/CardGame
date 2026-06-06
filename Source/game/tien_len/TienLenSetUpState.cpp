@@ -29,7 +29,7 @@ void TienLenSetUpState::onEnter()
         playerHand->setPosition(handPositionList[listIndex++]);
         if (i == game._clientPlayerId)
         {
-            playerHand->setContentSize(Size(850, 100));
+            playerHand->setContentSize(Size(450, 100));
         }
         else
         {
@@ -113,8 +113,8 @@ void TienLenSetUpState::onEnter()
     game._passButton->setTitleText("Pass");
     game._playButton->setTitleFontSize(24);
     game._passButton->setTitleFontSize(24);
-    game._playButton->setVisible(false);
-    game._passButton->setVisible(false);
+    game._playButton->setEnabled(false);
+    game._passButton->setEnabled(false);
 
     game.addChild(game._playButton);
     game.addChild(game._passButton);

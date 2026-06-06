@@ -204,6 +204,7 @@ bool TienLenRule::isValidPlay(const std::set<Card*>& hand)
     _currentLargestCardValue = handValues.back();
     _currentEndWithTwo       = endWithTwo;
     _currentCombination      = combination;
+    _recentlyPlayedPlayerId  = _clientPlayerId;
     return true;
 }
 

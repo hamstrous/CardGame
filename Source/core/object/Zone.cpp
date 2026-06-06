@@ -196,6 +196,39 @@ void Zone::resetZoneCardPosition(float duration) {
     this->runAction(spawn);
 }
 
+void Zone::sortCardsByValue(std::function<int(const Card*)> valueFunc)
+{
+    auto _cardList = castToVectorOfType<Card*>(this->getChildren());
+
+    std::vector<ax::Vec2> oldPositions;
+    for (auto card : _cardList)
+    {
+        oldPositions.push_back(card->getPosition());
+        AXLOGD("Position before sorting: {}, {}", card->getPosition().x, card->getPosition().y);
+    }
+
+    std::sort(_cardList.begin(), _cardList.end(),
+              [valueFunc](Card* a, Card* b) { return valueFunc(a) < valueFunc(b); });
+
+    for (auto card : _cardList)
+    {
+        //card->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+        card->retain();
+        card->removeFromParent();
+    }
+
+    for (int i = 0; i < _cardList.size(); i++)
+    {
+        auto card = _cardList.at(i);
+        this->addChild(card);
+        card->release();
+        card->runAction(ax::MoveTo::create(
+            0.5f,
+            oldPositions.at(i))
+        );
+    }
+}
+
 void Zone::togglePickCard(Card* card) {
     if (_pickedCards.find(card) != _pickedCards.end())
     {
