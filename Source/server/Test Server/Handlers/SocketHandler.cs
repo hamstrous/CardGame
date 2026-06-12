@@ -448,7 +448,15 @@ public class SocketHandler(PlayerService playerService)
             result = "ERROR",
             message = errorMessage
         };
-        var errorResponse = JsonSerializer.Serialize(errorData);
+
+        var errorResponse = new
+        {
+            type = "response",
+            command = "error",
+            data = errorData,
+            time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
         await SendMessageAsync(socket, errorResponse);
     }
 

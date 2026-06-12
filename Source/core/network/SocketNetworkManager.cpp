@@ -28,6 +28,10 @@ void SocketNetworkManager::onMessage(WebSocket* ws, const WebSocket::Data& data)
         std::string message(data.bytes, data.len);
         AXLOGD("Received message: {}", message);
         json jsonMessage = json::parse(message);
+        if (jsonMessage.contains("command") && jsonMessage["command"] == "error")
+        {
+            return;
+        }
         EventWebSocket *event = new EventWebSocket(EventWebSocket::WebSocketEventType::MESSAGE, jsonMessage);
         ax::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
     }
