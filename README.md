@@ -26,7 +26,9 @@
 ## About The Project
 An Card game engine in Axmol c++, provide developers with a tool for quickly creating card game, also support multiplayer online
 
-Of course, this is just the beginning for this project. So I'll be adding more functionaliies and improving user experience in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. 
+The project is still work in process, I will try to develop it to the best of my ability but it is gonna take a long time. Right now only basic objects and it's simple functionalities is added in. More feature and better user experience will be added. 
+
+You may also suggest changes by forking this repo and creating a pull request or opening an issue. 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

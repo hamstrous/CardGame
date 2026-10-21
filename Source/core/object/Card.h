@@ -1,0 +1,105 @@
+#pragma once
+
+#include "axmol.h"
+
+#include <string>
+#include <map>
+
+#include "core/interface/ILockableInput.h"
+
+#include "core/object/data/CardData.h"
+
+#include "utils/helper.h"
+#include "utils/Timer.hpp"
+
+class Zone;
+
+class Card : public ax::Node, public ILockableInput
+{
+
+public:
+
+    // Factory method
+    static Card* create(CardData* property);
+    bool init(CardData* property);
+    void update(float delta) override;
+
+    // Input locking
+    void lockInput() override;
+    void unlockInput() override;
+
+    // Input handlers
+    bool onMouseDown(ax::Event* event);
+    bool onMouseMove(ax::Event* event);
+    bool onMouseUp(ax::Event* event);
+
+    // Overrides
+    void setContentSize(const ax::Size& contentSize) override;
+
+    void setVecScale(const ax::Vec2& scale) { setScaleX(scale.x); setScaleY(scale.y); };
+    void setGlobalZOrder(int z);
+
+    // Actions
+    virtual void flip(float duration = 1.f);
+    virtual void reveal();
+    virtual void forceReveal();
+
+    virtual void hide();
+    virtual void forceHide();
+
+    // Getters and Setters
+    void setId(int id) { this->id = id; }
+    int getId() const { return id; }
+
+    void removeKey(const std::string& key) { _valueMap.erase(key); }
+    void setValue(const std::string& key, int value) { _valueMap[key] = value; }
+    int getValue(const std::string& key) const
+    {
+        auto it = _valueMap.find(key);
+        if (it != _valueMap.end())
+            return it->second;
+
+        return 0;  // Default value if key does not exist
+    }
+    void setDraggable(bool draggable);
+    bool getDraggable();
+    void setFlippable(bool flippable);
+    bool getFlippable();
+    void setFaceUp(bool faceUp);
+    bool getFaceUp();
+    void setCurrentZone(Zone* zone);
+    Zone* getCurrentZone();
+
+    // Movement
+    void moveToPosition(const ax::Vec2& position, float duration = 1.f);
+    void moveToZone(Zone* targetZone, float duration = 1.f);
+
+    // Constructor and Destructor
+    ~Card() override;
+
+protected:
+    cxxtimer::Timer _clicktimer = cxxtimer::Timer(false);  // time elapsed since last click but not yet moved
+    ax::Vec2 _dragOffset;
+    bool _isDragging = false;
+
+    // Events
+    ax::EventListenerKeyboard* _keyboardListener = nullptr;
+    ax::EventListenerMouse* _mouseListener       = nullptr;
+
+    CardData* _property = new CardData();
+    ax::Sprite* _frontSprite = nullptr;
+    ax::Sprite* _backSprite = nullptr;
+
+    std::map<std::string, int> _valueMap;
+    int id = 0;  // Temp id for testing, should be replaced by a more robust system
+
+    Zone* _currentZone = nullptr;
+
+    bool _isFlippable = true;
+    bool _isDraggable = true;
+
+    //alias for property
+    bool& _isFaceUp = _property->isFaceUp;
+    //bool& _isDraggable = _property->isDraggable;
+    
+};
