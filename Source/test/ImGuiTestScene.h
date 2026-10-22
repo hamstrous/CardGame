@@ -1,19 +1,19 @@
 #pragma once
 
 #include "axmol.h"
-#include "FairyGUI.h"
 
 #include <map>
 #include <sstream>
 
-USING_NS_FGUI;
+#include "ImGui/ImGuiPresenter.h"
+USING_NS_AX_EXT;
 
-class FairyGuiTestScene : public ax::Scene
+class ImGuiTestScene : public ax::Scene
 {
 public:
-    CREATE_FUNC(FairyGuiTestScene);
+    CREATE_FUNC(ImGuiTestScene);
     bool init() override;
-    void update(float delta) override;
+    //void update(float delta) override;
 
     //// mouse
     //bool onMouseDown(ax::Event* event);
@@ -32,8 +32,13 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    FairyGuiTestScene();
-    ~FairyGuiTestScene() override;
+    ImGuiTestScene();
+    ~ImGuiTestScene() override;
+
+    void onEnter() override;
+    void onExit() override;
+
+    void onImGuiDraw();
 
 private:
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
@@ -45,8 +50,7 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    GRoot* _groot;
-    GComponent* _view;
 
-    void onClose(EventContext* context);
+
+    ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();   
 };

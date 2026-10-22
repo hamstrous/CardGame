@@ -10,12 +10,12 @@ set(AX_EXT_HINT OFF CACHE BOOL "The default extensions hint" FORCE)
 set(AX_ENABLE_EXT_LUA ON CACHE BOOL "Build lua libraries" FORCE)
 # set(AX_ENABLE_EXT_GUI OFF CACHE BOOL "Build extension GUI" FORCE)
 # set(AX_ENABLE_EXT_ASSETMANAGER OFF CACHE BOOL "Build extension asset-manager" FORCE)
-set(AX_ENABLE_EXT_SPINE ON CACHE BOOL "Build extension spine" FORCE)
+# set(AX_ENABLE_EXT_SPINE ON CACHE BOOL "Build extension spine" FORCE)
 # set(AX_ENABLE_EXT_DRAGONBONES OFF CACHE BOOL "Build extension DragonBones" FORCE)
 # set(AX_ENABLE_EXT_COCOSTUDIO OFF CACHE BOOL "Build extension cocostudio" FORCE)
-set(AX_ENABLE_EXT_FAIRYGUI ON CACHE BOOL "Build extension FairyGUI" FORCE)
-# set(AX_ENABLE_EXT_IMGUI OFF CACHE BOOL "Build extension ImGui" FORCE)
-# set(AX_ENABLE_EXT_JSONDEFAULT OFF CACHE BOOL "Build extension JSONDefault" FORCE)
+# set(AX_ENABLE_EXT_FAIRYGUI ON CACHE BOOL "Build extension FairyGUI" FORCE)
+set(AX_ENABLE_EXT_IMGUI ON CACHE BOOL "Build extension ImGui" FORCE)
+set(AX_ENABLE_EXT_JSONDEFAULT ON CACHE BOOL "Build extension JSONDefault" FORCE)
 
 # 3D Support - - default: ON
 # set(AX_ENABLE_3D ON CACHE BOOL "Build 3D support" FORCE)
@@ -30,7 +30,7 @@ set(AX_ENABLE_EXT_FAIRYGUI ON CACHE BOOL "Build extension FairyGUI" FORCE)
 # set(AX_ENABLE_EXT_PHYSICS_NODE ON CACHE BOOL "Build extension physics-nodes" FORCE)
 
 # These depend on AX_EXT_HINT & AX_ENABLE_EXT_IMGUI - default: ON
-# set(AX_ENABLE_EXT_INSPECTOR ON CACHE BOOL "Enable extension Inspector" FORCE)
+set(AX_ENABLE_EXT_INSPECTOR ON CACHE BOOL "Enable extension Inspector" FORCE)
 # set(AX_ENABLE_EXT_SDFGEN ON CACHE BOOL "Build extension SDFGen" FORCE)
 
 # The follow options are set individually - default: OFF
@@ -38,10 +38,10 @@ set(AX_ENABLE_EXT_FAIRYGUI ON CACHE BOOL "Build extension FairyGUI" FORCE)
 # set(AX_ENABLE_EXT_EFFEKSEER OFF CACHE BOOL "Build extension Effekseer" FORCE)
 
 # Code modules that can be disabled - default: ON
-# set(AX_ENABLE_AUDIO ON CACHE BOOL "Build audio support" FORCE)
-# set(AX_ENABLE_WEBSOCKET ON CACHE BOOL "Build Websocket client based on yasio" FORCE)
-# set(AX_ENABLE_HTTP ON CACHE BOOL "Build HTTP client based on yasio" FORCE)
-# set(AX_ENABLE_OPUS ON CACHE BOOL "Build with opus support" FORCE)
+set(AX_ENABLE_AUDIO ON CACHE BOOL "Build audio support" FORCE)
+set(AX_ENABLE_WEBSOCKET ON CACHE BOOL "Build Websocket client based on yasio" FORCE)
+set(AX_ENABLE_HTTP ON CACHE BOOL "Build HTTP client based on yasio" FORCE)
+set(AX_ENABLE_OPUS ON CACHE BOOL "Build with opus support" FORCE)
 
 # WEBVIEW2 - default: ON for WIN32 and WINRT
 # set(AX_ENABLE_MSEDGE_WEBVIEW2 ON CACHE BOOL "Disable msedge webview2")
