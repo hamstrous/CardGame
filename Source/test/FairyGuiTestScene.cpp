@@ -19,6 +19,9 @@ bool FairyGuiTestScene::init()
     _groot->retain();
 
     // add a closebutton to scene
+    UIPackage::addPackage("ui/MainMenu");
+    _view = UIPackage::createObject("MainMenu", "Main")->as<GComponent>();
+    _groot->addChild(_view);
     GObject* closeButton = UIPackage::createObject("MainMenu", "CloseButton");
     closeButton->setPosition(_groot->getWidth() - closeButton->getWidth() - 10,
                              _groot->getHeight() - closeButton->getHeight() - 10);

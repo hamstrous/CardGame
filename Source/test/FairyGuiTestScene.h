@@ -46,6 +46,7 @@ private:
     ax::Vec2 safeOrigin  = safeArea.origin;
 
     GRoot* _groot;
+    GComponent* _view;
 
     void onClose(EventContext* context);
 };
