@@ -6,6 +6,7 @@
 #include "core/scene/LoginScene.h"
 #include "core/scene/TestScene.h"
 #include "game/uno/UnoScene.h"
+#include "test/FairyGuiTestScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -61,7 +62,7 @@ bool AppDelegate::applicationDidFinishLaunching()
                                     ResolutionPolicy::SHOW_ALL);
 
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<LoginScene>();
+    auto scene = FairyGuiTestScene::create();
 
     // run
     director->runWithScene(scene);
