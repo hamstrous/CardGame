@@ -17,10 +17,17 @@ bool ImGuiTestScene::init()
     safeOrigin  = safeArea.origin;
 
     //_imGui->
+    AXLOGD("ImGuiTestScene::init");
+
+    scheduleUpdate();
 
     return true;
 }
 
+void ImGuiTestScene::update(float delta)
+{
+    AXLOGI("ImGuiTestScene::update delta={}", delta);
+}
 
 void ImGuiTestScene::menuCloseCallback(ax::Object* sender) {}
 

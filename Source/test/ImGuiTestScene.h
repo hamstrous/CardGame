@@ -13,7 +13,7 @@ class ImGuiTestScene : public ax::Scene
 public:
     CREATE_FUNC(ImGuiTestScene);
     bool init() override;
-    //void update(float delta) override;
+    void update(float delta) override;
 
     //// mouse
     //bool onMouseDown(ax::Event* event);
