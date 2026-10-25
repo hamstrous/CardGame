@@ -5,7 +5,7 @@
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
 
-class Inspector
+class Inspector : public ax::Node
 {
 public:
     Inspector() = default;
@@ -13,7 +13,7 @@ public:
     static Inspector* getInstance();
     static void destroyInstance();
 
-    void draw();
+    void drawUI();
 
 private:
     static Inspector* _instance;

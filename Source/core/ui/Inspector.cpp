@@ -1,5 +1,7 @@
 #include "Inspector.h"
 
+#include "SelectManager.h"
+
 Inspector* Inspector::_instance = nullptr;
 
 Inspector* Inspector::getInstance()
@@ -13,15 +15,28 @@ Inspector* Inspector::getInstance()
 
 void Inspector::destroyInstance()
 {
-    AX_SAFE_DELETE(_instance);
+    if (_instance)
+    {
+        _instance->removeFromParentAndCleanup(true);
+        AX_SAFE_DELETE(_instance);
+    }
 }
 
-void Inspector::draw() {
+void Inspector::drawUI() {
     ImGui::Begin("Inspector");
 
-    ImGui::Button("Button");
-    static int i1 = 50;
-    ImGui::DragInt("drag int", &i1, 1);
+    SelectManager* selectManager = SelectManager::getInstance();
+    if (selectManager)
+    {
+        auto selectedWidgets = selectManager->getSelectedWidgets();
+        if (!selectedWidgets.empty())
+        {
+            for (auto widget : selectedWidgets)
+            {
+                widget->drawProperties();  
+            }
+        }
+    }
 
     ImGui::End();
 }

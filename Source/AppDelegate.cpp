@@ -60,6 +60,9 @@ bool AppDelegate::applicationDidFinishLaunching()
     renderView->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
                                     ResolutionPolicy::SHOW_ALL);
 
+    // set the clear color to white
+    director->setClearColor(ax::Color4F::GRAY);
+
     // create a scene. it's an autorelease object
     auto scene = TestScene::create();
 

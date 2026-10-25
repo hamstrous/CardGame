@@ -17,7 +17,7 @@ bool TestScene::init()
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
 
-    //_imGui->
+    //RapidJSON
     AXLOGD("TestScene::init");
 
     RapidJsonHelper helper;
@@ -27,6 +27,25 @@ bool TestScene::init()
     //AXLOGD("{}", _document["_id"]);
     std::string jsonString = helper.convertDocumentToString(_document);
     AXLOGD("Converted JSON: {}", jsonString.c_str());
+
+    Widget* widget = Widget::create();
+    widget->setSizeAndDraw(ax::Size(100, 100));
+    widget->setPosition(visibleSize / 2);
+    this->addChild(widget);
+
+    Widget* widget2 = Widget::create();
+    widget2->setSizeAndDraw(ax::Size(100, 100));
+    widget2->setPosition(visibleSize / 2 - Vec2(50,50));
+    this->addChild(widget2);
+
+    // Add singleton with no auto release
+    // Parent coordinates align with world coordinates
+    this->addChild(_inspector);
+    this->addChild(_selectManager);
+
+    _selectManager->addSelectedWidget(widget);
+    //_selectManager->addSelectedWidget(widget2);
+
     return true;
 }
 
@@ -39,7 +58,10 @@ void TestScene::menuCloseCallback(ax::Object* sender) {}
 TestScene::TestScene() {}
 
 TestScene::~TestScene()
-{}
+{
+    _inspector->destroyInstance();
+    _selectManager->destroyInstance();
+}
 
 void TestScene::onEnter() {
     
@@ -70,5 +92,5 @@ void TestScene::onImGuiDraw()
     //    ImGui::Text("Thanks for clicking me!");
     //}
 
-    _inspector->draw();
+    _inspector->drawUI();
 }

@@ -67,8 +67,8 @@ ax::Vec2 getNodePositionInWorldSpace(ax::Node* node)
 
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition)
 {
-    auto rect = node->getBoundingBox();
-    return rect.containsPoint(node->getParent()->convertToNodeSpace(worldPosition));
+    auto rect = node->getBoundingBox(); // aabb is in parent space
+    return rect.containsPoint(node->getParent()->convertToNodeSpace(worldPosition)); // convert world position to parent space and check if it is in the bounding box
 }
 
 void moveNodeToFront(ax::Node* node) {

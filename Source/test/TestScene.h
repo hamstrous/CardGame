@@ -5,11 +5,13 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
-#include "rapidjson/filereadstream.h"'
+#include "rapidjson/filereadstream.h"
 
 #include "core/file/RapidJsonHelper.h"
 
 #include "core/ui/Inspector.h"
+#include "core/ui/SelectManager.h"
+#include "core/object/Widget.h"
 
 #include <map>
 #include <sstream>
@@ -63,7 +65,7 @@ private:
     ax::Vec2 safeOrigin  = safeArea.origin;
 
     Inspector* _inspector = Inspector::getInstance();
-
+    SelectManager* _selectManager = SelectManager::getInstance();
 
     ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();   
 };
