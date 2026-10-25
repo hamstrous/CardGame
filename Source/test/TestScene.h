@@ -1,17 +1,25 @@
 #pragma once
 
 #include "axmol.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/filereadstream.h"'
+
+#include "core/file/RapidJsonHelper.h"
 
 #include <map>
 #include <sstream>
 
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
+using namespace rapidjson;
 
-class ImGuiTestScene : public ax::Scene
+class TestScene : public ax::Scene
 {
 public:
-    CREATE_FUNC(ImGuiTestScene);
+    CREATE_FUNC(TestScene);
     bool init() override;
     void update(float delta) override;
 
@@ -32,13 +40,15 @@ public:
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
 
-    ImGuiTestScene();
-    ~ImGuiTestScene() override;
+    TestScene();
+    ~TestScene() override;
 
     void onEnter() override;
     void onExit() override;
 
     void onImGuiDraw();
+
+    void rapidjsonTest();
 
 private:
     ax::EventListenerKeyboard* _keyboardListener = nullptr;

@@ -4,9 +4,8 @@
 #include "core/scene/MenuScene.h"
 #include "core/scene/RoomScene.h"
 #include "core/scene/LoginScene.h"
-#include "core/scene/TestScene.h"
 #include "game/uno/UnoScene.h"
-#include "test/ImGuiTestScene.h"
+#include "test/TestScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -62,7 +61,7 @@ bool AppDelegate::applicationDidFinishLaunching()
                                     ResolutionPolicy::SHOW_ALL);
 
     // create a scene. it's an autorelease object
-    auto scene = ImGuiTestScene::create();
+    auto scene = TestScene::create();
 
     // run
     director->runWithScene(scene);
