@@ -59,14 +59,16 @@ void TestScene::onExit()
 
 void TestScene::onImGuiDraw()
 {
-    ImGui::Text("FPS=%.1f", 1.f / ImGui::GetIO().DeltaTime);
+    //ImGui::Text("FPS=%.1f", 1.f / ImGui::GetIO().DeltaTime);
 
-    static int clicked = 0;
-    if (ImGui::Button("Button"))
-        clicked++;
-    if (clicked & 1)
-    {
-        ImGui::SameLine();
-        ImGui::Text("Thanks for clicking me!");
-    }
+    //static int clicked = 0;
+    //if (ImGui::Button("Button"))
+    //    clicked++;
+    //if (clicked & 1)
+    //{
+    //    ImGui::SameLine();
+    //    ImGui::Text("Thanks for clicking me!");
+    //}
+
+    _inspector->draw();
 }

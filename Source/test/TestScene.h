@@ -9,6 +9,8 @@
 
 #include "core/file/RapidJsonHelper.h"
 
+#include "core/ui/Inspector.h"
+
 #include <map>
 #include <sstream>
 
@@ -60,6 +62,7 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
+    Inspector* _inspector = Inspector::getInstance();
 
 
     ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();   
