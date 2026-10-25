@@ -68,5 +68,8 @@ void Widget::drawProperties()
     ImGui::DragFloat("X", &this->_position.x, 0.005f);
     ImGui::DragFloat("Y", &this->_position.y, 0.005f);
 
-    setPosition(this->_position);
+    // Mark the transform as dirty to ensure the changes take effect
+    // This is how axmol's Nodee work
+    _transformUpdated = _transformDirty = _inverseDirty = true;
+    _usingNormalizedPosition                            = false;
 }   
