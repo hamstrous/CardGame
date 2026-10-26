@@ -7,11 +7,14 @@
 USING_NS_AX_EXT;
 using namespace helper;
 
+int Widget::_count = 0;
+
 Widget* Widget::create()
 {
     Widget* widget = new (std::nothrow) Widget();
     if (widget && widget->init())
     {
+        widget->_id = ++_count;
         widget->autorelease();
         return widget;
     }
@@ -33,8 +36,6 @@ bool Widget::init()
 
     _drawNode = ax::DrawNode::create();
     this->addChild(_drawNode);
-
-    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
 
     scheduleUpdate();
     return true;
@@ -65,8 +66,10 @@ void Widget::setSizeAndDraw(const ax::Size& size) {
 
 void Widget::drawProperties()
 {
+    ImGui::PushID(this->getId().c_str());
     ImGui::DragFloat("X", &this->_position.x, 0.005f);
     ImGui::DragFloat("Y", &this->_position.y, 0.005f);
+    ImGui::PopID();
 
     // Mark the transform as dirty to ensure the changes take effect
     // This is how axmol's Nodee work

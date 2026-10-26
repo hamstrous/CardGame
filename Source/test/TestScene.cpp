@@ -44,7 +44,7 @@ bool TestScene::init()
     this->addChild(_selectManager);
 
     _selectManager->addSelectedWidget(widget);
-    //_selectManager->addSelectedWidget(widget2);
+    _selectManager->addSelectedWidget(widget2);
 
     return true;
 }
