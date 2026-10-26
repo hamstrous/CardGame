@@ -45,7 +45,9 @@ public:
 protected:
     void markTransformDirty()
     {
+        this->_rotationZ_Y = this->_rotationZ_X;
         _transformUpdated = _transformDirty = _inverseDirty = true;
+        _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
         updateRotationQuat();  // for updating rotation
     }
 

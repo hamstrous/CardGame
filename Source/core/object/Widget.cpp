@@ -49,7 +49,7 @@ void Widget::update(float delta) {
 
     _placeholderVisual->clear();
     _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-    _placeholderVisual->drawPoint(Vec2(0, 0), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
+    _placeholderVisual->drawPoint(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
 }
 
 bool Widget::onMouseDown(ax::Event* event)
@@ -76,11 +76,13 @@ void Widget::drawProperties()
 
     ImGui::DragFloat("Rotation X", &this->_rotationX, 0.5f);
     ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
-    if(ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f))
-        this->_rotationZ_Y = this->_rotationZ_X;
+    ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f);
 
     ImGui::DragFloat("Scale X", &this->_scaleX, 0.5f);
     ImGui::DragFloat("Scale Y", &this->_scaleY, 0.5f);
+
+    ImGui::SliderFloat("Anchor X", &this->_anchorPoint.x, 0.0f, 1.0f);
+    ImGui::SliderFloat("Anchor Y", &this->_anchorPoint.y, 0.0f, 1.0f);
 
     ImGui::PopID();
 
