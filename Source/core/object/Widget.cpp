@@ -33,29 +33,38 @@ bool Widget::init()
 
     _mouseListener = ax::EventListenerMouse::create();
     _mouseListener->onMouseDown = AX_CALLBACK_1(Widget::onMouseDown, this);
+    _mouseListener->onMouseMove = AX_CALLBACK_1(Widget::onMouseMove, this);
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
     _placeholderVisual = ax::DrawNode::create();
     this->addChild(_placeholderVisual);
 
+    _hoverVisual = ax::DrawNode::create();
+    this->addChild(_hoverVisual);
+
     scheduleUpdate();
     return true;
 }
 
 void Widget::update(float delta) {
-    InputManager* InputManager = InputManager::getInstance();
-    InputManager->isWidgetIntersectingRubberBand(this);
+    InputManager* inputManager = InputManager::getInstance();
+    inputManager->isWidgetIntersectingRubberBand(this);
 
     _placeholderVisual->clear();
     _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
     _placeholderVisual->drawPoint(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
+    
 }
 
 bool Widget::onMouseDown(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+
+    if (e->getMouseButton() != ax::EventMouse::MouseButton::BUTTON_LEFT)
+        return false;
+
+    auto mousePos = ax::Vec2(e->getCursorX(), e->getCursorY());
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         AXLOGD("Widget clicked");
@@ -64,6 +73,19 @@ bool Widget::onMouseDown(ax::Event* event)
     }
     return false;  // Propagate to other listeners
 }
+
+bool Widget::onMouseMove(ax::Event* event)
+{
+    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
+    {
+        InputManager::getInstance()->hoveringInsideWidget(this);
+        return true;  // Event swallowed
+    }
+    return false;  // Propagate to other listeners
+}
+
 
 void Widget::drawProperties()
 {
@@ -88,3 +110,19 @@ void Widget::drawProperties()
 
     markTransformDirty();
 }   
+
+void Widget::drawHoverVisual()
+{
+    if (_hoverVisual == nullptr)
+        return;
+    _hoverVisual->clear();
+    Vec2 offset = Vec2(2.f, 2.f);
+    _hoverVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::RED, 2.f);
+}
+
+void Widget::clearHoverVisual()
+{
+    if (_hoverVisual == nullptr)
+        return;
+    _hoverVisual->clear();
+}

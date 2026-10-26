@@ -24,10 +24,12 @@ public:
     ~Widget() = default;
 
     virtual bool onMouseDown(ax::Event* event);
-    // for testing
-    void setSizeAndDraw(const ax::Size& size);
+    virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
+
+    virtual void drawHoverVisual();
+    void clearHoverVisual();
 
     int getCount() const { return _count; }
 
@@ -71,6 +73,12 @@ protected:
 
 
     EventListenerMouse* _mouseListener;
+
+
+    //Hover
+    DrawNode* _hoverVisual;
+
+private:
     DrawNode* _placeholderVisual;
 
 };

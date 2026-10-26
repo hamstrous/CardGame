@@ -20,7 +20,8 @@ public:
 
     bool onMouseDownBefore(Event* event);
     bool onMouseDownAfter(Event* event);
-    bool onMouseMove(Event* event);
+    bool onMouseMoveBefore(Event* event);
+    bool onMouseMoveAfter(Event* event);
     bool onMouseUp(Event* event);
 
     bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
@@ -35,40 +36,38 @@ public:
     void updateDragging(const Vec2& currentPoint);
 
     bool isWidgetIntersectingRubberBand(Widget* widget);
+    bool isWidgetSelected(Widget* widget) {
+        return _selectedWidgets.find(widget) != _selectedWidgets.end();
+    }
 
     void addSelectedWidget(Widget* widget) {
         _selectedWidgets.insert(widget);
+        widget->drawHoverVisual();
     }
 
     void removeSelectedWidget(Widget* widget) {
         _selectedWidgets.erase(widget);
+        widget->clearHoverVisual();
+    }
+
+    void clearSelectedWidgets()
+    {
+        for (auto widget : _selectedWidgets)
+        {
+            widget->clearHoverVisual();
+        }
+        _selectedWidgets.clear();
     }
 
     set<Widget*>& getSelectedWidgets() { return _selectedWidgets; }
+    Vec2 getMousePosition() const { return _mousePreviousPosition; }
+    Widget* getHoveringWidget() const { return _hoveringWidget; }
 
     bool isDragging() const { return _dragging; }
     bool isRubberBanding() const { return _rubberBanding; }
 
-    void justClickedInsideWidget(Widget* widget) {
-        _justClickedInsideWidget = true;
-
-        // If click on the same set of selected widgets
-        // Then we can drag all
-        // Else this is the new selected widget
-
-        bool isShiftPressed = _pressingKeys.find(EventKeyboard::KeyCode::KEY_SHIFT) != _pressingKeys.end();
-
-        if (_selectedWidgets.find(widget) == _selectedWidgets.end() && !isShiftPressed)
-        {
-            _selectedWidgets.clear();
-            _selectedWidgets.insert(widget);
-        }
-        else if (isShiftPressed)
-        {
-            _selectedWidgets.insert(widget);
-        }
-        startDragging();
-    }
+    void justClickedInsideWidget(Widget* widget);
+    void hoveringInsideWidget(Widget* widget);
 
 private:
     static InputManager* _instance;
@@ -79,6 +78,7 @@ private:
 
     DrawNode* _drawNode;  // For drawing rubber band selection
     set<Widget*> _selectedWidgets;  // Store selected widgets
+    Widget* _hoveringWidget = nullptr;
 
     set<EventKeyboard::KeyCode> _pressingKeys;
 

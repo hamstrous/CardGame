@@ -14,13 +14,14 @@ InputManager::InputManager()
 
     _mouseAfterListener = ax::EventListenerMouse::create();
     _mouseAfterListener->onMouseDown = AX_CALLBACK_1(InputManager::onMouseDownAfter, this);
-    _mouseAfterListener->onMouseMove = AX_CALLBACK_1(InputManager::onMouseMove, this);
+    _mouseAfterListener->onMouseMove = AX_CALLBACK_1(InputManager::onMouseMoveAfter, this);
     _mouseAfterListener->onMouseUp = AX_CALLBACK_1(InputManager::onMouseUp, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_mouseAfterListener, 1);  // get called after scene graph
 
 
     _mouseBeforeListener = ax::EventListenerMouse::create();
     _mouseBeforeListener->onMouseDown = AX_CALLBACK_1(InputManager::onMouseDownBefore, this);
+    _mouseBeforeListener->onMouseMove  = AX_CALLBACK_1(InputManager::onMouseMoveBefore, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_mouseBeforeListener, -1);  // get called before scene graph
 
     _keyboardListener = ax::EventListenerKeyboard::create();
@@ -72,7 +73,7 @@ bool InputManager::onMouseDownAfter(Event* event)
     return false;
 }
 
-bool InputManager::onMouseMove(Event* event)
+bool InputManager::onMouseMoveBefore(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
@@ -89,6 +90,16 @@ bool InputManager::onMouseMove(Event* event)
 
     _mousePreviousPosition = mousePos;
 
+    return false;
+}
+
+bool InputManager::onMouseMoveAfter(Event* event) {
+    // Not swallowed, mean hovering over nothing
+    if (_hoveringWidget != nullptr)
+    {
+        _hoveringWidget->clearHoverVisual();
+        _hoveringWidget = nullptr;
+    }
     return false;
 }
 
@@ -171,4 +182,38 @@ bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
     }
 
     return isIntersecting;
+}
+
+void InputManager::justClickedInsideWidget(Widget* widget)
+{
+    _justClickedInsideWidget = true;
+
+    // If click on the same set of selected widgets
+    // Then we can drag all
+    // Else this is the new selected widget
+
+    bool isShiftPressed = _pressingKeys.find(EventKeyboard::KeyCode::KEY_SHIFT) != _pressingKeys.end();
+
+    if (_selectedWidgets.find(widget) == _selectedWidgets.end() && !isShiftPressed)
+    {
+        clearSelectedWidgets();
+        addSelectedWidget(widget);
+    }
+    else if (isShiftPressed)
+    {
+        addSelectedWidget(widget);
+    }
+    startDragging();
+}
+
+void InputManager::hoveringInsideWidget(Widget* widget)
+{
+    if (_hoveringWidget == widget)
+        return;
+    if (_hoveringWidget != nullptr)
+    {
+        _hoveringWidget->clearHoverVisual();
+    }
+    _hoveringWidget = widget;
+    _hoveringWidget->drawHoverVisual();    
 }
