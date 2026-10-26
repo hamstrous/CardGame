@@ -43,10 +43,32 @@ public:
     }
 
 protected:
+    void markTransformDirty()
+    {
+        _transformUpdated = _transformDirty = _inverseDirty = true;
+        updateRotationQuat();  // for updating rotation
+    }
+
+
     static int _count;
     int _id;
 
+    // General properties
+    bool _hide = false;
+    bool _scalable = true;
+    bool _rotatable = true;
+        
+    // Edit mode properties
+    bool _hideInEditMode = false;
+
+
+    // Play mode properties
+    bool _allowClick = true;
+    bool _allowDrag  = true;
+    int _enlargeFactor = 0; // pop up a large view when hover; max = 4
+
+
     EventListenerMouse* _mouseListener;
-    DrawNode* _drawNode;
+    DrawNode* _placeholderVisual;
 
 };

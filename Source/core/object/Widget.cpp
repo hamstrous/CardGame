@@ -36,8 +36,8 @@ bool Widget::init()
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    _drawNode = ax::DrawNode::create();
-    this->addChild(_drawNode);
+    _placeholderVisual = ax::DrawNode::create();
+    this->addChild(_placeholderVisual);
 
     scheduleUpdate();
     return true;
@@ -46,6 +46,10 @@ bool Widget::init()
 void Widget::update(float delta) {
     InputManager* InputManager = InputManager::getInstance();
     InputManager->isWidgetIntersectingRubberBand(this);
+
+    _placeholderVisual->clear();
+    _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
+    _placeholderVisual->drawPoint(Vec2(0, 0), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
 }
 
 bool Widget::onMouseDown(ax::Event* event)
@@ -61,24 +65,24 @@ bool Widget::onMouseDown(ax::Event* event)
     return false;  // Propagate to other listeners
 }
 
-void Widget::setSizeAndDraw(const ax::Size& size) {
-    this->setContentSize(size);
-
-    _drawNode->clear();
-    _drawNode->drawRect(ax::Vec2(0, 0), ax::Vec2(size.width, size.height), ax::Color4F::BLACK, 4.f);
-    _drawNode->drawPoint(Vec2(0, 0), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
-
-}
-
 void Widget::drawProperties()
 {
     ImGui::PushID(this->getId().c_str());
-    ImGui::DragFloat("X", &this->_position.x, 0.005f);
-    ImGui::DragFloat("Y", &this->_position.y, 0.005f);
+    ImGui::DragFloat("X", &this->_position.x, 0.5f);
+    ImGui::DragFloat("Y", &this->_position.y, 0.5f);
+
+    ImGui::DragFloat("Width", &this->_contentSize.width, 0.5f);
+    ImGui::DragFloat("Height", &this->_contentSize.height, 0.5f);
+
+    ImGui::DragFloat("Rotation X", &this->_rotationX, 0.5f);
+    ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
+    if(ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f))
+        this->_rotationZ_Y = this->_rotationZ_X;
+
+    ImGui::DragFloat("Scale X", &this->_scaleX, 0.5f);
+    ImGui::DragFloat("Scale Y", &this->_scaleY, 0.5f);
+
     ImGui::PopID();
 
-    // Mark the transform as dirty to ensure the changes take effect
-    // This is how axmol's Node work
-    _transformUpdated = _transformDirty = _inverseDirty = true;
-    _usingNormalizedPosition                            = false;
+    markTransformDirty();
 }   

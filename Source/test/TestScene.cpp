@@ -29,12 +29,12 @@ bool TestScene::init()
     AXLOGD("Converted JSON: {}", jsonString.c_str());
 
     Widget* widget = Widget::create();
-    widget->setSizeAndDraw(ax::Size(100, 100));
+    widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
     this->addChild(widget);
 
     Widget* widget2 = Widget::create();
-    widget2->setSizeAndDraw(ax::Size(100, 100));
+    widget2->setContentSize(ax::Size(100, 100));
     widget2->setPosition(visibleSize / 2 - Vec2(50,50));
     this->addChild(widget2);
 
