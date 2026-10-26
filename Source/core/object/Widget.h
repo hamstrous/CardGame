@@ -35,6 +35,13 @@ public:
 
     virtual std::string getType() const { return "Widget"; }
 
+    Rect getWorldBoundingBox() const {
+        // Axmol v3 has this
+        auto& contentSize = getContentSize();
+        Rect rect         = Rect(0, 0, contentSize.width, contentSize.height);
+        return RectApplyTransform(rect, getNodeToWorldTransform());
+    }
+
 protected:
     static int _count;
     int _id;

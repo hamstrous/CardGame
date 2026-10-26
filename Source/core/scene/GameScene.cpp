@@ -3,7 +3,6 @@
 
 
 using namespace ax;
-using namespace ax::network;
 using namespace std;
 
 GameScene* GameScene::_instance = nullptr;

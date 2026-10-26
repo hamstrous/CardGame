@@ -41,4 +41,6 @@ ax::Vector<T> castToVectorOfType(ax::Vector<V> v)
     return result;
 }
 
+ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB);
+
 }  // namespace helper

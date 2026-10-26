@@ -10,7 +10,7 @@
 #include "core/file/RapidJsonHelper.h"
 
 #include "core/ui/Inspector.h"
-#include "core/ui/SelectManager.h"
+#include "core/ui/InputManager.h"
 #include "core/object/Widget.h"
 
 #include <map>
@@ -65,7 +65,7 @@ private:
     ax::Vec2 safeOrigin  = safeArea.origin;
 
     Inspector* _inspector = Inspector::getInstance();
-    SelectManager* _selectManager = SelectManager::getInstance();
+    InputManager* _selectManager = InputManager::getInstance();
 
     ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();   
 };

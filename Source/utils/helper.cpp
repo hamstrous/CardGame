@@ -40,8 +40,8 @@ std::vector<std::string> getFileNamesInFolder(const std::string& folderPath)
 {
     std::vector<std::string> fileNames;
 
-    auto fileUtils       = ax::FileUtils::getInstance();
-    auto files = fileUtils->listFiles(folderPath);
+    auto fileUtils = ax::FileUtils::getInstance();
+    auto files     = fileUtils->listFiles(folderPath);
 
     for (const auto& file : files)
     {
@@ -67,48 +67,50 @@ ax::Vec2 getNodePositionInWorldSpace(ax::Node* node)
 
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition)
 {
-    auto rect = node->getBoundingBox(); // aabb is in parent space
-    return rect.containsPoint(node->getParent()->convertToNodeSpace(worldPosition)); // convert world position to parent space and check if it is in the bounding box
+    auto rect = node->getBoundingBox();  // aabb is in parent space
+    return rect.containsPoint(node->getParent()->convertToNodeSpace(
+        worldPosition));  // convert world position to parent space and check if it is in the bounding box
 }
 
-void moveNodeToFront(ax::Node* node) {
+void moveNodeToFront(ax::Node* node)
+{
     ax::Node* parent = node->getParent();  // save parent first
     node->retain();  // prevent deallocation because reference count in this instant is only 1 from the scene graph
-    node->removeFromParentAndCleanup(false);          
-    parent->addChild(node); // bring to front    
-    node->release(); // balance the retain, scene graph hold the only reference again
+    node->removeFromParentAndCleanup(false);
+    parent->addChild(node);  // bring to front
+    node->release();         // balance the retain, scene graph hold the only reference again
 }
 
 void setNewParentWithNoSideEffect(ax::Node* child, ax::Node* newParent)
 {
     //// retrieve the node's node-to-world transform before changing parent
-    //auto worldTx = child->getNodeToWorldTransform();
+    // auto worldTx = child->getNodeToWorldTransform();
 
     //// ... perform your changing parent here
-    //child->retain();
-    //child->removeFromParentAndCleanup(false);
-    //newParent->addChild(child);
-    //child->release();
+    // child->retain();
+    // child->removeFromParentAndCleanup(false);
+    // newParent->addChild(child);
+    // child->release();
 
     //// the product of ancestor nodes' parent-to-node transforms
-    //auto productTx = ax::Mat4::IDENTITY;
+    // auto productTx = ax::Mat4::IDENTITY;
 
     //// enumerate upward through the hierarchy
-    //for (auto parent = child->getParent(); parent != nullptr; parent = parent->getParent())
+    // for (auto parent = child->getParent(); parent != nullptr; parent = parent->getParent())
     //{
-    //    // matrix multiplication
-    //    productTx *= parent->getParentToNodeTransform();
-    //}
+    //     // matrix multiplication
+    //     productTx *= parent->getParentToNodeTransform();
+    // }
 
     //// deduce the node's node-to-parent transform after changing parent
-    //ax::Mat4 newNodeToParentTx = productTx * worldTx;
-    //child->setNodeToParentTransform(newNodeToParentTx);
+    // ax::Mat4 newNodeToParentTx = productTx * worldTx;
+    // child->setNodeToParentTransform(newNodeToParentTx);
 
-    //ax::Vec3 newScale;
-    //ax::Quaternion newRotation;
-    //ax::Vec3 newTranslation;
+    // ax::Vec3 newScale;
+    // ax::Quaternion newRotation;
+    // ax::Vec3 newTranslation;
 
-    //newNodeToParentTx.decompose(&newScale, &newRotation, &newTranslation);
+    // newNodeToParentTx.decompose(&newScale, &newRotation, &newTranslation);
 
     // child->setScaleX(newScale.x);
     // child->setScaleY(newScale.y);
@@ -119,24 +121,30 @@ void setNewParentWithNoSideEffect(ax::Node* child, ax::Node* newParent)
     // child->setPosition(ax::Vec2(newTranslation.x, newTranslation.y));
     // child->setPositionZ(newTranslation.z);
 
-     ax::Vec2 worldPosition = getNodePositionInWorldSpace(child);
-     child->retain();
-     //When an object change parent, the transform values stay the same, but relatively to the parent it change, so
-     //this is for reverting that then use action to animate it smoothly
-     child->setRotation(getWorldRotation(child) - getWorldRotation(newParent));  // To get the absolute difference in rotation between the card and the zone and rotate it accordingly
-    //child->setRotationSkewX(getWorldRoationSkewX(child) - getWorldRoationSkewX(newParent));  // To get the absolute
-     //difference in rotation between the card and the zone and rotate it accordingly
-    //child->setRotationSkewY(getWorldRoationSkewY(child) - getWorldRoationSkewY(newParent));  // To get the absolute
-     //difference in rotation between the card and the zone and rotate it accordingly
-     ax::Vec2 childScale = getWorldScale(child);
-     ax::Vec2 parentScale = getWorldScale(newParent);
-     child->setScaleX(childScale.x / parentScale.x);  // To get the absolute difference in scale between the card and the zone and scale it accordingly child->setScaleY(childScale.y / parentScale.y);  // To get the absolute difference in scale between the card and the zone and scale it accordingly
-     child->setScaleY(childScale.y / parentScale.y);
+    ax::Vec2 worldPosition = getNodePositionInWorldSpace(child);
+    child->retain();
+    // When an object change parent, the transform values stay the same, but relatively to the parent it change, so
+    // this is for reverting that then use action to animate it smoothly
+    child->setRotation(getWorldRotation(child) -
+                       getWorldRotation(newParent));  // To get the absolute difference in rotation between the card and
+                                                      // the zone and rotate it accordingly
+    // child->setRotationSkewX(getWorldRoationSkewX(child) - getWorldRoationSkewX(newParent));  // To get the absolute
+    // difference in rotation between the card and the zone and rotate it accordingly
+    // child->setRotationSkewY(getWorldRoationSkewY(child) - getWorldRoationSkewY(newParent));  // To get the absolute
+    // difference in rotation between the card and the zone and rotate it accordingly
+    ax::Vec2 childScale  = getWorldScale(child);
+    ax::Vec2 parentScale = getWorldScale(newParent);
+    child->setScaleX(
+        childScale.x /
+        parentScale.x);  // To get the absolute difference in scale between the card and the zone and scale it
+                         // accordingly child->setScaleY(childScale.y / parentScale.y);  // To get the absolute
+                         // difference in scale between the card and the zone and scale it accordingly
+    child->setScaleY(childScale.y / parentScale.y);
 
-     child->removeFromParentAndCleanup(false);
-     newParent->addChild(child);
-     child->setPosition(newParent->convertToNodeSpace(worldPosition));
-     child->release();
+    child->removeFromParentAndCleanup(false);
+    newParent->addChild(child);
+    child->setPosition(newParent->convertToNodeSpace(worldPosition));
+    child->release();
 }
 
 void addChildToCurrentSceneWithNoSideEffect(ax::Node* child)
@@ -193,5 +201,14 @@ ax::Vec2 getWorldScale(ax::Node* node)
     }
     return scale;
 }
+
+ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB)
+{
+    float minX = std::min(pointA.x, pointB.x);
+    float minY = std::min(pointA.y, pointB.y);
+    float maxX = std::max(pointA.x, pointB.x);
+    float maxY = std::max(pointA.y, pointB.y);
+    return ax::Rect(minX, minY, maxX - minX, maxY - minY);
+} 
 
 }  // namespace helper

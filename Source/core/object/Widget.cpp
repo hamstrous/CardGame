@@ -3,6 +3,8 @@
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
 
+#include "core/ui/InputManager.h"
+
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
 using namespace helper;
@@ -41,7 +43,10 @@ bool Widget::init()
     return true;
 }
 
-void Widget::update(float delta) {}
+void Widget::update(float delta) {
+    InputManager* InputManager = InputManager::getInstance();
+    InputManager->isWidgetIntersectingRubberBand(this);
+}
 
 bool Widget::onMouseDown(ax::Event* event)
 {
@@ -50,6 +55,7 @@ bool Widget::onMouseDown(ax::Event* event)
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         AXLOGD("Widget clicked");
+        InputManager::getInstance()->justClickedInsideWidget(this);
         return true;  // Event swallowed
     }
     return false;  // Propagate to other listeners
@@ -72,7 +78,7 @@ void Widget::drawProperties()
     ImGui::PopID();
 
     // Mark the transform as dirty to ensure the changes take effect
-    // This is how axmol's Nodee work
+    // This is how axmol's Node work
     _transformUpdated = _transformDirty = _inverseDirty = true;
     _usingNormalizedPosition                            = false;
 }   

@@ -1,6 +1,6 @@
 #include "Inspector.h"
 
-#include "SelectManager.h"
+#include "InputManager.h"
 
 Inspector* Inspector::_instance = nullptr;
 
@@ -25,10 +25,10 @@ void Inspector::destroyInstance()
 void Inspector::drawUI() {
     ImGui::Begin("Inspector");
 
-    SelectManager* selectManager = SelectManager::getInstance();
-    if (selectManager)
+    InputManager* InputManager = InputManager::getInstance();
+    if (InputManager)
     {
-        auto selectedWidgets = selectManager->getSelectedWidgets();
+        auto selectedWidgets = InputManager->getSelectedWidgets();
         if (!selectedWidgets.empty())
         {
             for (auto widget : selectedWidgets)

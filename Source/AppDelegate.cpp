@@ -1,10 +1,6 @@
 #include "AppDelegate.h"
 
 #include "MainScene.h"
-#include "core/scene/MenuScene.h"
-#include "core/scene/RoomScene.h"
-#include "core/scene/LoginScene.h"
-#include "game/uno/UnoScene.h"
 #include "test/TestScene.h"
 
 #define USE_AUDIO_ENGINE 1

@@ -6,32 +6,8 @@
 #include "core/object/Zone.h"
 #include "core/event/EventListenerZone.h"
 
-#include "core/rule/Rule.h"
-
-
 class GameScene : public ax::Scene
 {
-public:
-    // must be set before enabling
-    void setRule(Rule* rule) {
-        _rule = rule;
-        this->addChild(_rule);
-        _rule->setPosition(ax::Vec2::ZERO);
-        AXLOGD("Rule set in GameScene, needs rule initialization next");
-    }
-
-    void initRule()
-    {
-        if (_rule != nullptr)
-        {
-            // All the necessary information for the rule to function should be set before calling this method
-            _rule->setPlayerId(_playerId);
-            _rule->setPlayerCount(_playerCount);
-            _rule->setUserName(_userName);
-            AXLOGD("Rule initialized, game is ready");
-        }
-    }
-
 public:
     // Singleton pattern
     // Only one instance of GameScene can exist at a time, and it can be accessed globally for convenience
@@ -71,8 +47,6 @@ protected:
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
     ax::EventListenerMouse* _mouseListener       = nullptr;
     int _sceneID                                 = 0;
-
-    Rule* _rule = nullptr;
 
     ax::Vec2 visibleSize = _director->getVisibleSize();
     ax::Vec2 origin      = _director->getVisibleOrigin();
