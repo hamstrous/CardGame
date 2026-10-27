@@ -203,6 +203,17 @@ void InputManager::endScaling() {
 void InputManager::updateScaling(const Vec2& currentPoint) {
     float deltaX = currentPoint.x - _mousePreviousPosition.x;
     float deltaY = currentPoint.y - _mousePreviousPosition.y;
+    // If anchor point on the top or the left, we need to invert the delta
+    // Because the direction of delta and growth is opposite
+    auto anchorPoint = _scalingWidget->getAnchorPoint();
+    if (anchorPoint.x > 0.5f)
+    {
+        deltaX = -deltaX;
+    }
+    if (anchorPoint.y > 0.5f)
+    {
+        deltaY = -deltaY;
+    }
 
     //test
     _scalingWidget->setContentSize(_scalingWidget->getContentSize() + Size(deltaX * (_scalingX ? 1 : 0), deltaY * (_scalingY ? 1 : 0)));
