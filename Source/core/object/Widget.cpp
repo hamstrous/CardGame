@@ -70,9 +70,17 @@ bool Widget::onMouseDown(ax::Event* event)
         return false;
 
     auto mousePos = ax::Vec2(e->getCursorX(), e->getCursorY());
+
+    auto borderPos = isPointOnBorder(mousePos, 10);
+    if (borderPos != BorderPosition::None)
+    {
+        if(InputManager::getInstance()->justClickedOnWidgetBorder(this, _borderPointsNormalized[borderPos]))
+            return true;
+    }
+
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
-        AXLOGD("Widget clicked");
+        //AXLOGD("Widget clicked");
         InputManager::getInstance()->justClickedInsideWidget(this);
         return true;  // Event swallowed
     }
@@ -154,14 +162,14 @@ void Widget::drawScalableBorder() {
     _scalableBorderVisual->clear();
 
     float offset = 1.f;
-    auto bottomLeft   = getCornerOrBorderPoint(CornerOrBorderPosition::BottomLeft, offset);
-    auto bottomRight  = getCornerOrBorderPoint(CornerOrBorderPosition::BottomRight, offset);
-    auto topLeft      = getCornerOrBorderPoint(CornerOrBorderPosition::TopLeft, offset);
-    auto topRight     = getCornerOrBorderPoint(CornerOrBorderPosition::TopRight, offset);
-    auto leftBorder   = getCornerOrBorderPoint(CornerOrBorderPosition::LeftBorder, offset);
-    auto rightBorder  = getCornerOrBorderPoint(CornerOrBorderPosition::RightBorder, offset);
-    auto topBorder    = getCornerOrBorderPoint(CornerOrBorderPosition::TopBorder, offset);
-    auto bottomBorder = getCornerOrBorderPoint(CornerOrBorderPosition::BottomBorder, offset);
+    auto bottomLeft   = getBorderPoint(BorderPosition::BottomLeft, offset);
+    auto bottomRight  = getBorderPoint(BorderPosition::BottomRight, offset);
+    auto topLeft      = getBorderPoint(BorderPosition::TopLeft, offset);
+    auto topRight     = getBorderPoint(BorderPosition::TopRight, offset);
+    auto leftBorder   = getBorderPoint(BorderPosition::LeftBorder, offset);
+    auto rightBorder  = getBorderPoint(BorderPosition::RightBorder, offset);
+    auto topBorder    = getBorderPoint(BorderPosition::TopBorder, offset);
+    auto bottomBorder = getBorderPoint(BorderPosition::BottomBorder, offset);
 
 
     float dotSize = 4.f;
@@ -194,4 +202,64 @@ void Widget::clearScalableBorder()
         return;
     _scalableBorderVisualActive = false;
     _scalableBorderVisual->clear();
+}
+
+Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
+{
+    float width = this->getContentSize().width;
+    float height = this->getContentSize().height;
+
+    for (auto& [position, normalizedPoint] : _borderPointsNormalized)
+    {
+        Vec2 borderPointLocal = Vec2(normalizedPoint.x * width, normalizedPoint.y * height);
+        Vec2 borderPoint      = this->convertToWorldSpace(borderPointLocal);
+
+        if (point.distance(borderPoint) <= threshold)
+        {
+            return position;
+        }
+    }
+
+    return BorderPosition::None;
+}
+
+Vec2 Widget::getBorderPoint(BorderPosition position, float offset) const
+{
+    Vec2 point;
+    float width   = this->getContentSize().width;
+    float height  = this->getContentSize().height;
+    float centerX = width / 2.f;
+    float centerY = height / 2.f;
+    switch (position)
+    {
+    case BorderPosition::BottomLeft:
+        point = Vec2(0, 0) - Vec2(offset, offset);
+        break;
+    case BorderPosition::BottomRight:
+        point = Vec2(width, 0) + Vec2(offset, -offset);
+        break;
+    case BorderPosition::TopRight:
+        point = Vec2(width, height) + Vec2(offset, offset);
+        break;
+    case BorderPosition::TopLeft:
+        point = Vec2(0, height) + Vec2(-offset, offset);
+        break;
+    case BorderPosition::LeftBorder:
+        point = Vec2(0, centerY) + Vec2(-offset, 0);
+        break;
+    case BorderPosition::RightBorder:
+        point = Vec2(width, centerY) + Vec2(offset, 0);
+        break;
+    case BorderPosition::TopBorder:
+        point = Vec2(centerX, height) + Vec2(0, offset);
+        break;
+    case BorderPosition::BottomBorder:
+        point = Vec2(centerX, 0) + Vec2(0, -offset);
+        break;
+    default:
+        point = Vec2(0, 0);
+        AXLOGD("Widget::getCornerOrBorderPoint: Invalid position enum value");
+        break;
+    }
+    return point + Vec2(offset, offset);
 }

@@ -43,4 +43,6 @@ ax::Vector<T> castToVectorOfType(ax::Vector<V> v)
 
 ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB);
 
+void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAnchorPoint);
+
 }  // namespace helper

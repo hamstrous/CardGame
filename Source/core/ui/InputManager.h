@@ -35,6 +35,10 @@ public:
     void endDragging();
     void updateDragging(const Vec2& currentPoint);
 
+    void startScaling(const Vec2& normalizedBorderPoint);
+    void endScaling();
+    void updateScaling(const Vec2& currentPoint);
+
     bool isWidgetIntersectingRubberBand(Widget* widget);
     bool isWidgetSelected(Widget* widget) {
         return _selectedWidgets.find(widget) != _selectedWidgets.end();
@@ -84,8 +88,10 @@ public:
 
     bool isDragging() const { return _dragging; }
     bool isRubberBanding() const { return _rubberBanding; }
+    bool isScaling() const { return _scaling; }
 
     void justClickedInsideWidget(Widget* widget);
+    bool justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBorderPoint);
     void hoveringInsideWidget(Widget* widget);
 
 private:
@@ -98,13 +104,22 @@ private:
     DrawNode* _drawNode;  // For drawing rubber band selection
     set<Widget*> _selectedWidgets;  // Store selected widgets
     Widget* _hoveringWidget = nullptr;
+    Widget* _scalingWidget  = nullptr;
 
     set<EventKeyboard::KeyCode> _pressingKeys;
 
     Vec2 _startPoint;  // Starting point of the selection rectangle
-    Vec2 _mousePreviousPosition;  // Previous mouse position for dragging
+    Vec2 _mousePreviousPosition;  // Previous mouse position for dragging/scaling/rotating
 
-    bool _justClickedInsideWidget = false;  
-    bool _dragging = false; 
-    bool _rubberBanding = false;
+    bool _justClickedInsideWidget = false;
+    bool _dragging                = false;
+    bool _scaling                 = false;
+    bool _rubberBanding           = false;
+
+    // Scaling related
+    Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
+    Vec2 _previousAnchorPoint;   
+    bool _scalingX = false;
+    bool _scalingY = false;
+
 };

@@ -88,6 +88,11 @@ bool InputManager::onMouseMoveBefore(Event* event)
         updateRubberBandSelection(mousePos);
     }
 
+    if (isScaling())
+    {
+        updateScaling(mousePos);
+    }
+
     _mousePreviousPosition = mousePos;
 
     return false;
@@ -110,6 +115,7 @@ bool InputManager::onMouseUp(Event* event)
     
     endRubberBandSelection(mousePos);
     endDragging();
+    endScaling();
 
     return false;
 }
@@ -163,6 +169,45 @@ void InputManager::updateDragging(const Vec2& currentPoint) {
     }
 }
 
+void InputManager::startScaling(const Vec2& normalizedBorderPoint) {
+    AXASSERT(_scalingWidget != nullptr, "Scaling widget is null");
+    _scaling = true;
+    _normalizedBorderPoint = normalizedBorderPoint;
+    _previousAnchorPoint   = this->getAnchorPoint();
+    //_scalingWidget->setAnchorPoint(Vec2(1, 1) - _normalizedBorderPoint); // Set anchor point to the opposite of the border point
+
+    setNodeAnchorPointPreservePosition(_scalingWidget, Vec2(1, 1) - _normalizedBorderPoint);
+
+    // Because setting anchor point will change the position of the widget (visually), we need to adjust
+    //_scalingWidget->setPosition(_scalingWidget->getPosition() - (_normalizedBorderPoint - _previousAnchorPoint) * _scalingWidget->getContentSize());
+
+    if (_normalizedBorderPoint.x != 0.5f)
+    {
+        _scalingX = true;
+    }
+    if (_normalizedBorderPoint.y != 0.5f)
+    {
+        _scalingY = true;
+    }
+
+}
+
+void InputManager::endScaling() {
+    if (!_scaling)
+        return;
+    _scaling = false;
+    setNodeAnchorPointPreservePosition(_scalingWidget, _previousAnchorPoint);
+    _scalingWidget = nullptr;
+}
+
+void InputManager::updateScaling(const Vec2& currentPoint) {
+    float deltaX = currentPoint.x - _mousePreviousPosition.x;
+    float deltaY = currentPoint.y - _mousePreviousPosition.y;
+
+    //test
+    _scalingWidget->setContentSize(_scalingWidget->getContentSize() + Size(deltaX * (_scalingX ? 1 : 0), deltaY * (_scalingY ? 1 : 0)));
+}
+
 bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
     if (!isRubberBanding())
         return false;
@@ -204,6 +249,19 @@ void InputManager::justClickedInsideWidget(Widget* widget)
         addSelectedWidget(widget);
     }
     startDragging();
+}
+
+bool InputManager::justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBorderPoint) {
+    // Widget must be selected to scale it
+    if (_selectedWidgets.find(widget) == _selectedWidgets.end())
+        return false;
+    // Currently we only support scaling one widget at a time
+    if (_selectedWidgets.size() != 1)
+        return false;
+
+    _scalingWidget = widget;
+    startScaling(normalizedBorderPoint);
+    return true;
 }
 
 void InputManager::hoveringInsideWidget(Widget* widget)

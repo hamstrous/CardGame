@@ -211,4 +211,12 @@ ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB)
     return ax::Rect(minX, minY, maxX - minX, maxY - minY);
 } 
 
+void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAnchorPoint) {
+    ax::Vec2 oldAnchorPointInPoints = node->getAnchorPointInPoints();
+    ax::Vec2 newAnchorPointInPoints = ax::Vec2(node->getContentSize().width * newAnchorPoint.x, node->getContentSize().height * newAnchorPoint.y);
+    node->setAnchorPoint(newAnchorPoint);
+    node->setPosition(node->getPosition() + (newAnchorPointInPoints - oldAnchorPointInPoints));
+}
+
+
 }  // namespace helper
