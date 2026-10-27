@@ -43,11 +43,29 @@ public:
     void addSelectedWidget(Widget* widget) {
         _selectedWidgets.insert(widget);
         widget->drawHoverVisual();
+        CheckAloneScalableWidget();
     }
 
     void removeSelectedWidget(Widget* widget) {
+        widget->clearScalableBorder();
         _selectedWidgets.erase(widget);
         widget->clearHoverVisual();
+        CheckAloneScalableWidget();
+    }
+
+    void CheckAloneScalableWidget()
+    {
+        if (_selectedWidgets.size() == 1)
+        {
+            (*_selectedWidgets.begin())->drawScalableBorder();
+        }
+        else
+        {
+            for (auto widget : _selectedWidgets)
+            {
+                widget->clearScalableBorder();
+            }
+        }
     }
 
     void clearSelectedWidgets()
@@ -55,6 +73,7 @@ public:
         for (auto widget : _selectedWidgets)
         {
             widget->clearHoverVisual();
+            widget->clearScalableBorder();
         }
         _selectedWidgets.clear();
     }

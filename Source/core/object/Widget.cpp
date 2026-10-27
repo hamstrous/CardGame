@@ -42,6 +42,8 @@ bool Widget::init()
 
     _hoverVisual = ax::DrawNode::create();
     this->addChild(_hoverVisual);
+    _scalableBorderVisual = ax::DrawNode::create();
+    this->addChild(_scalableBorderVisual);
 
     scheduleUpdate();
     return true;
@@ -100,21 +102,33 @@ void Widget::drawProperties()
     ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
     ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f);
 
-    ImGui::DragFloat("Scale X", &this->_scaleX, 0.5f);
-    ImGui::DragFloat("Scale Y", &this->_scaleY, 0.5f);
+    ImGui::DragFloat("Scale X", &this->_scaleX, 0.005f);
+    ImGui::DragFloat("Scale Y", &this->_scaleY, 0.005f);
 
-    ImGui::SliderFloat("Anchor X", &this->_anchorPoint.x, 0.0f, 1.0f);
-    ImGui::SliderFloat("Anchor Y", &this->_anchorPoint.y, 0.0f, 1.0f);
+    ImGui::DragFloat("Anchor X", &this->_anchorPoint.x, 0.005f);
+    ImGui::DragFloat("Anchor Y", &this->_anchorPoint.y, 0.005f);
 
     ImGui::PopID();
 
     markTransformDirty();
+}
+
+void Widget::redrawVisual() {
+    if (_hoverVisualActive)
+    {
+        drawHoverVisual();
+    }
+    if (_scalableBorderVisualActive)
+    {
+        drawScalableBorder();
+    }
 }   
 
 void Widget::drawHoverVisual()
 {
     if (_hoverVisual == nullptr)
         return;
+    _hoverVisualActive = true;
     _hoverVisual->clear();
     Vec2 offset = Vec2(2.f, 2.f);
     _hoverVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::RED, 2.f);
@@ -124,5 +138,46 @@ void Widget::clearHoverVisual()
 {
     if (_hoverVisual == nullptr)
         return;
+    _hoverVisualActive = false;
     _hoverVisual->clear();
+}
+
+void Widget::drawScalableBorder() {
+    if (_scalableBorderVisual == nullptr)
+        return;
+
+    _scalableBorderVisualActive = true;
+
+    _scalableBorderVisual->clear();
+    float offset = 1.f;
+    float dotSize = 8.f;
+    // Draw a dot in 4 corners
+    _scalableBorderVisual->drawPoint(Vec2(0, 0), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
+    _scalableBorderVisual->drawPoint(Vec2(this->getContentSize().width, 0), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
+    _scalableBorderVisual->drawPoint(Vec2(0, this->getContentSize().height), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
+    _scalableBorderVisual->drawPoint(Vec2(this->getContentSize().width, this->getContentSize().height), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
+
+    // Draw a short line in the middle of each edge
+    float lineLength = 5.f;
+    const float halfLineLength = lineLength / 2.f;
+    float width                = this->getContentSize().width;
+    float height               = this->getContentSize().height;
+    float centerX              = width / 2.f;
+    float centerY              = height / 2.f;
+    _scalableBorderVisual->drawLine(Vec2(centerX - halfLineLength, 0), Vec2(centerX + halfLineLength, 0),
+                                    ax::Color4F::WHITE, 8.f);
+    _scalableBorderVisual->drawLine(Vec2(0, centerY - halfLineLength), Vec2(0, centerY + halfLineLength),
+                                    ax::Color4F::WHITE, 8.f);
+    _scalableBorderVisual->drawLine(Vec2(centerX - halfLineLength, height), Vec2(centerX + halfLineLength, height),
+                                    ax::Color4F::WHITE, 8.f);
+    _scalableBorderVisual->drawLine(Vec2(width, centerY - halfLineLength), Vec2(width, centerY + halfLineLength),
+                                    ax::Color4F::WHITE, 8.f);
+}
+
+void Widget::clearScalableBorder()
+{
+    if (_scalableBorderVisual == nullptr)
+        return;
+    _scalableBorderVisualActive = false;
+    _scalableBorderVisual->clear();
 }

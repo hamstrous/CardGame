@@ -27,9 +27,19 @@ public:
     virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
+    virtual void redrawVisual();
 
     virtual void drawHoverVisual();
     void clearHoverVisual();
+
+    virtual void drawScalableBorder();
+    void clearScalableBorder();
+
+    void clearVisuals()
+    {
+        clearHoverVisual();
+        clearScalableBorder();
+    }
 
     int getCount() const { return _count; }
 
@@ -51,6 +61,7 @@ protected:
         _transformUpdated = _transformDirty = _inverseDirty = true;
         _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
         updateRotationQuat();  // for updating rotation
+        redrawVisual();
     }
 
 
@@ -74,9 +85,11 @@ protected:
 
     EventListenerMouse* _mouseListener;
 
-
-    //Hover
+    //Visuals
     DrawNode* _hoverVisual;
+    DrawNode* _scalableBorderVisual;
+    bool _hoverVisualActive = false;
+    bool _scalableBorderVisualActive = false;
 
 private:
     DrawNode* _placeholderVisual;
