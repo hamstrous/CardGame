@@ -38,11 +38,14 @@ bool Widget::init()
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
     _placeholderVisual = ax::DrawNode::create();
+    _placeholderVisual->properties.setDrawOrder(true);
     this->addChild(_placeholderVisual);
 
     _hoverVisual = ax::DrawNode::create();
+    _hoverVisual->properties.setDrawOrder(true);
     this->addChild(_hoverVisual);
     _scalableBorderVisual = ax::DrawNode::create();
+    _scalableBorderVisual->properties.setDrawOrder(true);
     this->addChild(_scalableBorderVisual);
 
     scheduleUpdate();
@@ -55,7 +58,7 @@ void Widget::update(float delta) {
 
     _placeholderVisual->clear();
     _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-    _placeholderVisual->drawPoint(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED, DrawNode::PointType::Circle);
+    _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
     
 }
 
@@ -149,13 +152,24 @@ void Widget::drawScalableBorder() {
     _scalableBorderVisualActive = true;
 
     _scalableBorderVisual->clear();
+
     float offset = 1.f;
-    float dotSize = 8.f;
+    auto bottomLeft   = getCornerOrBorderPoint(CornerOrBorderPosition::BottomLeft, offset);
+    auto bottomRight  = getCornerOrBorderPoint(CornerOrBorderPosition::BottomRight, offset);
+    auto topLeft      = getCornerOrBorderPoint(CornerOrBorderPosition::TopLeft, offset);
+    auto topRight     = getCornerOrBorderPoint(CornerOrBorderPosition::TopRight, offset);
+    auto leftBorder   = getCornerOrBorderPoint(CornerOrBorderPosition::LeftBorder, offset);
+    auto rightBorder  = getCornerOrBorderPoint(CornerOrBorderPosition::RightBorder, offset);
+    auto topBorder    = getCornerOrBorderPoint(CornerOrBorderPosition::TopBorder, offset);
+    auto bottomBorder = getCornerOrBorderPoint(CornerOrBorderPosition::BottomBorder, offset);
+
+
+    float dotSize = 4.f;
     // Draw a dot in 4 corners
-    _scalableBorderVisual->drawPoint(Vec2(0, 0), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
-    _scalableBorderVisual->drawPoint(Vec2(this->getContentSize().width, 0), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
-    _scalableBorderVisual->drawPoint(Vec2(0, this->getContentSize().height), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
-    _scalableBorderVisual->drawPoint(Vec2(this->getContentSize().width, this->getContentSize().height), dotSize, ax::Color4F::WHITE, DrawNode::PointType::Circle);
+    _scalableBorderVisual->drawDot(bottomLeft, dotSize, ax::Color4F::WHITE);
+    _scalableBorderVisual->drawDot(bottomRight, dotSize, ax::Color4F::WHITE);
+    _scalableBorderVisual->drawDot(topLeft, dotSize, ax::Color4F::WHITE);
+    _scalableBorderVisual->drawDot(topRight, dotSize, ax::Color4F::WHITE);
 
     // Draw a short line in the middle of each edge
     float lineLength = 5.f;
@@ -164,13 +178,13 @@ void Widget::drawScalableBorder() {
     float height               = this->getContentSize().height;
     float centerX              = width / 2.f;
     float centerY              = height / 2.f;
-    _scalableBorderVisual->drawLine(Vec2(centerX - halfLineLength, 0), Vec2(centerX + halfLineLength, 0),
+    _scalableBorderVisual->drawLine(leftBorder - Vec2(0, halfLineLength), leftBorder + Vec2(0, halfLineLength),
                                     ax::Color4F::WHITE, 8.f);
-    _scalableBorderVisual->drawLine(Vec2(0, centerY - halfLineLength), Vec2(0, centerY + halfLineLength),
+    _scalableBorderVisual->drawLine(topBorder - Vec2(halfLineLength, 0), topBorder + Vec2(halfLineLength, 0),
                                     ax::Color4F::WHITE, 8.f);
-    _scalableBorderVisual->drawLine(Vec2(centerX - halfLineLength, height), Vec2(centerX + halfLineLength, height),
+    _scalableBorderVisual->drawLine(rightBorder - Vec2(0, halfLineLength), rightBorder + Vec2(0, halfLineLength),
                                     ax::Color4F::WHITE, 8.f);
-    _scalableBorderVisual->drawLine(Vec2(width, centerY - halfLineLength), Vec2(width, centerY + halfLineLength),
+    _scalableBorderVisual->drawLine(bottomBorder - Vec2(halfLineLength, 0), bottomBorder + Vec2(halfLineLength, 0),
                                     ax::Color4F::WHITE, 8.f);
 }
 

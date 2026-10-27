@@ -64,6 +64,59 @@ protected:
         redrawVisual();
     }
 
+    enum CornerOrBorderPosition
+    {
+        BottomLeft,
+        BottomRight,
+        TopRight,
+        TopLeft,
+        LeftBorder,
+        RightBorder,
+        TopBorder,
+        BottomBorder
+    };
+
+    Vec2 getCornerOrBorderPoint(CornerOrBorderPosition position, float offset = 0.f) const
+    {
+        Vec2 point;
+        float width   = this->getContentSize().width;
+        float height  = this->getContentSize().height;
+        float centerX = width / 2.f;
+        float centerY = height / 2.f;
+        switch (position)
+        {
+        case CornerOrBorderPosition::BottomLeft: 
+            point = Vec2(0, 0) - Vec2(offset, offset);
+            break;
+        case CornerOrBorderPosition::BottomRight:  
+            point = Vec2(width, 0) + Vec2(offset, -offset);
+            break;
+        case CornerOrBorderPosition::TopRight: 
+            point = Vec2(width, height) + Vec2(offset, offset);
+            break;
+        case CornerOrBorderPosition::TopLeft:
+            point = Vec2(0, height) + Vec2(-offset, offset);
+            break;
+        case CornerOrBorderPosition::LeftBorder:
+            point = Vec2(0, centerY) + Vec2(-offset, 0);
+            break;
+        case CornerOrBorderPosition::RightBorder:
+            point = Vec2(width, centerY) + Vec2(offset, 0);
+            break;
+        case CornerOrBorderPosition::TopBorder:
+            point = Vec2(centerX, height) + Vec2(0, offset);
+            break;
+        case CornerOrBorderPosition::BottomBorder:
+            point = Vec2(centerX, 0) + Vec2(0, -offset);
+            break;
+        default:
+            point = Vec2(0, 0);
+            AXLOGD("Widget::getCornerOrBorderPoint: Invalid position enum value");
+            break;
+        }
+        return point + Vec2(offset, offset);
+    }
+
 
     static int _count;
     int _id;
@@ -90,6 +143,8 @@ protected:
     DrawNode* _scalableBorderVisual;
     bool _hoverVisualActive = false;
     bool _scalableBorderVisualActive = false;
+
+
 
 private:
     DrawNode* _placeholderVisual;
