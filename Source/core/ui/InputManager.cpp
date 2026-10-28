@@ -93,6 +93,11 @@ bool InputManager::onMouseMoveBefore(Event* event)
         updateScaling(mousePos);
     }
 
+    if(isRotating())
+    {
+        updateRotating(mousePos);
+    }
+    
     _mousePreviousPosition = mousePos;
 
     return false;
@@ -117,6 +122,7 @@ bool InputManager::onMouseUp(Event* event)
     endRubberBandSelection(mousePos);
     endDragging();
     endScaling();
+    endRotating();
 
     return false;
 }
@@ -148,9 +154,9 @@ void InputManager::endRubberBandSelection(const Vec2& endPoint) {
     _drawNode->setVisible(false);
 }
 
-void InputManager::updateRubberBandSelection(const Vec2& currentPoint) {
+void InputManager::updateRubberBandSelection(const Vec2& mousePosition) {
     _drawNode->clear();
-    _drawNode->drawRect(_startPoint, currentPoint, Color4F::BLUE);
+    _drawNode->drawRect(_startPoint, mousePosition, Color4F::BLUE);
 }
 
 void InputManager::startDragging() {
@@ -161,9 +167,9 @@ void InputManager::endDragging() {
     _dragging = false;
 }
 
-void InputManager::updateDragging(const Vec2& currentPoint) {
+void InputManager::updateDragging(const Vec2& mousePosition) {
     // Move every selected widget by the delta of the mouse movement
-    Vec2 delta = currentPoint - _mousePreviousPosition;
+    Vec2 delta = mousePosition - _mousePreviousPosition;
     for (auto widget : _selectedWidgets)
     {
         widget->setPosition(widget->getPosition() + delta);
@@ -171,49 +177,39 @@ void InputManager::updateDragging(const Vec2& currentPoint) {
 }
 
 void InputManager::startScaling(const Vec2& normalizedBorderPoint) {
-    AXASSERT(_scalingWidget != nullptr, "Scaling widget is null");
+    AXASSERT(_selectedAloneWidget != nullptr, "Scaling widget is null");
     _scaling = true;
     _normalizedBorderPoint = normalizedBorderPoint;
     _previousAnchorPoint   = this->getAnchorPoint();
     //_scalingWidget->setAnchorPoint(Vec2(1, 1) - _normalizedBorderPoint); // Set anchor point to the opposite of the border point
 
-    setNodeAnchorPointPreservePosition(_scalingWidget, Vec2(1, 1) - _normalizedBorderPoint);
+    setNodeAnchorPointPreservePosition(_selectedAloneWidget, Vec2(1, 1) - _normalizedBorderPoint);
 
     // Because setting anchor point will change the position of the widget (visually), we need to adjust
     //_scalingWidget->setPosition(_scalingWidget->getPosition() - (_normalizedBorderPoint - _previousAnchorPoint) * _scalingWidget->getContentSize());
-
-    if (_normalizedBorderPoint.x != 0.5f)
-    {
-        _scalingX = true;
-    }
-    if (_normalizedBorderPoint.y != 0.5f)
-    {
-        _scalingY = true;
-    }
-
 }
 
 void InputManager::endScaling() {
     if (!_scaling)
         return;
     _scaling = false;
-    setNodeAnchorPointPreservePosition(_scalingWidget, _previousAnchorPoint);
-    _scalingWidget = nullptr;
+    setNodeAnchorPointPreservePosition(_selectedAloneWidget, _previousAnchorPoint);
+    _selectedAloneWidget = nullptr;
 }
 
-void InputManager::updateScaling(const Vec2& currentPoint) {
-    Size size = _scalingWidget->getContentSize();
-    float width = _scalingWidget->getContentSize().width;
-    float height = _scalingWidget->getContentSize().height;
-    Vec2 anchorPoint  = _scalingWidget->getAnchorPoint();
+void InputManager::updateScaling(const Vec2& mousePosition) {
+    Size size = _selectedAloneWidget->getContentSize();
+    float width = _selectedAloneWidget->getContentSize().width;
+    float height = _selectedAloneWidget->getContentSize().height;
+    Vec2 anchorPoint  = _selectedAloneWidget->getAnchorPoint();
     Vec2 opositeAnchorPoint = Vec2(1, 1) - _normalizedBorderPoint;
 
-    Vec2 pointA   = _scalingWidget->convertToWorldSpace((Vec2(1, 1) - _normalizedBorderPoint) * size);
-    Vec2 pointB   = _scalingWidget->convertToWorldSpace(_normalizedBorderPoint * size);
+    Vec2 pointA   = _selectedAloneWidget->convertToWorldSpace((Vec2(1, 1) - _normalizedBorderPoint) * size);
+    Vec2 pointB   = _selectedAloneWidget->convertToWorldSpace(_normalizedBorderPoint * size);
     Vec2 vectorAB = pointB - pointA;
     Vec3 line   = getLineEquationFromTwoPoints(pointA, pointB);
     Vec2 pendicularIntersectedPoint = getSolutionForLineIntersection(
-        line, Vec3(vectorAB.x, vectorAB.y, -(vectorAB.x * currentPoint.x + vectorAB.y * currentPoint.y))
+        line, Vec3(vectorAB.x, vectorAB.y, -(vectorAB.x * mousePosition.x + vectorAB.y * mousePosition.y))
     );
 
     float deltaX = pendicularIntersectedPoint.x - pointB.x;
@@ -227,8 +223,34 @@ void InputManager::updateScaling(const Vec2& currentPoint) {
         deltaY = -deltaY;
     }
 
-    _scalingWidget->setContentSize(Size(width + deltaX, height + deltaY));
+    _selectedAloneWidget->setContentSize(Size(width + deltaX, height + deltaY));
     
+}
+
+void InputManager::startRotating() {
+    _rotating = true;
+    _previousAnchorPoint = _selectedAloneWidget->getAnchorPoint();
+    setNodeAnchorPointPreservePosition(_selectedAloneWidget, Vec2(0.5f, 0.5f));
+}
+
+void InputManager::endRotating() {
+    if (!_rotating)
+        return;
+    _rotating = false;
+    setNodeAnchorPointPreservePosition(_selectedAloneWidget, _previousAnchorPoint);
+    _selectedAloneWidget = nullptr;
+}
+
+void InputManager::updateRotating(const Vec2& mousePosition) {
+    Vec2 widgetCenter = _selectedAloneWidget->convertToWorldSpace(_selectedAloneWidget->getAnchorPointInPoints());
+
+    Vec2 vectorA = mousePosition - widgetCenter;
+    Vec2 vectorB = _mousePreviousPosition - widgetCenter;
+
+    float offsetAngleinRad = vectorA.getAngle(vectorB);
+    float offsetAngleinDeg = AX_RADIANS_TO_DEGREES(offsetAngleinRad);
+
+    _selectedAloneWidget->setRotation(_selectedAloneWidget->getRotation() + offsetAngleinDeg);
 }
 
 bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
@@ -282,8 +304,22 @@ bool InputManager::justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBord
     if (_selectedWidgets.size() != 1)
         return false;
 
-    _scalingWidget = widget;
+    _selectedAloneWidget = widget;
     startScaling(normalizedBorderPoint);
+    return true;
+}
+
+bool InputManager::justClickedOnWidgetCircle(Widget* widget)
+{
+    // Widget must be selected to scale it
+    if (_selectedWidgets.find(widget) == _selectedWidgets.end())
+        return false;
+    // Currently we only support scaling one widget at a time
+    if (_selectedWidgets.size() != 1)
+        return false;
+
+    _selectedAloneWidget = widget;
+    startRotating();
     return true;
 }
 

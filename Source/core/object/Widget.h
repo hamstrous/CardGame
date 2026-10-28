@@ -48,13 +48,14 @@ public:
     virtual void drawScalableBorder();
     void clearScalableBorder();
 
-    virtual void drawRotatableCircleVisual();
-    void clearRotatableCircleVisual();
+    virtual void drawRotatableCircle();
+    void clearRotatableCircle();
 
     void clearVisuals()
     {
         clearHoverVisual();
         clearScalableBorder();
+        clearRotatableCircle();
     }
 
     int getCount() const { return _count; }
@@ -71,8 +72,6 @@ public:
     }
 
 protected:
-    BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
-
     void markTransformDirty()
     {
         this->_rotationZ_Y = this->_rotationZ_X;
@@ -82,11 +81,16 @@ protected:
         redrawVisual();
     }
 
+    BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
+    bool isPointOnRotatableCircle(const Vec2& point, float threshold = 10.f) const;
+
     std::unordered_map<BorderPosition, Vec2> _borderPointsNormalized = {
         {BorderPosition::BottomLeft, Vec2(0, 0)},    {BorderPosition::BottomRight, Vec2(1, 0)},
         {BorderPosition::TopRight, Vec2(1, 1)},      {BorderPosition::TopLeft, Vec2(0, 1)},
         {BorderPosition::LeftBorder, Vec2(0, 0.5f)}, {BorderPosition::RightBorder, Vec2(1, 0.5f)},
         {BorderPosition::TopBorder, Vec2(0.5f, 1)},  {BorderPosition::BottomBorder, Vec2(0.5f, 0)}};
+
+    const Vec2 _rotatableCircleNormalized = Vec2(0.5f, -0.2f);
 
     Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
 

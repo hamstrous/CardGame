@@ -20,21 +20,21 @@ bool TestScene::init()
     //RapidJSON
     AXLOGD("TestScene::init");
 
-    RapidJsonHelper helper;
-    Document _document;
+    //RapidJsonHelper helper;
+    //Document _document;
 
-    helper.getDocumentFromFile("save/test.json", _document);
-    //AXLOGD("{}", _document["_id"]);
-    std::string jsonString = helper.convertDocumentToString(_document);
-    AXLOGD("Converted JSON: {}", jsonString.c_str());
+    //helper.getDocumentFromFile("save/test.json", _document);
+    ////AXLOGD("{}", _document["_id"]);
+    //std::string jsonString = helper.convertDocumentToString(_document);
+    //AXLOGD("Converted JSON: {}", jsonString.c_str());
 
     Widget* widget = Widget::create();
     widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
     this->addChild(widget);
-    auto sprite = Sprite::create("card/Card Back 1.png");
-    sprite->getTexture()->setAliasTexParameters();  // nearest-neighbor
-    widget->addChild(sprite);
+    //auto sprite = Sprite::create("card/Card Back 1.png");
+    //sprite->getTexture()->setAliasTexParameters();  // nearest-neighbor
+    //widget->addChild(sprite);
 
 
     Widget* widget2 = Widget::create();
@@ -47,6 +47,9 @@ bool TestScene::init()
     this->addChild(_inspector);
     this->addChild(_selectManager);
 
+    Vec2 temp(0, 1);
+    temp = temp.rotateByAngle(Vec2::ZERO, -AX_DEGREES_TO_RADIANS(90));
+    AXLOGD("Rotated Vec2: ({}, {})", temp.x, temp.y);
     return true;
 }
 

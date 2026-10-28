@@ -215,7 +215,10 @@ void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAncho
     ax::Vec2 oldAnchorPointInPoints = node->getAnchorPointInPoints();
     ax::Vec2 newAnchorPointInPoints = ax::Vec2(node->getContentSize().width * newAnchorPoint.x, node->getContentSize().height * newAnchorPoint.y);
     node->setAnchorPoint(newAnchorPoint);
-    node->setPosition(node->getPosition() + (newAnchorPointInPoints - oldAnchorPointInPoints));
+
+    ax::Vec2 positionDelta = newAnchorPointInPoints - oldAnchorPointInPoints;
+    positionDelta.rotate(ax::Vec2::ZERO, AX_DEGREES_TO_RADIANS(-node->getRotation()));
+    node->setPosition(node->getPosition() + positionDelta);
 }
 
 ax::Vec3 getLineEquationFromTwoPoints(const ax::Vec2& pointA, const ax::Vec2& pointB)

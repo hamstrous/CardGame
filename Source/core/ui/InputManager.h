@@ -29,15 +29,19 @@ public:
 
     void startRubberBandSelection(const Vec2& startPoint);
     void endRubberBandSelection(const Vec2& endPoint);
-    void updateRubberBandSelection(const Vec2& currentPoint);
+    void updateRubberBandSelection(const Vec2& mousePosition);
 
     void startDragging();
     void endDragging();
-    void updateDragging(const Vec2& currentPoint);
+    void updateDragging(const Vec2& mousePosition);
 
     void startScaling(const Vec2& normalizedBorderPoint);
     void endScaling();
-    void updateScaling(const Vec2& currentPoint);
+    void updateScaling(const Vec2& mousePosition);
+
+    void startRotating();
+    void endRotating();
+    void updateRotating(const Vec2& mousePosition);
 
     bool isWidgetIntersectingRubberBand(Widget* widget);
     bool isWidgetSelected(Widget* widget) {
@@ -51,9 +55,9 @@ public:
     }
 
     void removeSelectedWidget(Widget* widget) {
-        widget->clearScalableBorder();
+        // This is the only place where we clear the visuals of a widget when it is deselected
+        widget->clearVisuals();
         _selectedWidgets.erase(widget);
-        widget->clearHoverVisual();
         CheckAloneScalableWidget();
     }
 
@@ -62,12 +66,15 @@ public:
         if (_selectedWidgets.size() == 1)
         {
             (*_selectedWidgets.begin())->drawScalableBorder();
+            (*_selectedWidgets.begin())->drawRotatableCircle();
+
         }
         else
         {
             for (auto widget : _selectedWidgets)
             {
                 widget->clearScalableBorder();
+                widget->clearRotatableCircle();
             }
         }
     }
@@ -89,9 +96,11 @@ public:
     bool isDragging() const { return _dragging; }
     bool isRubberBanding() const { return _rubberBanding; }
     bool isScaling() const { return _scaling; }
+    bool isRotating() const { return _rotating; }
 
     void justClickedInsideWidget(Widget* widget);
     bool justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBorderPoint);
+    bool justClickedOnWidgetCircle(Widget* widget);
     void hoveringInsideWidget(Widget* widget);
 
 private:
@@ -104,7 +113,7 @@ private:
     DrawNode* _drawNode;  // For drawing rubber band selection
     set<Widget*> _selectedWidgets;  // Store selected widgets
     Widget* _hoveringWidget = nullptr;
-    Widget* _scalingWidget  = nullptr;
+    Widget* _selectedAloneWidget  = nullptr;
 
     set<EventKeyboard::KeyCode> _pressingKeys;
 
@@ -114,12 +123,11 @@ private:
     bool _justClickedInsideWidget = false;
     bool _dragging                = false;
     bool _scaling                 = false;
+    bool _rotating                = false;
     bool _rubberBanding           = false;
 
-    // Scaling related
+    // Transform related
     Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
     Vec2 _previousAnchorPoint;   
-    bool _scalingX = false;
-    bool _scalingY = false;
 
 };

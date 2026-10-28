@@ -44,9 +44,14 @@ bool Widget::init()
     _hoverVisual = ax::DrawNode::create();
     _hoverVisual->properties.setDrawOrder(true);
     this->addChild(_hoverVisual);
+
     _scalableBorderVisual = ax::DrawNode::create();
     _scalableBorderVisual->properties.setDrawOrder(true);
     this->addChild(_scalableBorderVisual);
+
+    _rotatableCircleVisual = ax::DrawNode::create();
+    _rotatableCircleVisual->properties.setDrawOrder(true);
+    this->addChild(_rotatableCircleVisual);
 
     scheduleUpdate();
     return true;
@@ -71,10 +76,18 @@ bool Widget::onMouseDown(ax::Event* event)
 
     auto mousePos = ax::Vec2(e->getCursorX(), e->getCursorY());
 
+    // If click on border and in select mode alone then drag
     auto borderPos = isPointOnBorder(mousePos, 10);
     if (borderPos != BorderPosition::None)
     {
         if(InputManager::getInstance()->justClickedOnWidgetBorder(this, _borderPointsNormalized[borderPos]))
+            return true;
+    }
+
+    // If click on rotatable circle and in select mode alone then rotate
+    if (isPointOnRotatableCircle(mousePos, 10))
+    {
+        if (InputManager::getInstance()->justClickedOnWidgetCircle(this))
             return true;
     }
 
@@ -132,6 +145,10 @@ void Widget::redrawVisual() {
     if (_scalableBorderVisualActive)
     {
         drawScalableBorder();
+    }
+    if (_rotatableCircleVisualActive)
+    {
+        drawRotatableCircle();
     }
 }   
 
@@ -204,8 +221,21 @@ void Widget::clearScalableBorder()
     _scalableBorderVisual->clear();
 }
 
-void Widget::drawRotatableCircleVisual() {}
-void Widget::clearRotatableCircleVisual() {}
+void Widget::drawRotatableCircle() {
+    if (_rotatableCircleVisual == nullptr)
+        return;
+    _rotatableCircleVisualActive = true;
+
+    _rotatableCircleVisual->clear();
+    auto circleCenterLocal = _rotatableCircleNormalized * this->getContentSize();
+    _rotatableCircleVisual->drawSolidCircle(circleCenterLocal, 10.f, 0.f, 32, ax::Color4F::WHITE);
+}
+void Widget::clearRotatableCircle() {
+    if (_rotatableCircleVisual == nullptr)
+        return;
+    _rotatableCircleVisualActive = false;
+    _rotatableCircleVisual->clear();
+}
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
 {
@@ -224,6 +254,13 @@ Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshol
     }
 
     return BorderPosition::None;
+}
+
+bool Widget::isPointOnRotatableCircle(const Vec2& point, float threshold) const
+{
+    auto circleCenterLocal = _rotatableCircleNormalized * this->getContentSize();
+    Vec2 circleCenter = this->convertToWorldSpace(circleCenterLocal);
+    return point.distance(circleCenter) <= threshold;
 }
 
 Vec2 Widget::getBorderPoint(BorderPosition position, float offset) const
