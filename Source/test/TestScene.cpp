@@ -32,7 +32,9 @@ bool TestScene::init()
     widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
     this->addChild(widget);
-    widget->addChild(Sprite::create("card/Card Back 1.png"));
+    auto sprite = Sprite::create("card/Card Back 1.png");
+    sprite->getTexture()->setAliasTexParameters();  // nearest-neighbor
+    widget->addChild(sprite);
 
 
     Widget* widget2 = Widget::create();

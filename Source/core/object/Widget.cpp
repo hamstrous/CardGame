@@ -204,6 +204,9 @@ void Widget::clearScalableBorder()
     _scalableBorderVisual->clear();
 }
 
+void Widget::drawRotatableCircleVisual() {}
+void Widget::clearRotatableCircleVisual() {}
+
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
 {
     float width = this->getContentSize().width;

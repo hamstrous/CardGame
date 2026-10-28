@@ -48,6 +48,9 @@ public:
     virtual void drawScalableBorder();
     void clearScalableBorder();
 
+    virtual void drawRotatableCircleVisual();
+    void clearRotatableCircleVisual();
+
     void clearVisuals()
     {
         clearHoverVisual();
@@ -110,8 +113,10 @@ protected:
     //Visuals
     DrawNode* _hoverVisual;
     DrawNode* _scalableBorderVisual;
+    DrawNode* _rotatableCircleVisual;
     bool _hoverVisualActive = false;
     bool _scalableBorderVisualActive = false;
+    bool _rotatableCircleVisualActive = false;
 
 
 
