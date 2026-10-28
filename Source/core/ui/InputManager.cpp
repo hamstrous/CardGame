@@ -201,11 +201,22 @@ void InputManager::endScaling() {
 }
 
 void InputManager::updateScaling(const Vec2& currentPoint) {
-    float deltaX = currentPoint.x - _mousePreviousPosition.x;
-    float deltaY = currentPoint.y - _mousePreviousPosition.y;
-    // If anchor point on the top or the left, we need to invert the delta
-    // Because the direction of delta and growth is opposite
-    auto anchorPoint = _scalingWidget->getAnchorPoint();
+    Size size = _scalingWidget->getContentSize();
+    float width = _scalingWidget->getContentSize().width;
+    float height = _scalingWidget->getContentSize().height;
+    Vec2 anchorPoint  = _scalingWidget->getAnchorPoint();
+    Vec2 opositeAnchorPoint = Vec2(1, 1) - _normalizedBorderPoint;
+
+    Vec2 pointA   = _scalingWidget->convertToWorldSpace((Vec2(1, 1) - _normalizedBorderPoint) * size);
+    Vec2 pointB   = _scalingWidget->convertToWorldSpace(_normalizedBorderPoint * size);
+    Vec2 vectorAB = pointB - pointA;
+    Vec3 line   = getLineEquationFromTwoPoints(pointA, pointB);
+    Vec2 pendicularIntersectedPoint = getSolutionForLineIntersection(
+        line, Vec3(vectorAB.x, vectorAB.y, -(vectorAB.x * currentPoint.x + vectorAB.y * currentPoint.y))
+    );
+
+    float deltaX = pendicularIntersectedPoint.x - pointB.x;
+    float deltaY = pendicularIntersectedPoint.y - pointB.y;
     if (anchorPoint.x > 0.5f)
     {
         deltaX = -deltaX;
@@ -215,8 +226,8 @@ void InputManager::updateScaling(const Vec2& currentPoint) {
         deltaY = -deltaY;
     }
 
-    //test
-    _scalingWidget->setContentSize(_scalingWidget->getContentSize() + Size(deltaX * (_scalingX ? 1 : 0), deltaY * (_scalingY ? 1 : 0)));
+    _scalingWidget->setContentSize(Size(width + deltaX, height + deltaY));
+    
 }
 
 bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {

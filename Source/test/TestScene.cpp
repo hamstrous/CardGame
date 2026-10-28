@@ -32,6 +32,8 @@ bool TestScene::init()
     widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
     this->addChild(widget);
+    widget->addChild(Sprite::create("card/Card Back 1.png"));
+
 
     Widget* widget2 = Widget::create();
     widget2->setContentSize(ax::Size(100, 100));

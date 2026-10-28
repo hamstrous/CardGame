@@ -45,4 +45,8 @@ ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB);
 
 void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAnchorPoint);
 
+ax::Vec3 getLineEquationFromTwoPoints(const ax::Vec2& pointA, const ax::Vec2& pointB);
+
+ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& line2); // 2 unknown solver
+
 }  // namespace helper

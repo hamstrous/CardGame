@@ -218,5 +218,32 @@ void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAncho
     node->setPosition(node->getPosition() + (newAnchorPointInPoints - oldAnchorPointInPoints));
 }
 
+ax::Vec3 getLineEquationFromTwoPoints(const ax::Vec2& pointA, const ax::Vec2& pointB)
+{
+    // use general form of line equation: Ax + By + C = 0
+    float A = pointB.y - pointA.y;
+    float B = pointA.x - pointB.x;
+    float C = pointB.x * pointA.y - pointA.x * pointB.y;
+    return ax::Vec3(A, B, C);
+}
+
+ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& line2)
+{
+    // Solve the system of linear equations:
+    // line1.A * x + line1.B * y + line1.C = 0
+    // line2.A * x + line2.B * y + line2.C = 0
+    float det = line1.x * line2.y - line2.x * line1.y;
+    if (det == 0)
+    {
+        // Lines are parallel
+        return ax::Vec2(0, 0);
+    }
+    // Cramer/determinant method to find the intersection point
+    float x = (line2.z * line1.y - line1.z * line2.y) / det;
+    float y = (line2.x * line1.z - line1.x * line2.z) / det;
+
+    return ax::Vec2(x, y);
+}
+
 
 }  // namespace helper
