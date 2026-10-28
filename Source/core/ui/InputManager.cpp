@@ -102,7 +102,8 @@ bool InputManager::onMouseMoveAfter(Event* event) {
     // Not swallowed, mean hovering over nothing
     if (_hoveringWidget != nullptr)
     {
-        _hoveringWidget->clearHoverVisual();
+        if (_selectedWidgets.find(_hoveringWidget) == _selectedWidgets.end())
+            _hoveringWidget->clearHoverVisual();
         _hoveringWidget = nullptr;
     }
     return false;
