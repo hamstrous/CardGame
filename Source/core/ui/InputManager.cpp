@@ -202,9 +202,11 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
     float width = _selectedAloneWidget->getContentSize().width;
     float height = _selectedAloneWidget->getContentSize().height;
     Vec2 anchorPoint  = _selectedAloneWidget->getAnchorPoint();
+    Vec2 anchorPointInPoints = _selectedAloneWidget->getAnchorPointInPoints();
+    Vec2 worldAnchorPoint    = _selectedAloneWidget->convertToWorldSpace(anchorPointInPoints);
     Vec2 opositeAnchorPoint = Vec2(1, 1) - _normalizedBorderPoint;
 
-    Vec2 pointA   = _selectedAloneWidget->convertToWorldSpace((Vec2(1, 1) - _normalizedBorderPoint) * size);
+    Vec2 pointA   = _selectedAloneWidget->convertToWorldSpace(opositeAnchorPoint * size);
     Vec2 pointB   = _selectedAloneWidget->convertToWorldSpace(_normalizedBorderPoint * size);
     Vec2 vectorAB = pointB - pointA;
     Vec3 line   = getLineEquationFromTwoPoints(pointA, pointB);
@@ -214,16 +216,26 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
 
     float deltaX = pendicularIntersectedPoint.x - pointB.x;
     float deltaY = pendicularIntersectedPoint.y - pointB.y;
-    if (anchorPoint.x > 0.5f)
+    Vec2 delta   = Vec2(deltaX, deltaY);
+    delta.rotate(Vec2::ZERO, AX_DEGREES_TO_RADIANS(_selectedAloneWidget->getRotation()));
+    _selectedAloneWidget->convertToNodeSpace(delta);
+
+    Vec2 mouseToAnchor = mousePosition - worldAnchorPoint;
+    Vec2 previousMouseToAnchor = _mousePreviousPosition - worldAnchorPoint;
+
+    delta = Vec2(delta.x, delta.y);
+
+    if (mouseToAnchor.x < previousMouseToAnchor.x)
     {
-        deltaX = -deltaX;
+        delta.x = -delta.x;
     }
-    if (anchorPoint.y > 0.5f)
+    if (mouseToAnchor.y < previousMouseToAnchor.y)
     {
-        deltaY = -deltaY;
+        delta.y = -delta.y;
     }
 
-    _selectedAloneWidget->setContentSize(Size(width + deltaX, height + deltaY));
+    AXLOGD("Scaling widget {}, deltaX: {}, deltaY: {}", _selectedAloneWidget->getId().c_str(), delta.x, delta.y);
+    _selectedAloneWidget->setContentSize(Size(width, height) + delta);
     
 }
 
