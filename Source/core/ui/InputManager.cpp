@@ -205,6 +205,7 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
     Vec2 anchorPointInPoints = _selectedAloneWidget->getAnchorPointInPoints();
     Vec2 worldAnchorPoint    = _selectedAloneWidget->convertToWorldSpace(anchorPointInPoints);
     Vec2 opositeAnchorPoint = Vec2(1, 1) - _normalizedBorderPoint;
+    Vec2 normalizedBorderPointInPoints = _normalizedBorderPoint * size;
 
     Vec2 pointA   = _selectedAloneWidget->convertToWorldSpace(opositeAnchorPoint * size);
     Vec2 pointB   = _selectedAloneWidget->convertToWorldSpace(_normalizedBorderPoint * size);
@@ -213,28 +214,21 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
     Vec2 pendicularIntersectedPoint = getSolutionForLineIntersection(
         line, Vec3(vectorAB.x, vectorAB.y, -(vectorAB.x * mousePosition.x + vectorAB.y * mousePosition.y))
     );
+    Vec2 pendicularIntersectedPointInNodeSpace = _selectedAloneWidget->convertToNodeSpace(pendicularIntersectedPoint);
 
-    float deltaX = pendicularIntersectedPoint.x - pointB.x;
-    float deltaY = pendicularIntersectedPoint.y - pointB.y;
-    Vec2 delta   = Vec2(deltaX, deltaY);
-    delta.rotate(Vec2::ZERO, AX_DEGREES_TO_RADIANS(_selectedAloneWidget->getRotation()));
+    Vec2 delta = pendicularIntersectedPointInNodeSpace - normalizedBorderPointInPoints;
     _selectedAloneWidget->convertToNodeSpace(delta);
-
-    Vec2 mouseToAnchor = mousePosition - worldAnchorPoint;
-    Vec2 previousMouseToAnchor = _mousePreviousPosition - worldAnchorPoint;
 
     delta = Vec2(delta.x, delta.y);
 
-    if (mouseToAnchor.x < previousMouseToAnchor.x)
+    if (anchorPoint.x > 0.5f)
     {
         delta.x = -delta.x;
     }
-    if (mouseToAnchor.y < previousMouseToAnchor.y)
+    if (anchorPoint.y > 0.5f)
     {
         delta.y = -delta.y;
     }
-
-    AXLOGD("Scaling widget {}, deltaX: {}, deltaY: {}", _selectedAloneWidget->getId().c_str(), delta.x, delta.y);
     _selectedAloneWidget->setContentSize(Size(width, height) + delta);
     
 }
