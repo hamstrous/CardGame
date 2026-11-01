@@ -248,10 +248,13 @@ void InputManager::endRotating() {
 }
 
 void InputManager::updateRotating(const Vec2& mousePosition) {
-    Vec2 widgetCenter = _selectedAloneWidget->convertToWorldSpace(_selectedAloneWidget->getAnchorPointInPoints());
+    // anchor should be in the center
+    Vec2 widgetCenter = _selectedAloneWidget->getAnchorPointInPoints();
+    Vec2 mousePositionInNodeSpace = _selectedAloneWidget->convertToNodeSpace(mousePosition);
+    Vec2 previousMousePositionInNodeSpace = _selectedAloneWidget->convertToNodeSpace(_mousePreviousPosition);
 
-    Vec2 vectorA = mousePosition - widgetCenter;
-    Vec2 vectorB = _mousePreviousPosition - widgetCenter;
+    Vec2 vectorA = mousePositionInNodeSpace - widgetCenter;
+    Vec2 vectorB = previousMousePositionInNodeSpace - widgetCenter;
 
     float offsetAngleinRad = vectorA.getAngle(vectorB);
     float offsetAngleinDeg = AX_RADIANS_TO_DEGREES(offsetAngleinRad);
