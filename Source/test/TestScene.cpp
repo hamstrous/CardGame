@@ -17,6 +17,11 @@ bool TestScene::init()
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
 
+    _keyboardListener = ax::EventListenerKeyboard::create();
+    _keyboardListener->onKeyPressed = AX_CALLBACK_2(TestScene::onKeyPressed, this);
+    _keyboardListener->onKeyReleased = AX_CALLBACK_2(TestScene::onKeyReleased, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 10);
+
     //RapidJSON
     AXLOGD("TestScene::init");
 
@@ -32,10 +37,6 @@ bool TestScene::init()
     widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
     this->addChild(widget);
-    //auto sprite = Sprite::create("card/Card Back 1.png");
-    //sprite->getTexture()->setAliasTexParameters();  // nearest-neighbor
-    //widget->addChild(sprite);
-
 
     Widget* widget2 = Widget::create();
     widget2->setContentSize(ax::Size(100, 100));
@@ -46,16 +47,22 @@ bool TestScene::init()
     // Parent coordinates align with world coordinates
     this->addChild(_inspector);
     this->addChild(_selectManager);
-
-    Vec2 temp(0, 1);
-    temp = temp.rotateByAngle(Vec2::ZERO, -AX_DEGREES_TO_RADIANS(90));
-    AXLOGD("Rotated Vec2: ({}, {})", temp.x, temp.y);
     return true;
 }
 
 void TestScene::update(float delta)
 {
 }
+
+void TestScene::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) {
+    if (code == ax::EventKeyboard::KeyCode::KEY_E)
+    {
+        EventMode* e = new EventMode(Mode::Edit);
+        _eventDispatcher->dispatchEvent(e);
+    }
+}
+
+void TestScene::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
 
 void TestScene::menuCloseCallback(ax::Object* sender) {}
 

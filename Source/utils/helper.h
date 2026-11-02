@@ -49,4 +49,12 @@ ax::Vec3 getLineEquationFromTwoPoints(const ax::Vec2& pointA, const ax::Vec2& po
 
 ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& line2); // 2 unknown solver
 
+// A generic function to convert ANY enum to its underlying numeric value
+template <typename T>
+constexpr auto enumToNum(T e) noexcept
+{
+    static_assert(std::is_enum<T>::value, "Template argument must be an enum type.");
+    return static_cast<std::underlying_type_t<T>>(e);
+}
+
 }  // namespace helper

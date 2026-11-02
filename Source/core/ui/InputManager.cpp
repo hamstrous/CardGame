@@ -29,6 +29,10 @@ InputManager::InputManager()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(InputManager::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 1);
 
+    _modeListener = EventListenerMode::create();
+    _modeListener->onModeChanged = AX_CALLBACK_1(InputManager::onModeChanged, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_modeListener, 1);
+
 }
 
 InputManager* InputManager::getInstance()
@@ -59,6 +63,7 @@ bool InputManager::onMouseDownBefore(Event* event)
 
 bool InputManager::onMouseDownAfter(Event* event)
 {
+    // no widget got clicked
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
     _justClickedInsideWidget = false;
@@ -68,7 +73,8 @@ bool InputManager::onMouseDownAfter(Event* event)
         return false;
     }
 
-    startRubberBandSelection(mousePos);
+    if(_canRubberband)
+        startRubberBandSelection(mousePos);
 
     return false;
 }
@@ -139,6 +145,45 @@ bool InputManager::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
     return false;
 }
 
+bool InputManager::onModeChanged(EventMode* eventMode)
+{
+    Mode newMode = eventMode->getMode();
+    _justClickedInsideWidget = false;
+    _dragging                = false;
+    _scaling                 = false;
+    _rotating                = false;
+    _rubberBanding           = false;
+    clearSelectedWidgets();
+    if (newMode == Mode::Edit)
+    {
+        _canDrag         = true;
+        _canScale        = true;
+        _canRotate       = true;
+        _canRubberband   = true;
+        _toggleSelection = false;
+        _canEnlarge      = false;
+    }
+    else if (newMode == Mode::Play)
+    {
+        _canDrag         = true;
+        _canScale        = false;
+        _canRotate       = false;
+        _canRubberband   = false;
+        _toggleSelection = false;
+        _canEnlarge      = false;
+    }
+    else if (newMode == Mode::Select)
+    {
+        _canDrag         = false;
+        _canScale        = false;
+        _canRotate       = false;
+        _canRubberband   = false;
+        _toggleSelection = true;
+        _canEnlarge      = false;
+    }
+    return false;
+}
+
 void InputManager::startRubberBandSelection(const Vec2& startPoint) {
     _rubberBanding = true;
     _startPoint    = startPoint;
@@ -180,7 +225,7 @@ void InputManager::startScaling(const Vec2& normalizedBorderPoint) {
     AXASSERT(_selectedAloneWidget != nullptr, "Scaling widget is null");
     _scaling = true;
     _normalizedBorderPoint = normalizedBorderPoint;
-    _previousAnchorPoint   = this->getAnchorPoint();
+    _previousAnchorPoint   = _selectedAloneWidget->getAnchorPoint();
     //_scalingWidget->setAnchorPoint(Vec2(1, 1) - _normalizedBorderPoint); // Set anchor point to the opposite of the border point
 
     setNodeAnchorPointPreservePosition(_selectedAloneWidget, Vec2(1, 1) - _normalizedBorderPoint);
@@ -281,6 +326,23 @@ bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
     }
 
     return isIntersecting;
+}
+
+void InputManager::CheckAloneWidget()
+{
+    if (_selectedWidgets.size() == 1)
+    {
+        (*_selectedWidgets.begin())->drawScalableBorder();
+        (*_selectedWidgets.begin())->drawRotatableCircle();
+    }
+    else
+    {
+        for (auto widget : _selectedWidgets)
+        {
+            widget->clearScalableBorder();
+            widget->clearRotatableCircle();
+        }
+    }
 }
 
 void InputManager::justClickedInsideWidget(Widget* widget)

@@ -13,12 +13,15 @@
 #include "core/ui/InputManager.h"
 #include "core/object/Widget.h"
 
+#include "core/const/GameConstants.h"
+
 #include <map>
 #include <sstream>
 
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
 using namespace rapidjson;
+using namespace constant;
 
 class TestScene : public ax::Scene
 {
@@ -38,8 +41,8 @@ public:
     //bool onMoveModeMouseMove(ax::Event* event);
 
     //// Keyboard
-    //void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
-    //void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
+    void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
+    void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
     // a selector callback
     void menuCloseCallback(ax::Object* sender);
@@ -67,5 +70,7 @@ private:
     Inspector* _inspector = Inspector::getInstance();
     InputManager* _selectManager = InputManager::getInstance();
 
-    ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();   
+    ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();
+
+    Mode _mode = Mode::Edit;
 };

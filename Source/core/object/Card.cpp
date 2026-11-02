@@ -23,43 +23,43 @@ bool Card::init(CardData* property)
     {
         return false;
     }  
-    _property = property;
+    //_property = property;
 
-    this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
-    this->setTag(ObjectTag::CARD);
+    //this->setAnchorPoint(ax::Vec2(0.5f, 0.5f));
+    //this->setTag(ObjectTag::CARD);
 
-    _frontSprite = ax::Sprite::create(property->frontImagePath);
-    _backSprite  = ax::Sprite::create(property->backImagePath);
-    if (!_frontSprite || !_backSprite)
-    {
-        return false;
-    }
+    //_frontSprite = ax::Sprite::create(property->frontImagePath);
+    //_backSprite  = ax::Sprite::create(property->backImagePath);
+    //if (!_frontSprite || !_backSprite)
+    //{
+    //    return false;
+    //}
 
-    auto cardSize = _frontSprite->getContentSize();
-    this->setContentSize(cardSize);
+    //auto cardSize = _frontSprite->getContentSize();
+    //this->setContentSize(cardSize);
 
-    this->addChild(_frontSprite);
-    this->addChild(_backSprite);
+    //this->addChild(_frontSprite);
+    //this->addChild(_backSprite);
 
-    _frontSprite->setPosition(cardSize/2);
-    _backSprite->setPosition(cardSize/2);
+    //_frontSprite->setPosition(cardSize/2);
+    //_backSprite->setPosition(cardSize/2);
 
-    _backSprite->setVisible(false);
+    //_backSprite->setVisible(false);
 
-    // init for event
-    _mouseListener                = ax::EventListenerMouse::create();
-    _mouseListener->onMouseDown   = AX_CALLBACK_1(Card::onMouseDown, this);
-    _mouseListener->onMouseMove   = AX_CALLBACK_1(Card::onMouseMove, this);
-    _mouseListener->onMouseUp     = AX_CALLBACK_1(Card::onMouseUp, this);
-    _mouseListener->setSwallowMouse(true);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+    //// init for event
+    //_mouseListener                = ax::EventListenerMouse::create();
+    //_mouseListener->onMouseDown   = AX_CALLBACK_1(Card::onMouseDown, this);
+    //_mouseListener->onMouseMove   = AX_CALLBACK_1(Card::onMouseMove, this);
+    //_mouseListener->onMouseUp     = AX_CALLBACK_1(Card::onMouseUp, this);
+    //_mouseListener->setSwallowMouse(true);
+    //_eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    //_keyboardListener                = ax::EventListenerKeyboard::create();
-    //_keyboardListener->onKeyPressed  = AX_CALLBACK_2(MenuScene::onKeyPressed, this);
-    //_keyboardListener->onKeyReleased = AX_CALLBACK_2(MenuScene::onKeyReleased, this);
-    //_eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
+    ////_keyboardListener                = ax::EventListenerKeyboard::create();
+    ////_keyboardListener->onKeyPressed  = AX_CALLBACK_2(MenuScene::onKeyPressed, this);
+    ////_keyboardListener->onKeyReleased = AX_CALLBACK_2(MenuScene::onKeyReleased, this);
+    ////_eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 11);
 
-    scheduleUpdate();
+    //scheduleUpdate();
     return true;
 }
 
@@ -67,81 +67,82 @@ void Card::update(float delta) {}
 
 bool Card::onMouseDown(ax::Event* event)
 {
-    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
-    {
-        this->setGlobalZOrder(ZOrder::CARD_DRAGGING); 
-        _clicktimer.reset();
-        //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
-        if (this->getNumberOfRunningActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE) > 0)
-        {
-            // When cards are moving, clicking on it will consider as stopping it for dragging
-            this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-            if(_isDraggable)
-            {
-                _isDragging = true;
-            }
-        }
-        else
-        {
+    //ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    //auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    //if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
+    //{
+    //    this->setGlobalZOrder(ZOrder::CARD_DRAGGING); 
+    //    _clicktimer.reset();
+    //    //_dragOffset = mousePos - getNodePositionInWorldSpace(this);
+    //    if (this->getNumberOfRunningActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE) > 0)
+    //    {
+    //        // When cards are moving, clicking on it will consider as stopping it for dragging
+    //        this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //        if(_isDraggable)
+    //        {
+    //            _isDragging = true;
+    //        }
+    //    }
+    //    else
+    //    {
 
-            _clicktimer.start();
-        }
-        _dragOffset = this->getParent()->convertToNodeSpace(mousePos) - this->getPosition();
-        return true; // Event swallowed
-    }
+    //        _clicktimer.start();
+    //    }
+    //    _dragOffset = this->getParent()->convertToNodeSpace(mousePos) - this->getPosition();
+    //    return true; // Event swallowed
+    //}
 
     return false;  // Propagate to other listeners
 }
 
 bool Card::onMouseMove(ax::Event* event)
 {
-    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    bool ret          = false;
-    // Drag logic
-    if(!_isDraggable) return false;
-    if (_clicktimer.count() > 0)
-    {
-        _clicktimer.reset();
-        _isDragging = true;
-        ret         = true;
-        this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);  
-    }
+    //ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    //auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    //bool ret          = false;
+    //// Drag logic
+    //if(!_isDraggable) return false;
+    //if (_clicktimer.count() > 0)
+    //{
+    //    _clicktimer.reset();
+    //    _isDragging = true;
+    //    ret         = true;
+    //    this->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);  
+    //}
 
-    if (_isDragging)
-    {
-        setPosition(this->getParent()->convertToNodeSpace(mousePos) - _dragOffset);
-        ret = true;
-    }
-    return ret;
+    //if (_isDragging)
+    //{
+    //    setPosition(this->getParent()->convertToNodeSpace(mousePos) - _dragOffset);
+    //    ret = true;
+    //}
+    return false;
 }
 
 bool Card::onMouseUp(ax::Event* event)
 {
-    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    bool ret          = false;
-    
-    if (_clicktimer.count() <= 200 && _clicktimer.count() > 0)
-    {
-        _dragOffset = ax::Vec2::ZERO;
-        flip();
-        EventCard* event = new EventCard(this, false, true);  // click event
-        _eventDispatcher->dispatchEvent(event);
-        ret = true;  // Event swallowed
-    }
-    else if (_isDragging)
-    {
-        EventCard* event = new EventCard(this, mousePos);
-        _eventDispatcher->dispatchEvent(event);
-    }
-    this->setGlobalZOrder(ZOrder::CARD_DEFAULT);
-    _isDragging = false;
-    _clicktimer.reset();
+    //ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    //auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    //bool ret          = false;
+    //
+    //if (_clicktimer.count() <= 200 && _clicktimer.count() > 0)
+    //{
+    //    _dragOffset = ax::Vec2::ZERO;
+    //    flip();
+    //    EventCard* event = new EventCard(this, false, true);  // click event
+    //    _eventDispatcher->dispatchEvent(event);
+    //    ret = true;  // Event swallowed
+    //}
+    //else if (_isDragging)
+    //{
+    //    EventCard* event = new EventCard(this, mousePos);
+    //    _eventDispatcher->dispatchEvent(event);
+    //}
+    //this->setGlobalZOrder(ZOrder::CARD_DEFAULT);
+    //_isDragging = false;
+    //_clicktimer.reset();
 
-    return ret;
+    //return ret;
+    return false;
 }
 
 void Card::setContentSize(const ax::Size& contentSize) {
@@ -159,39 +160,39 @@ void Card::setGlobalZOrder(int z) {
 }
 
 void Card::flip(float duration) {
-    if (!_isFlippable)
-    {
-        return;
-    }
+    //if (!_isFlippable)
+    //{
+    //    return;
+    //}
 
-    auto runningFlipAction = this->getActionByTag(ActionTag::CARD_FLIP);
-    if (runningFlipAction)
-    {
-        return;
-    }
+    //auto runningFlipAction = this->getActionByTag(ActionTag::CARD_FLIP);
+    //if (runningFlipAction)
+    //{
+    //    return;
+    //}
 
-    _isFaceUp        = !_isFaceUp;
-    auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);
-    auto scaleUp     = ax::ScaleTo::create(duration / 2, 1.0f, 1.0f);
-    auto swapSprites = ax::CallFunc::create([this]() {
-        if (_isFaceUp)
-        {
-            _frontSprite->setVisible(true);
-            _backSprite->setVisible(false);
-        }
-        else
-        {
-            _frontSprite->setVisible(false);
-            _backSprite->setVisible(true);
-        }
-    });
+    //_isFaceUp        = !_isFaceUp;
+    //auto scaleDown   = ax::ScaleTo::create(duration / 2, 0.0f, 1.0f);
+    //auto scaleUp     = ax::ScaleTo::create(duration / 2, 1.0f, 1.0f);
+    //auto swapSprites = ax::CallFunc::create([this]() {
+    //    if (_isFaceUp)
+    //    {
+    //        _frontSprite->setVisible(true);
+    //        _backSprite->setVisible(false);
+    //    }
+    //    else
+    //    {
+    //        _frontSprite->setVisible(false);
+    //        _backSprite->setVisible(true);
+    //    }
+    //});
 
-    auto sequence    = ax::Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
-    sequence->setTag(ActionTag::CARD_FLIP);
-    this->runAction(sequence);
+    //auto sequence    = ax::Sequence::create(scaleDown, swapSprites, scaleUp, nullptr);
+    //sequence->setTag(ActionTag::CARD_FLIP);
+    //this->runAction(sequence);
 
-    EventCard* event = new EventCard(this, true, false);  // flip event
-    _eventDispatcher->dispatchEvent(event);
+    //EventCard* event = new EventCard(this, true, false);  // flip event
+    //_eventDispatcher->dispatchEvent(event);
 }
 
 void Card::reveal() {

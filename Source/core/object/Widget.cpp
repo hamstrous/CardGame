@@ -41,17 +41,7 @@ bool Widget::init()
     _placeholderVisual->properties.setDrawOrder(true);
     this->addChild(_placeholderVisual);
 
-    _hoverVisual = ax::DrawNode::create();
-    _hoverVisual->properties.setDrawOrder(true);
-    this->addChild(_hoverVisual);
-
-    _scalableBorderVisual = ax::DrawNode::create();
-    _scalableBorderVisual->properties.setDrawOrder(true);
-    this->addChild(_scalableBorderVisual);
-
-    _rotatableCircleVisual = ax::DrawNode::create();
-    _rotatableCircleVisual->properties.setDrawOrder(true);
-    this->addChild(_rotatableCircleVisual);
+    setUp();
 
     scheduleUpdate();
     return true;
@@ -67,9 +57,25 @@ void Widget::update(float delta) {
     
 }
 
+void Widget::setUp() {
+    this->setAnchorPoint(Vec2(0.5f, 0.5f));
+
+    _hoverVisual = ax::DrawNode::create();
+    _hoverVisual->properties.setDrawOrder(true);
+    this->addChild(_hoverVisual);
+
+    _scalableBorderVisual = ax::DrawNode::create();
+    _scalableBorderVisual->properties.setDrawOrder(true);
+    this->addChild(_scalableBorderVisual);
+
+    _rotatableCircleVisual = ax::DrawNode::create();
+    _rotatableCircleVisual->properties.setDrawOrder(true);
+    this->addChild(_rotatableCircleVisual);
+}
+
 bool Widget::onMouseDown(ax::Event* event)
 {
-    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    EventMouse* e = static_cast<ax::EventMouse*>(event);
 
     if (e->getMouseButton() != ax::EventMouse::MouseButton::BUTTON_LEFT)
         return false;
@@ -126,11 +132,11 @@ void Widget::drawProperties()
     ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
     ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f);
 
-    ImGui::DragFloat("Scale X", &this->_scaleX, 0.005f);
-    ImGui::DragFloat("Scale Y", &this->_scaleY, 0.005f);
+    //ImGui::DragFloat("Scale X", &this->_scaleX, 0.005f);
+    //ImGui::DragFloat("Scale Y", &this->_scaleY, 0.005f);
 
-    ImGui::DragFloat("Anchor X", &this->_anchorPoint.x, 0.005f);
-    ImGui::DragFloat("Anchor Y", &this->_anchorPoint.y, 0.005f);
+    //ImGui::DragFloat("Anchor X", &this->_anchorPoint.x, 0.005f);
+    //ImGui::DragFloat("Anchor Y", &this->_anchorPoint.y, 0.005f);
 
     ImGui::PopID();
 
@@ -150,6 +156,12 @@ void Widget::redrawVisual() {
     {
         drawRotatableCircle();
     }
+}
+
+void Widget::clearVisual() {
+    clearHoverVisual();
+    clearScalableBorder();
+    clearRotatableCircle();
 }   
 
 void Widget::drawHoverVisual()

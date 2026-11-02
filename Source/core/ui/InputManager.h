@@ -3,12 +3,17 @@
 #include "axmol.h"
 
 #include "core/object/Widget.h"
+#include "core/const/GameConstants.h"
+
+#include "core/event/EventMode.h"
+#include "core/event/EventListenerMode.h"
 
 #include "ImGui/ImGuiPresenter.h"
 
 USING_NS_AX_EXT;
 using namespace ax;
 using namespace std;
+using namespace constant;
 
 class InputManager : public ax::Node
 {
@@ -26,6 +31,8 @@ public:
 
     bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
     bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
+
+    bool onModeChanged(EventMode* mode);
 
     void startRubberBandSelection(const Vec2& startPoint);
     void endRubberBandSelection(const Vec2& endPoint);
@@ -51,33 +58,17 @@ public:
     void addSelectedWidget(Widget* widget) {
         _selectedWidgets.insert(widget);
         widget->drawHoverVisual();
-        CheckAloneScalableWidget();
+        CheckAloneWidget();
     }
 
     void removeSelectedWidget(Widget* widget) {
         // This is the only place where we clear the visuals of a widget when it is deselected
         widget->clearVisuals();
         _selectedWidgets.erase(widget);
-        CheckAloneScalableWidget();
+        CheckAloneWidget();
     }
 
-    void CheckAloneScalableWidget()
-    {
-        if (_selectedWidgets.size() == 1)
-        {
-            (*_selectedWidgets.begin())->drawScalableBorder();
-            (*_selectedWidgets.begin())->drawRotatableCircle();
-
-        }
-        else
-        {
-            for (auto widget : _selectedWidgets)
-            {
-                widget->clearScalableBorder();
-                widget->clearRotatableCircle();
-            }
-        }
-    }
+    void CheckAloneWidget();
 
     void clearSelectedWidgets()
     {
@@ -103,12 +94,15 @@ public:
     bool justClickedOnWidgetCircle(Widget* widget);
     void hoveringInsideWidget(Widget* widget);
 
+    //void changeMode(const Mode& mode);
+
 private:
     static InputManager* _instance;
 
     EventListenerMouse* _mouseBeforeListener;
     EventListenerMouse* _mouseAfterListener;
     EventListenerKeyboard* _keyboardListener;
+    EventListenerMode* _modeListener;
 
     DrawNode* _drawNode;  // For drawing rubber band selection
     set<Widget*> _selectedWidgets;  // Store selected widgets
@@ -129,5 +123,12 @@ private:
     // Transform related
     Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
     Vec2 _previousAnchorPoint;   
+
+    bool _canDrag         = true;
+    bool _canScale        = true;
+    bool _canRotate       = true;
+    bool _canRubberband   = true;
+    bool _canEnlarge      = false;
+    bool _toggleSelection   = false; //Click on widget to toggle select
 
 };

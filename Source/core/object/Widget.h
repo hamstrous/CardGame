@@ -33,14 +33,17 @@ public:
     bool init();
     void update(float delta) override;
 
+    virtual void setUp();
+
     Widget() = default;
-    ~Widget() = default;
+    ~Widget() = default;    
 
     virtual bool onMouseDown(ax::Event* event);
     virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
     virtual void redrawVisual();
+    virtual void clearVisual();
 
     virtual void drawHoverVisual();
     void clearHoverVisual();
@@ -93,24 +96,11 @@ protected:
     const Vec2 _rotatableCircleNormalized = Vec2(0.5f, -0.2f);
 
     Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
+    void setType(std::string type) { _type = type; }
 
     static int _count;
     int _id;
-
-    // General properties
-    bool _hide = false;
-    bool _scalable = true;
-    bool _rotatable = true;
-        
-    // Edit mode properties
-    bool _hideInEditMode = false;
-
-
-    // Play mode properties
-    bool _allowClick = true;
-    bool _allowDrag  = true;
-    int _enlargeFactor = 0; // pop up a large view when hover; max = 4
-
+    std::string _type = "Widget";
 
     EventListenerMouse* _mouseListener;
 

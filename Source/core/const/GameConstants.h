@@ -1,16 +1,31 @@
 #pragma once
 
-namespace ActionTag {
-    static const int CARD_FLIP = 1001;
-    static const int CARD_TRANSFORM_TO_ZONE = 2000;
-    static const int CARD_PICKED_MOVE = 3000;
-    }
+namespace constant
+{
 
-namespace ObjectTag {
-    static const int CARD = 10;
-}
+enum
+{
+    CARD_FLIP              = 1001,
+    CARD_TRANSFORM_TO_ZONE = 2000,
+    CARD_PICKED_MOVE       = 3000
+};
 
-namespace ZOrder {
-    static const int CARD_DEFAULT = 0;
-    static const int CARD_DRAGGING = 100;
-}
+enum ObjectTag
+{
+    CARD = 10
+};
+
+enum ZOrder
+{
+    CARD_DEFAULT  = 0,
+    CARD_DRAGGING = 100
+};
+
+enum Mode
+{
+    Edit,
+    Play,
+    Select
+};
+
+}  // namespace constant

@@ -104,21 +104,21 @@ std::vector<ax::Vec2> Zone::getCurrentPositionList(ax::Vector<Card*> cardList)
 
 ax::TargetedAction* Zone::moveCard(Card* card, const ax::Vec2& targetPosition, float duration)
 {
-    // Card must be a child of this zone already
-    AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
+    //// Card must be a child of this zone already
+    //AXASSERT(card->getParent() == this, "Card must be a child of this zone to move it");
 
-     ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
-    //ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0); // from temp back to 0 to equal to parent transform
-     ax::ActionInterval* rotateSkewXAction = ax::ActionFloat::create(
-         duration, card->getRotationSkewX(), 0, [card](float value) { card->setRotationSkewX(value); });
-     ax::ActionInterval* rotateSkewYAction = ax::ActionFloat::create(
-         duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
+    // ax::ActionInterval* moveAction   = ax::MoveTo::create(duration, targetPosition);
+    ////ax::ActionInterval* rotateAction   = ax::RotateTo::create(duration, 0); // from temp back to 0 to equal to parent transform
+    // ax::ActionInterval* rotateSkewXAction = ax::ActionFloat::create(
+    //     duration, card->getRotationSkewX(), 0, [card](float value) { card->setRotationSkewX(value); });
+    // ax::ActionInterval* rotateSkewYAction = ax::ActionFloat::create(
+    //     duration, card->getRotationSkewY(), 0, [card](float value) { card->setRotationSkewY(value); });
 
-     ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
-     ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction, scaleAction, nullptr);
-     spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-     auto targetedAction = ax::TargetedAction::create(card, spawnAction);
-     return targetedAction;
+    // ax::ActionInterval* scaleAction  = ax::ScaleTo::create(duration, 1.f);
+    // ax::Spawn* spawnAction             = ax::Spawn::create(moveAction, rotateSkewXAction, rotateSkewYAction, scaleAction, nullptr);
+    // spawnAction->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //auto targetedAction = ax::TargetedAction::create(card, spawnAction);
+    return nullptr;
 }
 
 void Zone::sendCardToAnotherZone(Zone* targetZone, Card* card)
@@ -156,44 +156,44 @@ void Zone::moveCardToThisZone(Card* card, float duration)
 
 void Zone::moveCardToThisZone(ax::Vector<Card*> cards, float duration)
 {
-    for (auto card : cards)
-    {
-        card->setRotation(getWorldRotation(card) -
-                          getWorldRotation(this));  // To get the absolute difference in rotation between the card and
-                                                    // the zone and rotate it accordingly
-        card->setVecScale(getWorldScale(card) /
-                          getWorldScale(this));  // To get the absolute difference in scale between the card and the
-                                                 // zone and scale it accordingly
-        setNewParentWithNoSideEffect(card, this);
-    }
+    //for (auto card : cards)
+    //{
+    //    card->setRotation(getWorldRotation(card) -
+    //                      getWorldRotation(this));  // To get the absolute difference in rotation between the card and
+    //                                                // the zone and rotate it accordingly
+    //    card->setVecScale(getWorldScale(card) /
+    //                      getWorldScale(this));  // To get the absolute difference in scale between the card and the
+    //                                             // zone and scale it accordingly
+    //    setNewParentWithNoSideEffect(card, this);
+    //}
 
-    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
-    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+    //ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
+    //std::vector<ax::Vec2> newPositions = getCurrentPositionList();
 
-    auto emptyAction                   = ax::CallFunc::create([](){});
-    auto spawn                      = ax::Spawn::create(emptyAction, nullptr);
+    //auto emptyAction                   = ax::CallFunc::create([](){});
+    //auto spawn                      = ax::Spawn::create(emptyAction, nullptr);
 
-    for (int i = 0; i < _cardList.size(); i++)
-    {
-        _cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-        moveCard(_cardList.at(i), newPositions.at(i), duration);
-    }
+    //for (int i = 0; i < _cardList.size(); i++)
+    //{
+    //    _cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //    moveCard(_cardList.at(i), newPositions.at(i), duration);
+    //}
 }
 
 void Zone::resetZoneCardPosition(float duration) {
-    ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
-    std::vector<ax::Vec2> newPositions = getCurrentPositionList();
-    auto emptyAction                   = ax::CallFunc::create([]() {});
-    auto spawn                         = ax::Spawn::create(emptyAction, nullptr);
-    for (int i = 0; i < _cardList.size(); i++)
-    {
-        //_cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-        auto targetedAction = moveCard(_cardList.at(i), newPositions.at(i), duration);
-        spawn               = ax::Spawn::create(spawn, targetedAction, nullptr);
-    }
-    spawn->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-    this->stopAllActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
-    this->runAction(spawn);
+    //ax::Vector<Card*> _cardList        = castToVectorOfType<Card*>(this->getChildren());
+    //std::vector<ax::Vec2> newPositions = getCurrentPositionList();
+    //auto emptyAction                   = ax::CallFunc::create([]() {});
+    //auto spawn                         = ax::Spawn::create(emptyAction, nullptr);
+    //for (int i = 0; i < _cardList.size(); i++)
+    //{
+    //    //_cardList.at(i)->stopActionByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //    auto targetedAction = moveCard(_cardList.at(i), newPositions.at(i), duration);
+    //    spawn               = ax::Spawn::create(spawn, targetedAction, nullptr);
+    //}
+    //spawn->setTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //this->stopAllActionsByTag(ActionTag::CARD_TRANSFORM_TO_ZONE);
+    //this->runAction(spawn);
 }
 
 void Zone::sortCardsByValue(std::function<int(const Card*)> valueFunc)
@@ -242,21 +242,21 @@ void Zone::togglePickCard(Card* card) {
 
 void Zone::pickCard(Card* card)
 {
-    _pickedCards.insert(card);
-    // Move card up a bit
-    auto moveUpAction = ax::MoveBy::create(0.1f, ax::Vec2(0, 20));  // Move up by 20 units
-    moveUpAction->setTag(ActionTag::CARD_PICKED_MOVE);
-    auto targetedAction = ax::TargetedAction::create(card, moveUpAction);
-    card->runAction(targetedAction);
+    //_pickedCards.insert(card);
+    //// Move card up a bit
+    //auto moveUpAction = ax::MoveBy::create(0.1f, ax::Vec2(0, 20));  // Move up by 20 units
+    //moveUpAction->setTag(ActionTag::CARD_PICKED_MOVE);
+    //auto targetedAction = ax::TargetedAction::create(card, moveUpAction);
+    //card->runAction(targetedAction);
 }
 
 void Zone::unpickCard(Card* card) {
-    _pickedCards.erase(card);
-    // Move card back down
-    auto moveDownAction = ax::MoveBy::create(0.1f, ax::Vec2(0, -20));  // Move down by 20 units
-    moveDownAction->setTag(ActionTag::CARD_PICKED_MOVE);
-    auto targetedAction = ax::TargetedAction::create(card, moveDownAction);
-    card->runAction(targetedAction);
+    //_pickedCards.erase(card);
+    //// Move card back down
+    //auto moveDownAction = ax::MoveBy::create(0.1f, ax::Vec2(0, -20));  // Move down by 20 units
+    //moveDownAction->setTag(ActionTag::CARD_PICKED_MOVE);
+    //auto targetedAction = ax::TargetedAction::create(card, moveDownAction);
+    //card->runAction(targetedAction);
 }
 
 Zone::~Zone() {}
