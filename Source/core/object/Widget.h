@@ -44,22 +44,19 @@ public:
     virtual void drawProperties();
     virtual void redrawVisual();
     virtual void clearVisual();
-
+    virtual void clearTransformModifyVisual();
+    
     virtual void drawHoverVisual();
-    void clearHoverVisual();
+    virtual void clearHoverVisual();
+
+    virtual void drawSelectedVisual();
+    virtual void clearSelectedVisual();
 
     virtual void drawScalableBorder();
-    void clearScalableBorder();
+    virtual void clearScalableBorder();
 
     virtual void drawRotatableCircle();
-    void clearRotatableCircle();
-
-    void clearVisuals()
-    {
-        clearHoverVisual();
-        clearScalableBorder();
-        clearRotatableCircle();
-    }
+    virtual void clearRotatableCircle();
 
     int getCount() const { return _count; }
 
@@ -106,9 +103,11 @@ protected:
 
     //Visuals
     DrawNode* _hoverVisual;
+    DrawNode* _selectedVisual;
     DrawNode* _scalableBorderVisual;
     DrawNode* _rotatableCircleVisual;
     bool _hoverVisualActive = false;
+    bool _selectedVisualActive = false;
     bool _scalableBorderVisualActive = false;
     bool _rotatableCircleVisualActive = false;
 

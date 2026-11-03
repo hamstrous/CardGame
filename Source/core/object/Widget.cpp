@@ -64,6 +64,10 @@ void Widget::setUp() {
     _hoverVisual->properties.setDrawOrder(true);
     this->addChild(_hoverVisual);
 
+    _selectedVisual = ax::DrawNode::create();
+    _selectedVisual->properties.setDrawOrder(true);
+    this->addChild(_selectedVisual);
+
     _scalableBorderVisual = ax::DrawNode::create();
     _scalableBorderVisual->properties.setDrawOrder(true);
     this->addChild(_scalableBorderVisual);
@@ -160,9 +164,16 @@ void Widget::redrawVisual() {
 
 void Widget::clearVisual() {
     clearHoverVisual();
+    clearSelectedVisual();
     clearScalableBorder();
     clearRotatableCircle();
-}   
+}
+
+void Widget::clearTransformModifyVisual()
+{
+    clearScalableBorder();
+    clearRotatableCircle();
+}
 
 void Widget::drawHoverVisual()
 {
@@ -171,7 +182,7 @@ void Widget::drawHoverVisual()
     _hoverVisualActive = true;
     _hoverVisual->clear();
     Vec2 offset = Vec2(2.f, 2.f);
-    _hoverVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::RED, 2.f);
+    _hoverVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::ORANGE, 2.f);
 }
 
 void Widget::clearHoverVisual()
@@ -180,6 +191,22 @@ void Widget::clearHoverVisual()
         return;
     _hoverVisualActive = false;
     _hoverVisual->clear();
+}
+
+void Widget::drawSelectedVisual() {
+    if (_selectedVisual == nullptr)
+        return;
+    _selectedVisualActive = true;
+    _selectedVisual->clear();
+    Vec2 offset = Vec2(2.f, 2.f);
+    _selectedVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::RED, 2.f);
+}
+
+void Widget::clearSelectedVisual() {
+    if (_selectedVisual == nullptr)
+        return;
+    _selectedVisualActive = false;
+    _selectedVisual->clear();
 }
 
 void Widget::drawScalableBorder() {

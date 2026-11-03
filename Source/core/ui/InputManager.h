@@ -57,13 +57,13 @@ public:
 
     void addSelectedWidget(Widget* widget) {
         _selectedWidgets.insert(widget);
-        widget->drawHoverVisual();
+        widget->drawSelectedVisual();
         CheckAloneWidget();
     }
 
     void removeSelectedWidget(Widget* widget) {
         // This is the only place where we clear the visuals of a widget when it is deselected
-        widget->clearVisuals();
+        widget->clearVisual();
         _selectedWidgets.erase(widget);
         CheckAloneWidget();
     }
@@ -74,8 +74,7 @@ public:
     {
         for (auto widget : _selectedWidgets)
         {
-            widget->clearHoverVisual();
-            widget->clearScalableBorder();
+            widget->clearVisual();
         }
         _selectedWidgets.clear();
     }

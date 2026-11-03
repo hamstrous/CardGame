@@ -185,6 +185,9 @@ bool InputManager::onModeChanged(EventMode* eventMode)
 }
 
 void InputManager::startRubberBandSelection(const Vec2& startPoint) {
+    if (!_canRubberband)
+        return;
+
     _rubberBanding = true;
     _startPoint    = startPoint;
     _selectedWidgets.clear();   
@@ -205,6 +208,8 @@ void InputManager::updateRubberBandSelection(const Vec2& mousePosition) {
 }
 
 void InputManager::startDragging() {
+    if (!_canDrag)
+        return;
     _dragging = true;
 }
 
@@ -222,6 +227,9 @@ void InputManager::updateDragging(const Vec2& mousePosition) {
 }
 
 void InputManager::startScaling(const Vec2& normalizedBorderPoint) {
+    if (!_canScale)
+        return;
+
     AXASSERT(_selectedAloneWidget != nullptr, "Scaling widget is null");
     _scaling = true;
     _normalizedBorderPoint = normalizedBorderPoint;
@@ -279,6 +287,9 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
 }
 
 void InputManager::startRotating() {
+    if (!_canRotate)
+        return;
+
     _rotating = true;
     _previousAnchorPoint = _selectedAloneWidget->getAnchorPoint();
     setNodeAnchorPointPreservePosition(_selectedAloneWidget, Vec2(0.5f, 0.5f));
@@ -339,8 +350,7 @@ void InputManager::CheckAloneWidget()
     {
         for (auto widget : _selectedWidgets)
         {
-            widget->clearScalableBorder();
-            widget->clearRotatableCircle();
+            widget->clearTransformModifyVisual();
         }
     }
 }
@@ -354,16 +364,21 @@ void InputManager::justClickedInsideWidget(Widget* widget)
     // Else this is the new selected widget
 
     bool isShiftPressed = _pressingKeys.find(EventKeyboard::KeyCode::KEY_SHIFT) != _pressingKeys.end();
-
-    if (_selectedWidgets.find(widget) == _selectedWidgets.end() && !isShiftPressed)
+    bool widgetSelected = isWidgetSelected(widget);
+    if ((_toggleSelection || isShiftPressed) && widgetSelected)
+    {
+        removeSelectedWidget(widget);
+    }
+    else if ((_toggleSelection || isShiftPressed) && !widgetSelected)
+    {
+        addSelectedWidget(widget);
+    }
+    else if (!widgetSelected)
     {
         clearSelectedWidgets();
         addSelectedWidget(widget);
     }
-    else if (isShiftPressed)
-    {
-        addSelectedWidget(widget);
-    }
+    
     startDragging();
 }
 

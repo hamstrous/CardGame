@@ -60,6 +60,16 @@ void TestScene::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) 
         EventMode* e = new EventMode(Mode::Edit);
         _eventDispatcher->dispatchEvent(e);
     }
+    else if (code == ax::EventKeyboard::KeyCode::KEY_P)
+    {
+        EventMode* e = new EventMode(Mode::Play);
+        _eventDispatcher->dispatchEvent(e);
+    }
+    else if (code == ax::EventKeyboard::KeyCode::KEY_S)
+    {
+        EventMode* e = new EventMode(Mode::Select);
+        _eventDispatcher->dispatchEvent(e);
+    }
 }
 
 void TestScene::onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event) {}
