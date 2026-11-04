@@ -23,9 +23,9 @@ enum ZOrder
 
 enum Mode
 {
-    Edit,
-    Play,
-    Select
+    EDIT,
+    PLAY,
+    SELECT
 };
 
 }  // namespace constant

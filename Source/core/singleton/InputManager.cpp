@@ -33,6 +33,8 @@ InputManager::InputManager()
     _modeListener->onModeChanged = AX_CALLBACK_1(InputManager::onModeChanged, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_modeListener, 1);
 
+    _layerManager = LayerManager::getInstance();
+
 }
 
 InputManager* InputManager::getInstance()
@@ -154,7 +156,7 @@ bool InputManager::onModeChanged(EventMode* eventMode)
     _rotating                = false;
     _rubberBanding           = false;
     clearSelectedWidgets();
-    if (newMode == Mode::Edit)
+    if (newMode == Mode::EDIT)
     {
         _canDrag         = true;
         _canScale        = true;
@@ -163,7 +165,7 @@ bool InputManager::onModeChanged(EventMode* eventMode)
         _toggleSelection = false;
         _canEnlarge      = false;
     }
-    else if (newMode == Mode::Play)
+    else if (newMode == Mode::PLAY)
     {
         _canDrag         = true;
         _canScale        = false;
@@ -172,7 +174,7 @@ bool InputManager::onModeChanged(EventMode* eventMode)
         _toggleSelection = false;
         _canEnlarge      = false;
     }
-    else if (newMode == Mode::Select)
+    else if (newMode == Mode::SELECT)
     {
         _canDrag         = false;
         _canScale        = false;
@@ -372,6 +374,8 @@ void InputManager::CheckAloneWidget()
 
 void InputManager::justClickedInsideWidget(Widget* widget)
 {
+    _layerManager->moveWidgetToFront(widget);
+
     _justClickedInsideWidget = true;
 
     // If click on the same set of selected widgets

@@ -17,6 +17,7 @@ using namespace constant;
 
 // This class organize the order each widget appear on screen
 // object -> collection -> interactive -> non interactive
+// Ensure the order of each widget is from 0 to count, with no gap or duplicate
 
 class LayerManager : public ax::Node
 {
@@ -26,10 +27,10 @@ public:
     static LayerManager* getInstance();
     static void destroyInstance();
 
-    void addWidgetToObjectLayer(Widget* widget) { _objectLayer->addChild(widget); }
-    void addWidgetToCollectionLayer(Widget* widget) { _collectionLayer->addChild(widget); }
-    void addWidgetToInteractiveLayer(Widget* widget) { _interactiveLayer->addChild(widget); }
-    void addWidgetToNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->addChild(widget); }
+    void addWidgetToObjectLayer(Widget* widget) { _objectLayer->addChild(widget, _objectLayer->getChildrenCount()); }
+    void addWidgetToCollectionLayer(Widget* widget) { _collectionLayer->addChild(widget, _collectionLayer->getChildrenCount()); }
+    void addWidgetToInteractiveLayer(Widget* widget) { _interactiveLayer->addChild(widget, _interactiveLayer->getChildrenCount()); }
+    void addWidgetToNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->addChild(widget, _nonInteractiveLayer->getChildrenCount()); }
 
     void removeWidgetFromObjectLayer(Widget* widget) { _objectLayer->removeChild(widget); }
     void removeWidgetFromCollectionLayer(Widget* widget) { _collectionLayer->removeChild(widget); }

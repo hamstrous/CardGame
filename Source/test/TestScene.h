@@ -75,5 +75,5 @@ private:
 
     ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();
 
-    Mode _mode = Mode::Edit;
+    Mode _mode = Mode::EDIT;
 };

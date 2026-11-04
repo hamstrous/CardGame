@@ -95,7 +95,7 @@ bool Widget::onMouseDown(ax::Event* event)
 
     // If click on border and in select mode alone then drag
     auto borderPos = isPointOnBorder(mousePos, 10);
-    if (borderPos != BorderPosition::None)
+    if (borderPos != BorderPosition::NONE)
     {
         if(InputManager::getInstance()->justClickedOnWidgetBorder(this, _borderPointsNormalized[borderPos]))
             return true;
@@ -230,14 +230,14 @@ void Widget::drawScalableBorder() {
     _scalableBorderVisual->clear();
 
     float offset = 1.f;
-    auto bottomLeft   = getBorderPoint(BorderPosition::BottomLeft, offset);
-    auto bottomRight  = getBorderPoint(BorderPosition::BottomRight, offset);
-    auto topLeft      = getBorderPoint(BorderPosition::TopLeft, offset);
-    auto topRight     = getBorderPoint(BorderPosition::TopRight, offset);
-    auto leftBorder   = getBorderPoint(BorderPosition::LeftBorder, offset);
-    auto rightBorder  = getBorderPoint(BorderPosition::RightBorder, offset);
-    auto topBorder    = getBorderPoint(BorderPosition::TopBorder, offset);
-    auto bottomBorder = getBorderPoint(BorderPosition::BottomBorder, offset);
+    auto bottomLeft   = getBorderPoint(BorderPosition::BOTTOM_LEFT, offset);
+    auto bottomRight  = getBorderPoint(BorderPosition::BOTTOM_RIGHT, offset);
+    auto topLeft      = getBorderPoint(BorderPosition::TOP_LEFT, offset);
+    auto topRight     = getBorderPoint(BorderPosition::TOP_RIGHT, offset);
+    auto leftBorder   = getBorderPoint(BorderPosition::LEFT_BORDER, offset);
+    auto rightBorder  = getBorderPoint(BorderPosition::RIGHT_BORDER, offset);
+    auto topBorder    = getBorderPoint(BorderPosition::TOP_BORDER, offset);
+    auto bottomBorder = getBorderPoint(BorderPosition::BOTTOM_BORDER, offset);
 
 
     float dotSize = 4.f;
@@ -304,7 +304,7 @@ Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshol
         }
     }
 
-    return BorderPosition::None;
+    return BorderPosition::NONE;
 }
 
 bool Widget::isPointOnRotatableCircle(const Vec2& point, float threshold) const
@@ -323,28 +323,28 @@ Vec2 Widget::getBorderPoint(BorderPosition position, float offset) const
     float centerY = height / 2.f;
     switch (position)
     {
-    case BorderPosition::BottomLeft:
+    case BorderPosition::BOTTOM_LEFT:
         point = Vec2(0, 0) - Vec2(offset, offset);
         break;
-    case BorderPosition::BottomRight:
+    case BorderPosition::BOTTOM_RIGHT:
         point = Vec2(width, 0) + Vec2(offset, -offset);
         break;
-    case BorderPosition::TopRight:
+    case BorderPosition::TOP_RIGHT:
         point = Vec2(width, height) + Vec2(offset, offset);
         break;
-    case BorderPosition::TopLeft:
+    case BorderPosition::TOP_LEFT:
         point = Vec2(0, height) + Vec2(-offset, offset);
         break;
-    case BorderPosition::LeftBorder:
+    case BorderPosition::LEFT_BORDER:
         point = Vec2(0, centerY) + Vec2(-offset, 0);
         break;
-    case BorderPosition::RightBorder:
+    case BorderPosition::RIGHT_BORDER:
         point = Vec2(width, centerY) + Vec2(offset, 0);
         break;
-    case BorderPosition::TopBorder:
+    case BorderPosition::TOP_BORDER:
         point = Vec2(centerX, height) + Vec2(0, offset);
         break;
-    case BorderPosition::BottomBorder:
+    case BorderPosition::BOTTOM_BORDER:
         point = Vec2(centerX, 0) + Vec2(0, -offset);
         break;
     default:

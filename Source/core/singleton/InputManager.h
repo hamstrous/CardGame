@@ -9,6 +9,7 @@
 #include "core/event/EventListenerMode.h"
 
 #include "ImGui/ImGuiPresenter.h"
+#include "LayerManager.h"
 
 USING_NS_AX_EXT;
 using namespace ax;
@@ -97,6 +98,8 @@ public:
 
 private:
     static InputManager* _instance;
+
+    LayerManager* _layerManager = nullptr;
 
     EventListenerMouse* _mouseBeforeListener;
     EventListenerMouse* _mouseAfterListener;

@@ -36,12 +36,22 @@ bool TestScene::init()
     Widget* widget = Widget::create();
     widget->setContentSize(ax::Size(100, 100));
     widget->setPosition(visibleSize / 2);
-    this->addChild(widget);
+    _layerManager->addWidgetToObjectLayer(widget);
 
     Widget* widget2 = Widget::create();
     widget2->setContentSize(ax::Size(100, 100));
     widget2->setPosition(visibleSize / 2 - Vec2(50,50));
-    this->addChild(widget2, -1);
+    _layerManager->addWidgetToObjectLayer(widget2);
+
+    Widget* widget3 = Widget::create();
+    widget3->setContentSize(ax::Size(100, 100));
+    widget3->setPosition(visibleSize / 2 + Vec2(50, 50));
+    _layerManager->addWidgetToObjectLayer(widget3);
+
+    Widget* widget4 = Widget::create();
+    widget4->setContentSize(ax::Size(100, 100));
+    widget4->setPosition(visibleSize / 2 + Vec2(100, 100));
+    _layerManager->addWidgetToObjectLayer(widget4);
 
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
@@ -58,17 +68,17 @@ void TestScene::update(float delta)
 void TestScene::onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event) {
     if (code == ax::EventKeyboard::KeyCode::KEY_E)
     {
-        EventMode* e = new EventMode(Mode::Edit);
+        EventMode* e = new EventMode(Mode::EDIT);
         _eventDispatcher->dispatchEvent(e);
     }
     else if (code == ax::EventKeyboard::KeyCode::KEY_P)
     {
-        EventMode* e = new EventMode(Mode::Play);
+        EventMode* e = new EventMode(Mode::PLAY);
         _eventDispatcher->dispatchEvent(e);
     }
     else if (code == ax::EventKeyboard::KeyCode::KEY_S)
     {
-        EventMode* e = new EventMode(Mode::Select);
+        EventMode* e = new EventMode(Mode::SELECT);
         _eventDispatcher->dispatchEvent(e);
     }
 }

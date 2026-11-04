@@ -15,15 +15,15 @@ class Widget : public Node
 public:
     enum BorderPosition
     {
-        BottomLeft,
-        BottomRight,
-        TopRight,
-        TopLeft,
-        LeftBorder,
-        RightBorder,
-        TopBorder,
-        BottomBorder,
-        None
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT,
+        TOP_RIGHT,
+        TOP_LEFT,
+        LEFT_BORDER,
+        RIGHT_BORDER,
+        TOP_BORDER,
+        BOTTOM_BORDER,
+        NONE
     };
 
 public:
@@ -86,10 +86,10 @@ protected:
     bool isPointOnRotatableCircle(const Vec2& point, float threshold = 10.f) const;
 
     std::unordered_map<BorderPosition, Vec2> _borderPointsNormalized = {
-        {BorderPosition::BottomLeft, Vec2(0, 0)},    {BorderPosition::BottomRight, Vec2(1, 0)},
-        {BorderPosition::TopRight, Vec2(1, 1)},      {BorderPosition::TopLeft, Vec2(0, 1)},
-        {BorderPosition::LeftBorder, Vec2(0, 0.5f)}, {BorderPosition::RightBorder, Vec2(1, 0.5f)},
-        {BorderPosition::TopBorder, Vec2(0.5f, 1)},  {BorderPosition::BottomBorder, Vec2(0.5f, 0)}};
+        {BorderPosition::BOTTOM_LEFT, Vec2(0, 0)},    {BorderPosition::BOTTOM_RIGHT, Vec2(1, 0)},
+        {BorderPosition::TOP_RIGHT, Vec2(1, 1)},      {BorderPosition::TOP_LEFT, Vec2(0, 1)},
+        {BorderPosition::LEFT_BORDER, Vec2(0, 0.5f)}, {BorderPosition::RIGHT_BORDER, Vec2(1, 0.5f)},
+        {BorderPosition::TOP_BORDER, Vec2(0.5f, 1)},  {BorderPosition::BOTTOM_BORDER, Vec2(0.5f, 0)}};
 
     const Vec2 _rotatableCircleNormalized = Vec2(0.5f, -0.2f);
 
