@@ -1,6 +1,6 @@
 #include "Inspector.h"
 
-#include "InputManager.h"
+#include "core/singleton/InputManager.h"
 
 Inspector* Inspector::_instance = nullptr;
 

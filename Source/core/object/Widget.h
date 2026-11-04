@@ -30,6 +30,7 @@ public:
 
     // Factory method
     static Widget* create();
+    static Widget* createAndAddToLayer();
     bool init();
     void update(float delta) override;
 

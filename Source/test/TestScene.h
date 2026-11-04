@@ -10,7 +10,8 @@
 #include "core/file/RapidJsonHelper.h"
 
 #include "core/ui/Inspector.h"
-#include "core/ui/InputManager.h"
+#include "core/singleton/InputManager.h"
+#include "core/singleton/LayerManager.h"
 #include "core/object/Widget.h"
 
 #include "core/const/GameConstants.h"
@@ -19,6 +20,7 @@
 #include <sstream>
 
 #include "ImGui/ImGuiPresenter.h"
+
 USING_NS_AX_EXT;
 using namespace rapidjson;
 using namespace constant;
@@ -69,6 +71,7 @@ private:
 
     Inspector* _inspector = Inspector::getInstance();
     InputManager* _selectManager = InputManager::getInstance();
+    LayerManager* _layerManager  = LayerManager::getInstance();
 
     ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();
 

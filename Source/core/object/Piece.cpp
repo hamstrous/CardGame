@@ -3,7 +3,7 @@
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
 
-#include "core/ui/InputManager.h"
+#include "core/singleton/InputManager.h"
 
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;

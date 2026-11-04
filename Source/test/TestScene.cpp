@@ -41,12 +41,13 @@ bool TestScene::init()
     Widget* widget2 = Widget::create();
     widget2->setContentSize(ax::Size(100, 100));
     widget2->setPosition(visibleSize / 2 - Vec2(50,50));
-    this->addChild(widget2);
+    this->addChild(widget2, -1);
 
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
     this->addChild(_inspector);
     this->addChild(_selectManager);
+    this->addChild(_layerManager);
     return true;
 }
 

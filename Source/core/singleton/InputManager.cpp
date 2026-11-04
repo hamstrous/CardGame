@@ -203,6 +203,9 @@ void InputManager::endRubberBandSelection(const Vec2& endPoint) {
 }
 
 void InputManager::updateRubberBandSelection(const Vec2& mousePosition) {
+    if (!_canRubberband || !_rubberBanding)
+        return;
+
     _drawNode->clear();
     _drawNode->drawRect(_startPoint, mousePosition, Color4F::BLUE);
 }
@@ -218,6 +221,8 @@ void InputManager::endDragging() {
 }
 
 void InputManager::updateDragging(const Vec2& mousePosition) {
+    if (!_canDrag || !_dragging)
+        return;
     // Move every selected widget by the delta of the mouse movement
     Vec2 delta = mousePosition - _mousePreviousPosition;
     for (auto widget : _selectedWidgets)
@@ -251,6 +256,9 @@ void InputManager::endScaling() {
 }
 
 void InputManager::updateScaling(const Vec2& mousePosition) {
+    if (!_canScale || !_scaling)
+        return;
+
     Size size = _selectedAloneWidget->getContentSize();
     float width = _selectedAloneWidget->getContentSize().width;
     float height = _selectedAloneWidget->getContentSize().height;
@@ -260,16 +268,20 @@ void InputManager::updateScaling(const Vec2& mousePosition) {
     Vec2 opositeAnchorPoint = Vec2(1, 1) - _normalizedBorderPoint;
     Vec2 normalizedBorderPointInPoints = _normalizedBorderPoint * size;
 
+    // Get the line passing through the diagonal
+    // Scaling with ratio means the mouse position projected perpendicular to the diagonal line
     Vec2 pointA   = _selectedAloneWidget->convertToWorldSpace(opositeAnchorPoint * size);
     Vec2 pointB   = _selectedAloneWidget->convertToWorldSpace(_normalizedBorderPoint * size);
     Vec2 vectorAB = pointB - pointA;
     Vec3 line   = getLineEquationFromTwoPoints(pointA, pointB);
-    Vec2 pendicularIntersectedPoint = getSolutionForLineIntersection(
+
+    Vec2 perpendicularIntersectedPoint = getSolutionForLineIntersection(
         line, Vec3(vectorAB.x, vectorAB.y, -(vectorAB.x * mousePosition.x + vectorAB.y * mousePosition.y))
     );
-    Vec2 pendicularIntersectedPointInNodeSpace = _selectedAloneWidget->convertToNodeSpace(pendicularIntersectedPoint);
+    Vec2 perpendicularIntersectedPointInNodeSpace =
+        _selectedAloneWidget->convertToNodeSpace(perpendicularIntersectedPoint);
 
-    Vec2 delta = pendicularIntersectedPointInNodeSpace - normalizedBorderPointInPoints;
+    Vec2 delta = perpendicularIntersectedPointInNodeSpace - normalizedBorderPointInPoints;
     _selectedAloneWidget->convertToNodeSpace(delta);
 
     delta = Vec2(delta.x, delta.y);
@@ -304,6 +316,9 @@ void InputManager::endRotating() {
 }
 
 void InputManager::updateRotating(const Vec2& mousePosition) {
+    if (!_canRotate || !_rotating)
+        return;
+
     // anchor should be in the center
     Vec2 widgetCenter = _selectedAloneWidget->getAnchorPointInPoints();
     Vec2 mousePositionInNodeSpace = _selectedAloneWidget->convertToNodeSpace(mousePosition);

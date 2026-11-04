@@ -3,7 +3,8 @@
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
 
-#include "core/ui/InputManager.h"
+#include "core/singleton/InputManager.h"
+#include "core/singleton/LayerManager.h"
 
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
@@ -21,6 +22,12 @@ Widget* Widget::create()
         return widget;
     }
     AX_SAFE_DELETE(widget);
+    return nullptr;
+}
+
+Widget* Widget::createAndAddToLayer()
+{
+    auto layerManager = LayerManager::getInstance();
     return nullptr;
 }
 
@@ -148,6 +155,7 @@ void Widget::drawProperties()
 }
 
 void Widget::redrawVisual() {
+    // if the visual is active then it can be redraw
     if (_hoverVisualActive)
     {
         drawHoverVisual();
@@ -159,6 +167,10 @@ void Widget::redrawVisual() {
     if (_rotatableCircleVisualActive)
     {
         drawRotatableCircle();
+    }
+    if (_selectedVisualActive)
+    {
+        drawSelectedVisual();
     }
 }
 
