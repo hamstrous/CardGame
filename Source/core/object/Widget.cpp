@@ -9,6 +9,7 @@
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
 using namespace helper;
+using namespace ax;
 
 int Widget::_count = 0;
 
@@ -51,17 +52,19 @@ bool Widget::init()
     setUp();
 
     scheduleUpdate();
+    schedule([this](float delta) {
+        _placeholderVisual->clear();
+        _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
+        _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
+    }, "placeholder_visual");
+
+    this->setName(getId());
     return true;
 }
 
 void Widget::update(float delta) {
     InputManager* inputManager = InputManager::getInstance();
     inputManager->isWidgetIntersectingRubberBand(this);
-
-    _placeholderVisual->clear();
-    _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-    _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
-    
 }
 
 void Widget::setUp() {
@@ -82,6 +85,8 @@ void Widget::setUp() {
     _rotatableCircleVisual = ax::DrawNode::create();
     _rotatableCircleVisual->properties.setDrawOrder(true);
     this->addChild(_rotatableCircleVisual);
+
+    setCascadeOpacityEnabled(true);
 }
 
 bool Widget::onMouseDown(ax::Event* event)

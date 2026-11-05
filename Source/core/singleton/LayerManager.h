@@ -45,6 +45,9 @@ public:
     void moveWidgetBackward(Widget* widget);
     void moveWidgetToSpecificOrder(Widget* widget, int order);
 
+    void hideWidget(Widget* widget);
+    void showWidget(Widget* widget);
+
 private:
     static LayerManager* _instance;
 

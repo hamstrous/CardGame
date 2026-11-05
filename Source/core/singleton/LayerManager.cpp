@@ -97,3 +97,14 @@ void LayerManager::moveWidgetToSpecificOrder(Widget* widget, int order) {
     }
 
 }
+
+void LayerManager::hideWidget(Widget* widget) {
+    widget->pause();
+    widget->setVisible(false);
+}
+
+void LayerManager::showWidget(Widget* widget)
+{
+    widget->resume();
+    widget->setVisible(true);
+}
