@@ -84,6 +84,9 @@ public:
     Vec2 getMousePosition() const { return _mousePreviousPosition; }
     Widget* getHoveringWidget() const { return _hoveringWidget; }
 
+    void duplicateSelectedWidgets();
+    void deleteSelectedWidgets();
+
     bool isDragging() const { return _dragging; }
     bool isRubberBanding() const { return _rubberBanding; }
     bool isScaling() const { return _scaling; }

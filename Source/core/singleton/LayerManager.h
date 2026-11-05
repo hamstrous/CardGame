@@ -32,12 +32,19 @@ public:
     void addWidgetToInteractiveLayer(Widget* widget) { _interactiveLayer->addChild(widget, _interactiveLayer->getChildrenCount()); }
     void addWidgetToNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->addChild(widget, _nonInteractiveLayer->getChildrenCount()); }
 
+
     void removeWidgetFromObjectLayer(Widget* widget) { _objectLayer->removeChild(widget); }
     void removeWidgetFromCollectionLayer(Widget* widget) { _collectionLayer->removeChild(widget); }
     void removeWidgetFromInteractiveLayer(Widget* widget) { _interactiveLayer->removeChild(widget); }
     void removeWidgetFromNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->removeChild(widget); }
     void removeWidgetFromAllLayers(Widget* widget);
     
+    bool isWidgetInLayer(Widget* widget)
+    {
+        Node* parent = widget->getParent();
+        return parent == _objectLayer || parent == _collectionLayer ||
+               parent == _interactiveLayer || parent == _nonInteractiveLayer;
+    }
 
     void moveWidgetToFront(Widget* widget);
     void moveWidgetToBack(Widget* widget);
@@ -47,6 +54,9 @@ public:
 
     void hideWidget(Widget* widget);
     void showWidget(Widget* widget);
+
+    void deleteWidgets(set<Widget*>& widgets);
+    void duplicateWidgets(set<Widget*>& widgets);
 
 private:
     static LayerManager* _instance;

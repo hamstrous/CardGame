@@ -35,20 +35,20 @@ bool TestScene::init()
     widget->setPosition(visibleSize / 2);
     _layerManager->addWidgetToObjectLayer(widget);
 
-    //Widget* widget2 = Widget::create();
-    //widget2->setContentSize(Size(100, 100));
-    //widget2->setPosition(visibleSize / 2 - Vec2(50,50));
-    //_layerManager->addWidgetToObjectLayer(widget2);
+    Widget* widget2 = Widget::create();
+    widget2->setContentSize(Size(100, 100));
+    widget2->setPosition(visibleSize / 2 - Vec2(50,50));
+    _layerManager->addWidgetToObjectLayer(widget2);
 
-    //Widget* widget3 = Widget::create();
-    //widget3->setContentSize(Size(100, 100));
-    //widget3->setPosition(visibleSize / 2 + Vec2(50, 50));
-    //_layerManager->addWidgetToObjectLayer(widget3);
+    Widget* widget3 = Widget::create();
+    widget3->setContentSize(Size(100, 100));
+    widget3->setPosition(visibleSize / 2 + Vec2(50, 50));
+    _layerManager->addWidgetToObjectLayer(widget3);
 
-    //Widget* widget4 = Widget::create();
-    //widget4->setContentSize(Size(100, 100));
-    //widget4->setPosition(visibleSize / 2 + Vec2(100, 100));
-    //_layerManager->addWidgetToObjectLayer(widget4);
+    Widget* widget4 = Widget::create();
+    widget4->setContentSize(Size(100, 100));
+    widget4->setPosition(visibleSize / 2 + Vec2(100, 100));
+    _layerManager->addWidgetToObjectLayer(widget4);
 
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
@@ -78,11 +78,7 @@ void TestScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {
         EventMode* e = new EventMode(Mode::SELECT);
         _eventDispatcher->dispatchEvent(e);
     }
-
-    if (code == EventKeyboard::KeyCode::KEY_H)
-    {
-        _layerManager->hideWidget(nullptr);
-    }
+    
 }
 
 void TestScene::onKeyReleased(EventKeyboard::KeyCode code, Event* event) {}

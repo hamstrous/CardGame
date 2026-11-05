@@ -1,5 +1,7 @@
 #include "LayerManager.h"
 
+#include "InputManager.h"
+
 using namespace helper;
 
 LayerManager* LayerManager::_instance = nullptr;
@@ -107,4 +109,33 @@ void LayerManager::showWidget(Widget* widget)
 {
     widget->resume();
     widget->setVisible(true);
+}
+
+void LayerManager::deleteWidgets(set<Widget*>& widgets) {
+    for (auto widget : widgets)
+    {
+        widget->removeFromParentAndCleanup(true);
+    }
+}
+
+void LayerManager::duplicateWidgets(set<Widget*>& widgets) {
+    // Sort the widgets by their z-order to maintain the order when duplicating
+    std::vector<Widget*> sortedWidgets(widgets.begin(), widgets.end());
+    vector<Widget*> newWidgets;
+    std::sort(sortedWidgets.begin(), sortedWidgets.end(),
+              [](Widget* a, Widget* b) { return a->getLocalZOrder() < b->getLocalZOrder(); }
+    );
+    for (auto widget : widgets)
+    {
+        Widget* newWidget = widget->clone();
+        newWidget->addToLayer();
+        newWidgets.push_back(newWidget);
+    }
+    // The newly duplicated widgets should be selected
+    // And the previous selection should be cleared
+    InputManager::getInstance()->clearSelectedWidgets();
+    for (auto newWidget : newWidgets)
+    {
+        InputManager::getInstance()->addSelectedWidget(newWidget);
+    }
 }

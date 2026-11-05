@@ -30,8 +30,10 @@ public:
 
     // Factory method
     static Widget* create();
-    static Widget* createAndAddToLayer();
+    void addToLayer();
     bool init();
+    virtual Widget* clone() const;
+
     void update(float delta) override;
 
     virtual void setUp();

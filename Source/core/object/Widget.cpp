@@ -26,10 +26,10 @@ Widget* Widget::create()
     return nullptr;
 }
 
-Widget* Widget::createAndAddToLayer()
+// The layer that widget get added to is deterministic
+void Widget::addToLayer()
 {
-    auto layerManager = LayerManager::getInstance();
-    return nullptr;
+    LayerManager::getInstance()->addWidgetToObjectLayer(this);
 }
 
 bool Widget::init()
@@ -60,6 +60,16 @@ bool Widget::init()
 
     this->setName(getId());
     return true;
+}
+
+Widget* Widget::clone() const
+{
+    Widget* widget = Widget::create();
+    widget->setContentSize(this->getContentSize());
+    widget->setPosition(this->getPosition() + ax::Vec2(30, -30));
+    widget->setScale(this->getScale());
+    widget->setRotation(this->getRotation());
+    return widget;
 }
 
 void Widget::update(float delta) {

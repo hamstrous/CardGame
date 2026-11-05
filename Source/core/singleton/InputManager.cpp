@@ -138,6 +138,14 @@ bool InputManager::onMouseUp(Event* event)
 bool InputManager::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
     _pressingKeys.insert(keyCode);
+    if (keyCode == EventKeyboard::KeyCode::KEY_C)
+    {
+        duplicateSelectedWidgets();
+    }
+    if (keyCode == EventKeyboard::KeyCode::KEY_D)
+    {
+        deleteSelectedWidgets();
+    }
     return false;
 }
 
@@ -370,6 +378,26 @@ void InputManager::CheckAloneWidget()
             widget->clearTransformModifyVisual();
         }
     }
+}
+
+void InputManager::duplicateSelectedWidgets() {
+    _layerManager->duplicateWidgets(_selectedWidgets);
+}
+
+void InputManager::deleteSelectedWidgets()
+{
+    _layerManager->deleteWidgets(_selectedWidgets);
+    // Dont use the clearSelectedWidgets() function here,
+    // because it will clear the visuals of the widgets, which are already deleted
+    if (isWidgetSelected(_selectedAloneWidget))
+    {
+        _selectedAloneWidget = nullptr;
+    }
+    if (isWidgetSelected(_hoveringWidget))
+    {
+        _hoveringWidget = nullptr;
+    }
+    _selectedWidgets.clear();  
 }
 
 void InputManager::justClickedInsideWidget(Widget* widget)
