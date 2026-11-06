@@ -36,7 +36,8 @@ public:
 
     void update(float delta) override;
 
-    virtual void setUp();
+    virtual void setUpInteractEffect();
+    virtual void setUpMainVisual();
 
     Widget() = default;
     ~Widget() = default;    
@@ -45,21 +46,27 @@ public:
     virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
-    virtual void redrawVisual();
-    virtual void clearVisual();
-    virtual void clearTransformModifyVisual();
+    virtual void redrawEffect();
+    virtual void clearEffect();
+    virtual void clearTransformModifyEffect();
     
-    virtual void drawHoverVisual();
-    virtual void clearHoverVisual();
+    virtual void drawHoverEffect();
+    virtual void clearHoverEffect();
 
-    virtual void drawSelectedVisual();
-    virtual void clearSelectedVisual();
+    virtual void drawSelectedEffect();
+    virtual void clearSelectedEffect();
 
     virtual void drawScalableBorder();
     virtual void clearScalableBorder();
 
     virtual void drawRotatableCircle();
     virtual void clearRotatableCircle();
+
+    void drawEmphasisEffect();
+    void clearEmphasisEffect();
+
+    void drawTransparentEffect();
+    void clearTransparentEffect();
 
     int getCount() const { return _count; }
 
@@ -81,7 +88,7 @@ protected:
         _transformUpdated = _transformDirty = _inverseDirty = true;
         _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
         updateRotationQuat();  // for updating rotation
-        redrawVisual();
+        redrawEffect();
     }
 
     BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
@@ -113,7 +120,6 @@ protected:
     bool _selectedVisualActive = false;
     bool _scalableBorderVisualActive = false;
     bool _rotatableCircleVisualActive = false;
-
 
 
 private:

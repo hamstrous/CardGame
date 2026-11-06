@@ -28,7 +28,6 @@ public:
 
 
     void drawProperties() override;
-    void redrawVisual();
 
     int getCount() const { return _count; }
 

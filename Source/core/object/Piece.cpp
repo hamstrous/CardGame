@@ -37,7 +37,7 @@ bool Piece::init(std::string type)
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    setUp();
+    setUpInteractEffect();
 
     _type = type;
 
@@ -69,18 +69,3 @@ void Piece::drawProperties()
 
     markTransformDirty();
 }
-
-void Piece::redrawVisual() {
-    if (_hoverVisualActive)
-    {
-        drawHoverVisual();
-    }
-    if (_scalableBorderVisualActive)
-    {
-        drawScalableBorder();
-    }
-    if (_rotatableCircleVisualActive)
-    {
-        drawRotatableCircle();
-    }
-}   

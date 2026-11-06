@@ -58,13 +58,13 @@ public:
 
     void addSelectedWidget(Widget* widget) {
         _selectedWidgets.insert(widget);
-        widget->drawSelectedVisual();
+        widget->drawSelectedEffect();
         CheckAloneWidget();
     }
 
     void removeSelectedWidget(Widget* widget) {
         // This is the only place where we clear the visuals of a widget when it is deselected
-        widget->clearVisual();
+        widget->clearEffect();
         _selectedWidgets.erase(widget);
         CheckAloneWidget();
     }
@@ -75,12 +75,21 @@ public:
     {
         for (auto widget : _selectedWidgets)
         {
-            widget->clearVisual();
+            widget->clearEffect();
         }
         _selectedWidgets.clear();
     }
 
     set<Widget*>& getSelectedWidgets() { return _selectedWidgets; }
+    vector<Widget*>& getSortedSelectedWidgets()
+    {
+        auto sorted = vector<Widget*>(_selectedWidgets.begin(), _selectedWidgets.end());
+        std::sort(sorted.begin(), sorted.end(), [](Widget* a, Widget* b) {
+            return a->getLocalZOrder() < b->getLocalZOrder();
+        });
+        return sorted;
+    }
+
     Vec2 getMousePosition() const { return _mousePreviousPosition; }
     Widget* getHoveringWidget() const { return _hoveringWidget; }
 
@@ -135,5 +144,7 @@ private:
     bool _canRubberband   = true;
     bool _canEnlarge      = false;
     bool _toggleSelection   = false; //Click on widget to toggle select
+    bool _dragMoveWidgetsToFront = true;
+    bool _dragEmphasisEffect     = true;
 
 };

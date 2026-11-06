@@ -55,6 +55,10 @@ bool TestScene::init()
     this->addChild(_inspector);
     this->addChild(_selectManager);
     this->addChild(_layerManager);
+
+    auto camera = this->getDefaultCamera();
+    //camera->setZoom(2.0f);
+
     return true;
 }
 

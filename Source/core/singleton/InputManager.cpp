@@ -116,7 +116,7 @@ bool InputManager::onMouseMoveAfter(Event* event) {
     if (_hoveringWidget != nullptr)
     {
         if (_selectedWidgets.find(_hoveringWidget) == _selectedWidgets.end())
-            _hoveringWidget->clearHoverVisual();
+            _hoveringWidget->clearHoverEffect();
         _hoveringWidget = nullptr;
     }
     return false;
@@ -172,6 +172,8 @@ bool InputManager::onModeChanged(EventMode* eventMode)
         _canRubberband   = true;
         _toggleSelection = false;
         _canEnlarge      = false;
+        _dragEmphasisEffect = false;
+        _dragMoveWidgetsToFront = false;
     }
     else if (newMode == Mode::PLAY)
     {
@@ -181,6 +183,8 @@ bool InputManager::onModeChanged(EventMode* eventMode)
         _canRubberband   = false;
         _toggleSelection = false;
         _canEnlarge      = false;
+        _dragEmphasisEffect = true;
+        _dragMoveWidgetsToFront = true;
     }
     else if (newMode == Mode::SELECT)
     {
@@ -223,11 +227,33 @@ void InputManager::updateRubberBandSelection(const Vec2& mousePosition) {
 void InputManager::startDragging() {
     if (!_canDrag)
         return;
+    auto selectedWidgets = getSortedSelectedWidgets();
+    
+    for (auto widget : _selectedWidgets)
+    {
+        if (_dragMoveWidgetsToFront)
+            _layerManager->moveWidgetToFront(widget);
+        if (_dragEmphasisEffect)
+            widget->drawEmphasisEffect();
+        else
+            widget->drawTransparentEffect();
+    }
+    
     _dragging = true;
 }
 
 void InputManager::endDragging() {
+    if (!_dragging)
+        return;
     _dragging = false;
+
+    for (auto widget : _selectedWidgets)
+    {
+        if (_dragEmphasisEffect)
+            widget->clearEmphasisEffect();
+        else
+            widget->clearTransparentEffect();
+    }
 }
 
 void InputManager::updateDragging(const Vec2& mousePosition) {
@@ -375,7 +401,7 @@ void InputManager::CheckAloneWidget()
     {
         for (auto widget : _selectedWidgets)
         {
-            widget->clearTransformModifyVisual();
+            widget->clearTransformModifyEffect();
         }
     }
 }
@@ -402,8 +428,6 @@ void InputManager::deleteSelectedWidgets()
 
 void InputManager::justClickedInsideWidget(Widget* widget)
 {
-    _layerManager->moveWidgetToFront(widget);
-
     _justClickedInsideWidget = true;
 
     // If click on the same set of selected widgets
@@ -462,8 +486,8 @@ void InputManager::hoveringInsideWidget(Widget* widget)
         return;
     if (_hoveringWidget != nullptr)
     {
-        _hoveringWidget->clearHoverVisual();
+        _hoveringWidget->clearHoverEffect();
     }
     _hoveringWidget = widget;
-    _hoveringWidget->drawHoverVisual();    
+    _hoveringWidget->drawHoverEffect();    
 }

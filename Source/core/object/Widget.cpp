@@ -45,18 +45,10 @@ bool Widget::init()
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    _placeholderVisual = ax::DrawNode::create();
-    _placeholderVisual->properties.setDrawOrder(true);
-    this->addChild(_placeholderVisual);
-
-    setUp();
+    setUpMainVisual();
+    setUpInteractEffect();
 
     scheduleUpdate();
-    schedule([this](float delta) {
-        _placeholderVisual->clear();
-        _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-        _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
-    }, "placeholder_visual");
 
     this->setName(getId());
     return true;
@@ -77,7 +69,7 @@ void Widget::update(float delta) {
     inputManager->isWidgetIntersectingRubberBand(this);
 }
 
-void Widget::setUp() {
+void Widget::setUpInteractEffect() {
     this->setAnchorPoint(Vec2(0.5f, 0.5f));
 
     _hoverVisual = ax::DrawNode::create();
@@ -97,6 +89,18 @@ void Widget::setUp() {
     this->addChild(_rotatableCircleVisual);
 
     setCascadeOpacityEnabled(true);
+}
+
+void Widget::setUpMainVisual() {
+    _placeholderVisual = ax::DrawNode::create();
+    _placeholderVisual->properties.setDrawOrder(true);
+    this->addChild(_placeholderVisual);
+
+    schedule([this](float delta) {
+        _placeholderVisual->clear();
+        _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
+        _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
+    }, "placeholder_visual");
 }
 
 bool Widget::onMouseDown(ax::Event* event)
@@ -169,11 +173,11 @@ void Widget::drawProperties()
     markTransformDirty();
 }
 
-void Widget::redrawVisual() {
+void Widget::redrawEffect() {
     // if the visual is active then it can be redraw
     if (_hoverVisualActive)
     {
-        drawHoverVisual();
+        drawHoverEffect();
     }
     if (_scalableBorderVisualActive)
     {
@@ -185,24 +189,24 @@ void Widget::redrawVisual() {
     }
     if (_selectedVisualActive)
     {
-        drawSelectedVisual();
+        drawSelectedEffect();
     }
 }
 
-void Widget::clearVisual() {
-    clearHoverVisual();
-    clearSelectedVisual();
+void Widget::clearEffect() {
+    clearHoverEffect();
+    clearSelectedEffect();
     clearScalableBorder();
     clearRotatableCircle();
 }
 
-void Widget::clearTransformModifyVisual()
+void Widget::clearTransformModifyEffect()
 {
     clearScalableBorder();
     clearRotatableCircle();
 }
 
-void Widget::drawHoverVisual()
+void Widget::drawHoverEffect()
 {
     if (_hoverVisual == nullptr)
         return;
@@ -212,7 +216,7 @@ void Widget::drawHoverVisual()
     _hoverVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::ORANGE, 2.f);
 }
 
-void Widget::clearHoverVisual()
+void Widget::clearHoverEffect()
 {
     if (_hoverVisual == nullptr)
         return;
@@ -220,7 +224,7 @@ void Widget::clearHoverVisual()
     _hoverVisual->clear();
 }
 
-void Widget::drawSelectedVisual() {
+void Widget::drawSelectedEffect() {
     if (_selectedVisual == nullptr)
         return;
     _selectedVisualActive = true;
@@ -229,7 +233,7 @@ void Widget::drawSelectedVisual() {
     _selectedVisual->drawRect(-offset, this->getContentSize() + offset, ax::Color4F::RED, 2.f);
 }
 
-void Widget::clearSelectedVisual() {
+void Widget::clearSelectedEffect() {
     if (_selectedVisual == nullptr)
         return;
     _selectedVisualActive = false;
@@ -301,6 +305,29 @@ void Widget::clearRotatableCircle() {
         return;
     _rotatableCircleVisualActive = false;
     _rotatableCircleVisual->clear();
+}
+
+void Widget::drawEmphasisEffect() {
+    auto scaleTo = ax::ScaleTo::create(0.05f, 1.05f, 1.05f);
+    auto rotateBy = ax::RotateBy::create(0.05f, 2.f);
+    auto action   = ax::Spawn::create(scaleTo, rotateBy, nullptr);
+    this->runAction(action);
+}
+
+void Widget::clearEmphasisEffect() {
+    // Reset the scale and rotation to their original values
+    auto scaleTo  = ax::ScaleTo::create(0.05f, 1.0f, 1.0f);
+    auto rotateBy = ax::RotateBy::create(0.05f, -2.f);
+    auto action   = ax::Spawn::create(scaleTo, rotateBy, nullptr);
+    this->runAction(action);
+}
+
+void Widget::drawTransparentEffect() {
+    this->setOpacity(128);  // Set opacity to 50%
+}
+
+void Widget::clearTransparentEffect() {
+    this->setOpacity(255);  // Set opacity to 100%
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
