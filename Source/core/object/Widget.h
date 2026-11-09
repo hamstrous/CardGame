@@ -8,6 +8,8 @@
 #include "utils/helper.h"
 #include "utils/Timer.hpp"
 
+#include "core/ui/data/InspectorData.h"
+
 using namespace ax; 
 
 class Widget : public Node
@@ -46,6 +48,8 @@ public:
     virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
+    virtual InspectorData getInspectorData();
+
     virtual void redrawEffect();
     virtual void clearEffect();
     virtual void clearTransformModifyEffect();

@@ -173,6 +173,19 @@ void Widget::drawProperties()
     markTransformDirty();
 }
 
+InspectorData Widget::getInspectorData()
+{
+    InspectorData data;
+    
+    InspectorDataItem::Item positionX("X", &_position.x, [](float tmp) { return; });
+    InspectorDataItem::Item positionY("Y", &_position.y, [](float tmp) { return; });
+    InspectorDataItem item("Position", "Where the widget at", InspectorDataItem::Type::DRAG_FLOAT);
+    item.Add(positionX);
+    item.Add(positionY);
+    data.Add(item);
+    return data;
+}
+
 void Widget::redrawEffect() {
     // if the visual is active then it can be redraw
     if (_hoverVisualActive)

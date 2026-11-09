@@ -29,13 +29,26 @@ void Inspector::drawUI() {
     if (InputManager)
     {
         auto selectedWidgets = InputManager->getSelectedWidgets();
-        if (!selectedWidgets.empty())
+        
+        for (auto widget : selectedWidgets)
         {
-            for (auto widget : selectedWidgets)
+            //widget->drawProperties();
+            auto data = widget->getInspectorData();
+
+            ImGui::PushID(widget->getId().c_str());
+            for (auto item : data.itemList)
             {
-                widget->drawProperties();  
+                ImGui::Text(item.name.c_str());
+                for (auto itemitem : item.list)
+                {
+                    ImGui::DragFloat(itemitem.name.c_str(), itemitem.ref, 0.5f);
+                }
             }
+
+            ImGui::PopID();
+
         }
+        
     }
 
     ImGui::End();
