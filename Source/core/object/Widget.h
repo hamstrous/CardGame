@@ -96,6 +96,33 @@ public:
         redrawEffect();
     }
 
+    set<int>& getAllowedRotation() { return _allowedRotation; }
+    void addAllowedRotation(int rotation)
+    {
+        if (rotation == 360 || rotation == 0)
+        {
+            _allowedRotation.insert(0);
+            _allowedRotation.insert(-360);
+            _allowedRotation.insert(360);
+            return;
+        }
+        _allowedRotation.insert(rotation % 360);
+        _allowedRotation.insert(-(360 - (rotation % 360)));
+    }
+    void eraseAllowedRotation(int rotation)
+    {
+        if (rotation == 360 || rotation == 0)
+        {
+            _allowedRotation.erase(0);
+            _allowedRotation.erase(-360);
+            _allowedRotation.erase(360);
+            return;
+        }
+        _allowedRotation.erase(rotation % 360);
+        _allowedRotation.erase(-(360 - (rotation % 360)));
+    }
+    void rotateToNeareastAllowedRotation();
+
 protected:
     
     BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
@@ -129,6 +156,8 @@ protected:
     bool _rotatableCircleVisualActive = false;
 
     InspectorData _inspectorData;
+
+    set<int> _allowedRotation;
 
 
 private:

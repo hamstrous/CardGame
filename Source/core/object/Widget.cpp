@@ -53,6 +53,12 @@ bool Widget::init()
     _inspectorData = createInspectorData();
 
     this->setName(getId());
+
+    addAllowedRotation(0);
+    addAllowedRotation(90);
+    addAllowedRotation(180);
+    addAllowedRotation(270);
+
     return true;
 }
 
@@ -178,6 +184,7 @@ void Widget::drawProperties()
 InspectorData Widget::createInspectorData()
 {
     InspectorData data;
+
     InspectorDataItem positionTitle, positionDescription, position;
     positionTitle.initTitle("Position");
     positionDescription.initDescription("Where the widget at");
@@ -185,6 +192,12 @@ InspectorData Widget::createInspectorData()
     data.add(positionTitle);
     data.add(positionDescription);
     data.add(position);
+
+    InspectorDataItem rotationTitle, rotation;
+    rotationTitle.initTitle("Rotation");
+    rotation.initDragFloat({"Rotation"}, {&this->_rotationZ_X});
+    data.add(rotationTitle);
+    data.add(rotation);
     return data;
 }
 
@@ -343,6 +356,19 @@ void Widget::drawTransparentEffect() {
 
 void Widget::clearTransparentEffect() {
     this->setOpacity(255);  // Set opacity to 100%
+}
+
+void Widget::rotateToNeareastAllowedRotation() {
+    if (_allowedRotation.empty())
+        return;
+    int nearest = (*_allowedRotation.begin());
+    int currentRotation = this->getRotation();
+    for (auto degree : _allowedRotation)
+    {
+        if (abs(currentRotation - degree) < abs(currentRotation - nearest))
+            nearest = degree;
+    }
+    runAction(RotateTo::create(0.2f, nearest));
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const

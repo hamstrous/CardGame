@@ -21,6 +21,11 @@ enum ZOrder
     CARD_DRAGGING = 100
 };
 
+enum ActionTag
+{
+    WIDGET_ROTATION
+};
+
 enum Mode
 {
     EDIT,
