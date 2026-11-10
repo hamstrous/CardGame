@@ -23,7 +23,8 @@ enum ZOrder
 
 enum ActionTag
 {
-    WIDGET_ROTATION
+    WIDGET_ROTATION,
+    WIDGET_DRAG_EMPHASIS,
 };
 
 enum Mode

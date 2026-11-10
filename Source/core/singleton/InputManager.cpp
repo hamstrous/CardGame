@@ -348,7 +348,7 @@ void InputManager::endRotating() {
         return;
     _rotating = false;
     setNodeAnchorPointPreservePosition(_selectedAloneWidget, _previousAnchorPoint);
-    _selectedAloneWidget->rotateToNeareastAllowedRotation();
+    //_selectedAloneWidget->rotateToNeareastAllowedRotation();
     _selectedAloneWidget = nullptr;
 
 }

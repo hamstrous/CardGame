@@ -155,7 +155,11 @@ protected:
     bool _scalableBorderVisualActive = false;
     bool _rotatableCircleVisualActive = false;
 
+    //Gui
     InspectorData _inspectorData;
+
+    //Action
+    float _previousRotation;
 
     set<int> _allowedRotation;
 

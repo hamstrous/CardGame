@@ -336,17 +336,29 @@ void Widget::clearRotatableCircle() {
 }
 
 void Widget::drawEmphasisEffect() {
+    auto runningEmphasisAction = this->getActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
+    if (runningEmphasisAction == nullptr)
+    {
+        AXLOGD("Get previous rotation");
+        _previousRotation = this->getRotation();
+    }
+    this->stopActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
     auto scaleTo = ax::ScaleTo::create(0.05f, 1.05f, 1.05f);
-    auto rotateBy = ax::RotateBy::create(0.05f, 2.f);
-    auto action   = ax::Spawn::create(scaleTo, rotateBy, nullptr);
+    auto rotateTo = ax::RotateTo::create(0.05f, _previousRotation + 2.f);
+    auto action   = ax::Spawn::create(scaleTo, rotateTo, nullptr);
+
+    action->setTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
     this->runAction(action);
 }
 
 void Widget::clearEmphasisEffect() {
     // Reset the scale and rotation to their original values
-    auto scaleTo  = ax::ScaleTo::create(0.05f, 1.0f, 1.0f);
-    auto rotateBy = ax::RotateBy::create(0.05f, -2.f);
-    auto action   = ax::Spawn::create(scaleTo, rotateBy, nullptr);
+    this->stopActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
+    auto scaleTo  = ax::ScaleTo::create(0.05f, 1.f, 1.f);
+    auto rotateTo = ax::RotateTo::create(0.05f, _previousRotation);
+    auto action   = ax::Spawn::create(scaleTo, rotateTo, nullptr);
+
+    action->setTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
     this->runAction(action);
 }
 
