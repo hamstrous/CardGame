@@ -23,7 +23,8 @@ void Inspector::destroyInstance()
 }
 
 void Inspector::drawUI() {
-    ImGui::Begin("Inspector");
+    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Inspector", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
     InputManager* InputManager = InputManager::getInstance();
     if (InputManager)
@@ -36,17 +37,10 @@ void Inspector::drawUI() {
             auto data = widget->getInspectorData();
 
             ImGui::PushID(widget->getId().c_str());
-            for (auto item : data.itemList)
-            {
-                ImGui::Text(item.name.c_str());
-                for (auto itemitem : item.list)
-                {
-                    ImGui::DragFloat(itemitem.name.c_str(), itemitem.ref, 0.5f);
-                }
-            }
-
+            widget->getInspectorData().drawGui();
             ImGui::PopID();
 
+            widget->markTransformDirty();
         }
         
     }

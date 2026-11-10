@@ -50,6 +50,8 @@ bool Widget::init()
 
     scheduleUpdate();
 
+    _inspectorData = createInspectorData();
+
     this->setName(getId());
     return true;
 }
@@ -173,16 +175,16 @@ void Widget::drawProperties()
     markTransformDirty();
 }
 
-InspectorData Widget::getInspectorData()
+InspectorData Widget::createInspectorData()
 {
     InspectorData data;
-    
-    InspectorDataItem::Item positionX("X", &_position.x, [](float tmp) { return; });
-    InspectorDataItem::Item positionY("Y", &_position.y, [](float tmp) { return; });
-    InspectorDataItem item("Position", "Where the widget at", InspectorDataItem::Type::DRAG_FLOAT);
-    item.Add(positionX);
-    item.Add(positionY);
-    data.Add(item);
+    InspectorDataItem positionTitle, positionDescription, position;
+    positionTitle.initTitle("Position");
+    positionDescription.initDescription("Where the widget at");
+    position.initDragFloat({"X", "Y"}, {&this->_position.x, &this->_position.y});
+    data.add(positionTitle);
+    data.add(positionDescription);
+    data.add(position);
     return data;
 }
 

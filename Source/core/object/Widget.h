@@ -48,7 +48,9 @@ public:
     virtual bool onMouseMove(ax::Event* event);
 
     virtual void drawProperties();
-    virtual InspectorData getInspectorData();
+
+    virtual InspectorData createInspectorData();
+    InspectorData& getInspectorData() { return _inspectorData; }
 
     virtual void redrawEffect();
     virtual void clearEffect();
@@ -85,7 +87,6 @@ public:
         return RectApplyTransform(rect, getNodeToWorldTransform());
     }
 
-protected:
     void markTransformDirty()
     {
         this->_rotationZ_Y = this->_rotationZ_X;
@@ -95,6 +96,8 @@ protected:
         redrawEffect();
     }
 
+protected:
+    
     BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
     bool isPointOnRotatableCircle(const Vec2& point, float threshold = 10.f) const;
 
@@ -124,6 +127,8 @@ protected:
     bool _selectedVisualActive = false;
     bool _scalableBorderVisualActive = false;
     bool _rotatableCircleVisualActive = false;
+
+    InspectorData _inspectorData;
 
 
 private:

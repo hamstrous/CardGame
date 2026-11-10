@@ -5,14 +5,19 @@
 #include "ImGui/ImGuiPresenter.h"
 
 #include "InspectorDataItem.h"
+#include "GuiData.h"
+
 USING_NS_AX_EXT;
 using namespace std;
 
-class InspectorData
+class InspectorData : public GuiData
 {
 
 public:
-    void Add(InspectorDataItem item) { itemList.push_back(item); }
+    InspectorData() = default;
+
+    void add(InspectorDataItem item) { itemList.push_back(item); }
+    void drawGui() override;
 
     vector<InspectorDataItem> itemList;
 

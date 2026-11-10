@@ -10,6 +10,6 @@ class GuiData
 public:
     GuiData() = default;
 
-    virtual void drawGui();
+    virtual void drawGui() = 0;
 
 };

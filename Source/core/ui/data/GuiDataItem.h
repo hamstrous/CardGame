@@ -10,6 +10,6 @@ class GuiDataItem
 public:
     GuiDataItem() = default;
 
-    virtual void drawGuiItem();
+    virtual void drawGuiItem() = 0;
 
 };

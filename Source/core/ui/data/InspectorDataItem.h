@@ -3,37 +3,63 @@
 #include "axmol.h"
 
 #include "ImGui/ImGuiPresenter.h"
+#include "GuiDataItem.h"
 USING_NS_AX_EXT;
 using namespace std;
 
-class InspectorDataItem
+class InspectorDataItem : public GuiDataItem
 {
 
 public:
-    class Item {
-    public:
-        Item(string name, float* ref, function<void(float)> callback) : name(name), ref(ref), callback(callback) {};
-        string name;
-        float* ref;
-        function<void(float)> callback;
-    };
-
-    enum Type {
+    enum Type
+    {
+        TITLE,
+        DESCRIPTION,
         DRAG_FLOAT,
         SLIDER_FLOAT,
-        SELECTABLE_BUTTON
+        SELECTABLE_BUTTONS,
+        TEXT
     };
 
+    void initTitle(string title)
+    {
+        type        = Type::TITLE;
+        this->title = title;
+    };
+    void initDescription(string description)
+    {
+        type              = Type::DESCRIPTION;
+        this->description = description;
+    };
+    void initDragFloat(const vector<string>& nameList, const vector<float*>& refList)
+    {
+        type = Type::DRAG_FLOAT;
+        for (auto name : nameList)
+        {
+            this->nameList.push_back(name);
+        }
+        for (auto ref : refList)
+        {
+            this->refList.push_back(ref);
+        }
+    };
+    void initSliderFloat();
+    void initSelectableButtons();
+    void initText();
 
-    InspectorDataItem(string name, string description, Type type) : name(name), description(description), type(type) {};
+    void drawTitle();
+    void drawDescription();
+    void drawDragFloat();
+    void drawSliderFloat();
+    void drawSelectableButtons();
+    void drawText();
 
-    void Add(Item item) { list.push_back(item); }
+    void drawGuiItem() override;
 
-    //virtual void drawGuiItem();
-
-    string name;
-    string description;
     Type type;
-    vector<Item> list;
-
+    string title;
+    string description;
+    vector<float*> refList;
+    vector<function<void(float)>> callableList;
+    vector<string> nameList;
 };
