@@ -134,7 +134,7 @@ protected:
         {BorderPosition::LEFT_BORDER, Vec2(0, 0.5f)}, {BorderPosition::RIGHT_BORDER, Vec2(1, 0.5f)},
         {BorderPosition::TOP_BORDER, Vec2(0.5f, 1)},  {BorderPosition::BOTTOM_BORDER, Vec2(0.5f, 0)}};
 
-    const Vec2 _rotatableCircleNormalized = Vec2(0.5f, -0.2f);
+    const Vec2 _rotatableCirclePosition = Vec2(0.5f, -25.f); // x is normalize, y is absolute
 
     Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
     void setType(std::string type) { _type = type; }

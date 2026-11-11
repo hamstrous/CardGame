@@ -325,7 +325,7 @@ void Widget::drawRotatableCircle() {
     _rotatableCircleVisualActive = true;
 
     _rotatableCircleVisual->clear();
-    auto circleCenterLocal = _rotatableCircleNormalized * this->getContentSize();
+    auto circleCenterLocal = _rotatableCirclePosition * Vec2(this->getContentSize().x, 1);
     _rotatableCircleVisual->drawSolidCircle(circleCenterLocal, 10.f, 0.f, 32, ax::Color4F::WHITE);
 }
 void Widget::clearRotatableCircle() {
@@ -404,7 +404,7 @@ Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshol
 
 bool Widget::isPointOnRotatableCircle(const Vec2& point, float threshold) const
 {
-    auto circleCenterLocal = _rotatableCircleNormalized * this->getContentSize();
+    auto circleCenterLocal = _rotatableCirclePosition * Vec2(this->getContentSize().x, 1);
     Vec2 circleCenter = this->convertToWorldSpace(circleCenterLocal);
     return point.distance(circleCenter) <= threshold;
 }
