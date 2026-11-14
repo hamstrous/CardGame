@@ -96,7 +96,7 @@ public:
         redrawEffect();
     }
 
-    set<int>& getAllowedRotation() { return _allowedRotation; }
+    std::set<int>& getAllowedRotation() { return _allowedRotation; }
     void addAllowedRotation(int rotation)
     {
         if (rotation == 360 || rotation == 0)
@@ -161,7 +161,7 @@ protected:
     //Action
     float _previousRotation;
 
-    set<int> _allowedRotation;
+    std::set<int> _allowedRotation;
 
 
 private:

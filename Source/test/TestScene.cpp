@@ -126,5 +126,5 @@ void TestScene::onImGuiDraw()
     //    ImGui::Text("Thanks for clicking me!");
     //}
 
-    _inspector->drawUI();
+    _inspector->drawGui();
 }

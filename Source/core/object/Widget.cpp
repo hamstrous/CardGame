@@ -185,19 +185,11 @@ InspectorData Widget::createInspectorData()
 {
     InspectorData data;
 
-    InspectorDataItem positionTitle, positionDescription, position;
-    positionTitle.initTitle("Position");
-    positionDescription.initDescription("Where the widget at");
-    position.initDragFloat({"X", "Y"}, {&this->_position.x, &this->_position.y});
-    data.add(positionTitle);
-    data.add(positionDescription);
-    data.add(position);
+    data.haveBasicData = true;
+    data.position      = &this->_position;
+    data.rotation      = &this->_rotationZ_X;
+    data.size          = &this->_contentSize;
 
-    InspectorDataItem rotationTitle, rotation;
-    rotationTitle.initTitle("Rotation");
-    rotation.initDragFloat({"Rotation"}, {&this->_rotationZ_X});
-    data.add(rotationTitle);
-    data.add(rotation);
     return data;
 }
 

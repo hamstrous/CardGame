@@ -9,7 +9,4 @@ class GuiData
 {
 public:
     GuiData() = default;
-
-    virtual void drawGui() = 0;
-
 };

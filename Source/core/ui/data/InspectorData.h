@@ -2,13 +2,7 @@
 
 #include "axmol.h"
 
-#include "ImGui/ImGuiPresenter.h"
-
-#include "InspectorDataItem.h"
 #include "GuiData.h"
-
-USING_NS_AX_EXT;
-using namespace std;
 
 class InspectorData : public GuiData
 {
@@ -16,9 +10,44 @@ class InspectorData : public GuiData
 public:
     InspectorData() = default;
 
-    void add(InspectorDataItem item) { itemList.push_back(item); }
-    void drawGui() override;
+    // BASIC
+    bool haveBasicData = false; // flag
+    static bool gatherHaveBasicData(const std::vector<InspectorData>& datas)
+    {
+        int count = 0;
+        for (const auto& data : datas)
+        {
+            if (data.haveBasicData)
+                count++;
+        }
 
-    vector<InspectorDataItem> itemList;
+        return (count == datas.size() && count != 0);
+    }
+
+    // Transform
+    ax::Vec2* position = nullptr;
+    float* rotation    = nullptr;
+    ax::Vec2* size     = nullptr;
+
+    // Allow click
+    std::function<bool()> isAllowClick          = nullptr;
+    std::function<void()> allowClickCallback    = nullptr;
+    std::function<void()> notAllowClickCallback = nullptr;
+
+    // Allow movement
+    std::function<bool()> isAllowMovement          = nullptr;
+    std::function<void()> allowMovementCallback    = nullptr;
+    std::function<void()> notAllowMovementCallback = nullptr;
+
+    // Allow rotation
+    std::set<int>* allowedRotation;
+    std::function<void(float)> allowRotationCallback    = nullptr;
+    std::function<void(float)> notAllowRotationCallback = nullptr;
+
+    // DECK
+    bool haveDeckData = false;  // flag
+    // Spread
+    float* horizontalSpread = nullptr;
+    float* verticalSpread   = nullptr;
 
 };

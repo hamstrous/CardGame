@@ -2,6 +2,9 @@
 
 #include "core/singleton/InputManager.h"
 
+using namespace std;
+using namespace ax;
+
 Inspector* Inspector::_instance = nullptr;
 
 Inspector* Inspector::getInstance()
@@ -22,7 +25,24 @@ void Inspector::destroyInstance()
     }
 }
 
-void Inspector::drawUI() {
+void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
+{
+    bool gatheredBasicData = InspectorData::gatherHaveBasicData(inspectorDataList);
+    if (!gatheredBasicData)
+    {
+        ImGui::Text("%d widgets selected", inspectorDataList.size());
+        return;
+    }
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Position");
+    ImGui::PopFont();
+    ImGui::Text("Where the widget is located");
+
+    
+
+}
+
+void Inspector::drawGui() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
     ImGui::Begin("Inspector", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
@@ -30,19 +50,21 @@ void Inspector::drawUI() {
     if (InputManager)
     {
         auto selectedWidgets = InputManager->getSelectedWidgets();
-        
+        vector<InspectorData> inspectorDataList;
+
         for (auto widget : selectedWidgets)
         {
             //widget->drawProperties();
             auto data = widget->getInspectorData();
+            inspectorDataList.push_back(data);
 
-            ImGui::PushID(widget->getId().c_str());
-            widget->getInspectorData().drawGui();
-            ImGui::PopID();
+            
 
             widget->markTransformDirty();
         }
-        
+        ImGui::PushID("Inspector");
+        drawBasic(inspectorDataList);
+        ImGui::PopID();
     }
 
     ImGui::End();
