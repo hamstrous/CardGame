@@ -3,6 +3,7 @@
 #include "core/singleton/InputManager.h"
 
 #include "ImGui/ImGuiPresenter.h"
+#include "ImGui/imgui.h"
 
 #include "core/object/Widget.h"
 
@@ -34,7 +35,7 @@ void Inspector::destroyInstance()
 
 void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 {
-    bool gatheredBasicData = InspectorData::gatherHaveBasicData(inspectorDataList);
+    bool gatheredBasicData = InspectorData::allHaveBasicData(inspectorDataList);
     if (!gatheredBasicData)
     {
         ImGui::Text("%d widgets selected", inspectorDataList.size());
@@ -45,7 +46,44 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     ImGui::PopFont();
     ImGui::Text("Where the widget is located");
 
-    
+    float *positionX, *positionY; // Representation of all positions
+    bool sameX = InspectorData::gatherHaveSamePositionX(inspectorDataList, positionX);
+    bool sameY = InspectorData::gatherHaveSamePositionY(inspectorDataList, positionY);
+
+    // positionXY garantee to be equal to all position in list if that is the case
+
+    if (sameX)
+    {
+        if (ImGui::DragFloat("X", positionX, 0.5f))
+        {
+            InspectorData::setPositionX(inspectorDataList, *positionX);
+        }
+    }
+    else
+    {
+        static char str[128];
+        if (ImGui::InputTextWithHint("X", "--", str, IM_ARRAYSIZE(str),
+                                     ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            float value;
+            try
+            {
+                value = stof(str);
+                *positionX = value;
+                InspectorData::setPositionX(inspectorDataList, *positionX);
+                strcpy(str, "");
+            }
+            catch (const std::exception&)
+            {
+            }
+            strcpy(str, "");
+        }
+        if (ImGui::IsItemDeactivated())
+        {
+            strcpy(str, "");
+        }
+    }
+
 
 }
 
