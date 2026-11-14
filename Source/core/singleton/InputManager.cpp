@@ -103,6 +103,13 @@ bool InputManager::onMouseMoveBefore(Event* event)
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
 
+    if (_justClickedInsideWidget)
+    {
+        // Mouse moved before up so it is a drag
+        startDragging();
+        _justClickedInsideWidget = false;
+    }
+
     if (isDragging())
     {
         updateDragging(mousePos);
@@ -149,6 +156,13 @@ bool InputManager::onMouseUp(Event* event)
     endScaling();
     endRotating();
 
+    if (_justClickedInsideWidget)
+    {
+        _justClickedInsideWidget = false;
+        clickOnSelectedWidgets();
+    }
+
+    endClickEffect();
     return false;
 }
 
@@ -255,10 +269,6 @@ void InputManager::startDragging() {
     {
         if (_dragMoveWidgetsToFront)
             _layerManager->moveWidgetToFront(widget);
-        if (_dragEmphasisEffect)
-            widget->drawEmphasisEffect();
-        else
-            widget->drawTransparentEffect();
     }
     
     _dragging = true;
@@ -268,15 +278,6 @@ void InputManager::endDragging() {
     if (!_dragging)
         return;
     _dragging = false;
-
-    for (auto widget : _selectedWidgets)
-    {
-        if (_dragEmphasisEffect)
-            widget->clearEmphasisEffect();
-        else
-            widget->clearTransparentEffect();
-        widget->rotateToNeareastAllowedRotation();
-    }
 }
 
 void InputManager::updateDragging(const Vec2& mousePosition) {
@@ -394,6 +395,28 @@ void InputManager::updateRotating(const Vec2& mousePosition) {
     _selectedAloneWidget->setRotation(_selectedAloneWidget->getRotation() + offsetAngleinDeg);
 }
 
+void InputManager::startClickEffect() {
+    for (auto widget : _selectedWidgets)
+    {
+        if (_dragEmphasisEffect)
+            widget->drawEmphasisEffect();
+        else
+            widget->drawTransparentEffect();
+    }
+}
+
+void InputManager::endClickEffect()
+{
+    for (auto widget : _selectedWidgets)
+    {
+        if (_dragEmphasisEffect)
+            widget->clearEmphasisEffect();
+        else
+            widget->clearTransparentEffect();
+        widget->rotateToNeareastAllowedRotation();
+    }
+}
+
 bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
     if (!isRubberBanding())
         return false;
@@ -489,15 +512,30 @@ void InputManager::deleteSelectedWidgets()
     _selectedWidgets.clear();  
 }
 
-void InputManager::justClickedInsideWidget(Widget* widget)
+void InputManager::clickOnSelectedWidgets() {
+    for (auto widget : _selectedWidgets)
+    {
+        widget->clickEffect();
+    }
+}
+
+void InputManager::justMouseDownInsideWidget(Widget* widget)
 {
     _justClickedInsideWidget = true;
-
+    startClickEffect();
     // If click on the same set of selected widgets
     // Then we can drag all
     // Else this is the new selected widget
 
     bool isShiftPressed = _pressingKeys.find(EventKeyboard::KeyCode::KEY_SHIFT) != _pressingKeys.end();
+
+    if (isShiftPressed)
+    {
+        // If shift is pressed then click effect will not be activated
+        _justClickedInsideWidget = false;
+        startDragging();
+    }
+
     bool widgetSelected = isWidgetSelected(widget);
     if ((_toggleSelection || isShiftPressed) && widgetSelected)
     {
@@ -512,9 +550,20 @@ void InputManager::justClickedInsideWidget(Widget* widget)
         clearSelectedWidgets();
         addSelectedWidget(widget);
     }
-    
-    startDragging();
+
+    for (auto widget : _selectedWidgets)
+    {
+        if (widget != nullptr)
+        {
+            if (_dragEmphasisEffect)
+                widget->drawEmphasisEffect();
+            else
+                widget->drawTransparentEffect();
+        }
+    }
 }
+
+void InputManager::justDraggedWidget(Widget* widget) {}
 
 bool InputManager::justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBorderPoint) {
     // Widget must be selected to scale it

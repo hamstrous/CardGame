@@ -86,6 +86,8 @@ public:
     void eraseAllowedRotation(int rotation);
     void rotateToNeareastAllowedRotation();
 
+    virtual void clickEffect();
+
 protected:
     
     BorderPosition isPointOnBorder(const ax::Vec2& point, float threshold = 10.f) const;
@@ -126,6 +128,7 @@ protected:
 
     std::set<int> _allowedRotation;
 
+    // Click & Drag
 
 private:
     ax::DrawNode* _placeholderVisual;

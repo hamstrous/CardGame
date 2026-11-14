@@ -43,6 +43,9 @@ public:
     void endRotating();
     void updateRotating(const ax::Vec2& mousePosition);
 
+    void startClickEffect();
+    void endClickEffect();
+
     bool isWidgetIntersectingRubberBand(Widget* widget);
     bool isWidgetSelected(Widget* widget);
 
@@ -67,7 +70,10 @@ public:
     bool isScaling() const { return _scaling; }
     bool isRotating() const { return _rotating; }
 
-    void justClickedInsideWidget(Widget* widget);
+    void clickOnSelectedWidgets();
+
+    void justMouseDownInsideWidget(Widget* widget);
+    void justDraggedWidget(Widget* widget);             
     bool justClickedOnWidgetBorder(Widget* widget, ax::Vec2 normalizedBorderPoint);
     bool justClickedOnWidgetCircle(Widget* widget);
     void hoveringInsideWidget(Widget* widget);
@@ -104,6 +110,7 @@ private:
     ax::Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
     ax::Vec2 _previousAnchorPoint;   
 
+    bool _canClick               = true;
     bool _canDrag                = true;
     bool _canScale               = true;
     bool _canRotate              = true;

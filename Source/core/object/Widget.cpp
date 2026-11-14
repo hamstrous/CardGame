@@ -140,7 +140,7 @@ bool Widget::onMouseDown(ax::Event* event)
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         //AXLOGD("Widget clicked");
-        InputManager::getInstance()->justClickedInsideWidget(this);
+        InputManager::getInstance()->justMouseDownInsideWidget(this);
         return true;  // Event swallowed
     }
     return false;  // Propagate to other listeners
@@ -329,6 +329,11 @@ void Widget::clearEmphasisEffect() {
     // Reset the scale and rotation to their original values
     this->stopActionByTag(constant::ActionTag::WIDGET_ROTATION);
     this->stopActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
+    if (_previousRotation == this->getRotation())
+    {
+        // Rotation hasnt change so emphasis havent started
+        return;
+    }
     auto scaleTo  = ax::ScaleTo::create(0.05f, 1.f, 1.f);
     auto rotateTo = ax::RotateTo::create(0.05f, _previousRotation);
     auto action   = ax::Spawn::create(scaleTo, rotateTo, nullptr);
@@ -393,6 +398,11 @@ void Widget::rotateToNeareastAllowedRotation() {
     auto rotateTo = ax::RotateTo::create(0.1f, nearest);
     rotateTo->setTag(constant::ActionTag::WIDGET_ROTATION);
     runAction(rotateTo);
+}
+
+void Widget::clickEffect()
+{
+    AXLOGD("{} got clicked", this->getName());
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
