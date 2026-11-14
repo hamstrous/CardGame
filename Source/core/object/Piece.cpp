@@ -50,22 +50,3 @@ void Piece::update(float delta) {
     inputManager->isWidgetIntersectingRubberBand(this);
     
 }
-
-void Piece::drawProperties()
-{
-    ImGui::PushID(this->getId().c_str());
-    ImGui::DragFloat("X", &this->_position.x, 0.5f);
-    ImGui::DragFloat("Y", &this->_position.y, 0.5f);
-
-    ImGui::DragFloat("Width", &this->_contentSize.width, 0.5f);
-    ImGui::DragFloat("Height", &this->_contentSize.height, 0.5f);
-
-    ImGui::DragFloat("Rotation X", &this->_rotationX, 0.5f);
-    ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
-    ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f);
-
-
-    ImGui::PopID();
-
-    markTransformDirty();
-}

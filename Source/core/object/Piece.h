@@ -26,9 +26,6 @@ public:
     Piece() = default;
     ~Piece() = default;
 
-
-    void drawProperties() override;
-
     int getCount() const { return _count; }
 
     std::string getType() const override { return _type; } 

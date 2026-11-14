@@ -130,16 +130,15 @@ void Inspector::drawGui() {
 
         for (auto widget : selectedWidgets)
         {
-            //widget->drawProperties();
             auto data = widget->getInspectorData();
             inspectorDataList.push_back(data);
-
-            
-
-            widget->markTransformDirty();
         }
         ImGui::PushID("Inspector");
+
         drawBasic(inspectorDataList);
+        for (auto widget : selectedWidgets)
+            widget->markTransformDirty(); // Mark dirty after updating with inspector
+
         ImGui::PopID();
     }
 

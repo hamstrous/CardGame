@@ -158,31 +158,6 @@ bool Widget::onMouseMove(ax::Event* event)
     return false;  // Propagate to other listeners
 }
 
-
-void Widget::drawProperties()
-{
-    ImGui::PushID(this->getId().c_str());
-    ImGui::DragFloat("X", &this->_position.x, 0.5f);
-    ImGui::DragFloat("Y", &this->_position.y, 0.5f);
-
-    ImGui::DragFloat("Width", &this->_contentSize.width, 0.5f);
-    ImGui::DragFloat("Height", &this->_contentSize.height, 0.5f);
-
-    ImGui::DragFloat("Rotation X", &this->_rotationX, 0.5f);
-    ImGui::DragFloat("Rotation Y", &this->_rotationY, 0.5f);
-    ImGui::DragFloat("Rotation Z", &this->_rotationZ_X, 0.5f);
-
-    //ImGui::DragFloat("Scale X", &this->_scaleX, 0.005f);
-    //ImGui::DragFloat("Scale Y", &this->_scaleY, 0.005f);
-
-    //ImGui::DragFloat("Anchor X", &this->_anchorPoint.x, 0.005f);
-    //ImGui::DragFloat("Anchor Y", &this->_anchorPoint.y, 0.005f);
-
-    ImGui::PopID();
-
-    markTransformDirty();
-}
-
 InspectorData Widget::createInspectorData()
 {
     InspectorData data;

@@ -39,8 +39,6 @@ public:
     virtual bool onMouseDown(ax::Event* event);
     virtual bool onMouseMove(ax::Event* event);
 
-    virtual void drawProperties();
-
     virtual InspectorData createInspectorData();
     InspectorData& getInspectorData() { return _inspectorData; }
 
