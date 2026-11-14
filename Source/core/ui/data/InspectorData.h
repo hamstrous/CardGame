@@ -10,8 +10,9 @@ class InspectorData : public GuiData
 public:
     // Helper
     static bool sameBool(const std::vector<bool>& bools, bool& outBool);
-    static bool sameFloatPointer(const std::vector<float*>& floatPointers, float*& outFloat);
-    static void setAllFloatPointer(const std::vector<float*>& floatPointers, const float value);
+
+    static bool sameFloatPointers(const std::vector<float*>& floatPointers, float*& outFloat);
+    static void setAllFloatPointers(const std::vector<float*>& floatPointers, const float value);
 
 public:
     InspectorData() = default;
@@ -28,9 +29,7 @@ public:
     static void setPositionY(const std::vector<InspectorData>& datas, float positionY);
 
     float* rotation    = nullptr;
-    static bool gatherHaveSameRotation(const std::vector<InspectorData>& datas, float& outRotation);
     ax::Vec2* size     = nullptr;
-    static bool gatherHaveSameSize(const std::vector<InspectorData>& datas, ax::Vec2& outSize);
 
     // Allow click
     std::function<bool()> isAllowClick          = nullptr;

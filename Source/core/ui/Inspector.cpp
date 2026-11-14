@@ -33,6 +33,46 @@ void Inspector::destroyInstance()
     }
 }
 
+void Inspector::drawFloatPointer(const std::vector<float*>& floatPointers, const char* label, float speed) {
+    float* value;
+    bool sameValue = InspectorData::sameFloatPointers(floatPointers, value);
+    if (sameValue)
+    {
+        if (ImGui::DragFloat(label, value, speed))
+        {
+            InspectorData::setAllFloatPointers(floatPointers, *value);
+        }
+    }
+    else {
+        static map<string, char*> strMap;
+        char* str = strMap[label];
+        if (!str)
+        {
+            str = new char[128];
+            strcpy(str, "");
+            strMap[label] = str;
+        }
+        if (ImGui::InputTextWithHint(label, "--", str, IM_ARRAYSIZE(str),
+                                     ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            float newValue;
+            try
+            {
+                newValue = stof(str);
+                InspectorData::setAllFloatPointers(floatPointers, newValue);
+                strcpy(str, "");
+            }
+            catch (const std::exception&)
+            {}
+            strcpy(str, "");
+        }
+        if (ImGui::IsItemDeactivated())
+        {
+            strcpy(str, "");
+        }
+    }
+}
+
 void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 {
     bool gatheredBasicData = InspectorData::allHaveBasicData(inspectorDataList);
@@ -46,44 +86,35 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     ImGui::PopFont();
     ImGui::Text("Where the widget is located");
 
-    float *positionX, *positionY; // Representation of all positions
-    bool sameX = InspectorData::gatherHaveSamePositionX(inspectorDataList, positionX);
-    bool sameY = InspectorData::gatherHaveSamePositionY(inspectorDataList, positionY);
+    vector<float*> positionXList, positionYList;
+    vector<float*> rotationList;
+    vector<float*> widthList, heightList;
 
-    // positionXY garantee to be equal to all position in list if that is the case
-
-    if (sameX)
+    for (const auto& data : inspectorDataList)
     {
-        if (ImGui::DragFloat("X", positionX, 0.5f))
+        if (data.position)
         {
-            InspectorData::setPositionX(inspectorDataList, *positionX);
+            positionXList.push_back(&data.position->x);
+            positionYList.push_back(&data.position->y);
         }
-    }
-    else
-    {
-        static char str[128];
-        if (ImGui::InputTextWithHint("X", "--", str, IM_ARRAYSIZE(str),
-                                     ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+        if (data.rotation)
         {
-            float value;
-            try
-            {
-                value = stof(str);
-                *positionX = value;
-                InspectorData::setPositionX(inspectorDataList, *positionX);
-                strcpy(str, "");
-            }
-            catch (const std::exception&)
-            {
-            }
-            strcpy(str, "");
+            rotationList.push_back(data.rotation);
         }
-        if (ImGui::IsItemDeactivated())
+        if (data.size)
         {
-            strcpy(str, "");
+            widthList.push_back(&data.size->width);
+            heightList.push_back(&data.size->height);
         }
     }
 
+    drawFloatPointer(positionXList, "X", 0.5f);
+    ImGui::SameLine();
+    drawFloatPointer(positionYList, "Y", 0.5f);
+    drawFloatPointer(rotationList, "Rotation", 0.5f);
+    drawFloatPointer(widthList, "Width", 0.5f);
+    ImGui::SameLine();
+    drawFloatPointer(heightList, "Height", 0.5f);
 
 }
 

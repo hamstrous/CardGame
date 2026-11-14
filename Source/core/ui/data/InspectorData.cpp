@@ -19,7 +19,7 @@ bool InspectorData::sameBool(const std::vector<bool>& bools, bool& outBool)
     return sameBool;
 }
 
-bool InspectorData::sameFloatPointer(const std::vector<float*>& floatPointers, float*& outFloat)
+bool InspectorData::sameFloatPointers(const std::vector<float*>& floatPointers, float*& outFloat)
 {
     bool sameFloatPointer = true;
     if (floatPointers.empty())
@@ -38,7 +38,7 @@ bool InspectorData::sameFloatPointer(const std::vector<float*>& floatPointers, f
     return sameFloatPointer;
 }
 
-void InspectorData::setAllFloatPointer(const std::vector<float*>& floatPointers, const float value) {
+void InspectorData::setAllFloatPointers(const std::vector<float*>& floatPointers, const float value) {
     for (auto& floatPointer : floatPointers)
     {
         *floatPointer = value;
@@ -65,7 +65,7 @@ bool InspectorData::gatherHaveSamePositionX(const std::vector<InspectorData>& da
     {
         positionXVector.push_back(&data.position->x);
     }
-    bool ret = sameFloatPointer(positionXVector, outPositionX);
+    bool ret = sameFloatPointers(positionXVector, outPositionX);
     return ret;
 }
 
@@ -75,7 +75,7 @@ bool InspectorData::gatherHaveSamePositionY(const std::vector<InspectorData>& da
     {
         positionYVector.push_back(&data.position->y);
     }
-    bool ret = sameFloatPointer(positionYVector, outPositionY);
+    bool ret = sameFloatPointers(positionYVector, outPositionY);
     return ret;
 }
 
@@ -86,7 +86,7 @@ void InspectorData::setPositionX(const std::vector<InspectorData>& datas, float 
         positionXVector.push_back(&data.position->x);
     }
 
-    setAllFloatPointer(positionXVector, positionX);
+    setAllFloatPointers(positionXVector, positionX);
 }
 
 void InspectorData::setPositionY(const std::vector<InspectorData>& datas, float positionY) {
@@ -96,5 +96,5 @@ void InspectorData::setPositionY(const std::vector<InspectorData>& datas, float 
         positionYVector.push_back(&data.position->y);
     }
 
-    setAllFloatPointer(positionYVector, positionY);
+    setAllFloatPointers(positionYVector, positionY);
 }
