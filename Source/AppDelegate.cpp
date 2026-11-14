@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 
-#include "MainScene.h"
+//#include "MainScene.h"
 #include "test/TestScene.h"
 
 #define USE_AUDIO_ENGINE 1

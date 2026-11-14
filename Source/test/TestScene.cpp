@@ -1,8 +1,30 @@
 #include "TestScene.h"
 
-using namespace ax;
-using namespace rapidjson;
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/filereadstream.h"
+
+#include "core/file/RapidJsonHelper.h"
+#include "ImGui/ImGuiPresenter.h"
+
+#include "core/ui/Inspector.h"
+#include "core/singleton/InputManager.h"
+#include "core/singleton/LayerManager.h"
+#include "core/object/Widget.h"
+
+#include "core/const/GameConstants.h"
+
+#include <map>
+#include <sstream>
+
+
 USING_NS_AX_EXT;
+using namespace rapidjson;
+using namespace constant;
+using namespace ax;
+using namespace std;
 
 bool TestScene::init()
 {
@@ -16,6 +38,11 @@ bool TestScene::init()
     origin      = _director->getVisibleOrigin();
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
+
+    _inspector     = Inspector::getInstance();
+    _selectManager = InputManager::getInstance();
+    _layerManager  = LayerManager::getInstance();
+    _imGui         = ImGuiPresenter::getInstance();
 
     _keyboardListener = EventListenerKeyboard::create();
     _keyboardListener->onKeyPressed = AX_CALLBACK_2(TestScene::onKeyPressed, this);

@@ -1,5 +1,6 @@
 #include "Widget.h"
-#include "Zone.h"
+#include "utils/helper.h"
+
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
 
@@ -10,6 +11,7 @@
 USING_NS_AX_EXT;
 using namespace helper;
 using namespace ax;
+using namespace std;
 
 int Widget::_count = 0;
 
@@ -220,7 +222,13 @@ void Widget::clearEffect() {
     clearRotatableCircle();
 }
 
-void Widget::clearTransformModifyEffect()
+void Widget::drawModifyTransformEffect()
+{
+    drawScalableBorder();
+    drawRotatableCircle();
+}
+
+void Widget::clearModifyTransformEffect()
 {
     clearScalableBorder();
     clearRotatableCircle();
@@ -331,7 +339,6 @@ void Widget::drawEmphasisEffect() {
     auto runningEmphasisAction = this->getActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
     if (runningEmphasisAction == nullptr)
     {
-        AXLOGD("Get previous rotation");
         _previousRotation = this->getRotation();
     }
     this->stopActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
@@ -362,6 +369,41 @@ void Widget::clearTransparentEffect() {
     this->setOpacity(255);  // Set opacity to 100%
 }
 
+void Widget::markTransformDirty()
+{
+    this->_rotationZ_Y = this->_rotationZ_X;
+    _transformUpdated = _transformDirty = _inverseDirty = true;
+    _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
+    updateRotationQuat();  // for updating rotation
+    redrawEffect();
+}
+
+void Widget::addAllowedRotation(int rotation)
+{
+    if (rotation == 360 || rotation == 0)
+    {
+        _allowedRotation.insert(0);
+        _allowedRotation.insert(-360);
+        _allowedRotation.insert(360);
+        return;
+    }
+    _allowedRotation.insert(rotation % 360);
+    _allowedRotation.insert(-(360 - (rotation % 360)));
+}
+
+void Widget::eraseAllowedRotation(int rotation)
+{
+    if (rotation == 360 || rotation == 0)
+    {
+        _allowedRotation.erase(0);
+        _allowedRotation.erase(-360);
+        _allowedRotation.erase(360);
+        return;
+    }
+    _allowedRotation.erase(rotation % 360);
+    _allowedRotation.erase(-(360 - (rotation % 360)));
+}
+
 void Widget::rotateToNeareastAllowedRotation() {
     if (_allowedRotation.empty())
         return;
@@ -372,7 +414,7 @@ void Widget::rotateToNeareastAllowedRotation() {
         if (abs(currentRotation - degree) < abs(currentRotation - nearest))
             nearest = degree;
     }
-    runAction(RotateTo::create(0.2f, nearest));
+    runAction(RotateTo::create(0.1f, nearest));
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const

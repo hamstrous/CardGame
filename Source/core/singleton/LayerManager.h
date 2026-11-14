@@ -2,18 +2,7 @@
 
 #include "axmol.h"
 
-#include "core/object/Widget.h"
-#include "core/const/GameConstants.h"
-
-#include "core/event/EventMode.h"
-#include "core/event/EventListenerMode.h"
-
-#include "ImGui/ImGuiPresenter.h"
-
-USING_NS_AX_EXT;
-using namespace ax;
-using namespace std;
-using namespace constant;
+class Widget;
 
 // This class organize the order each widget appear on screen
 // object -> collection -> interactive -> non interactive
@@ -27,24 +16,19 @@ public:
     static LayerManager* getInstance();
     static void destroyInstance();
 
-    void addWidgetToObjectLayer(Widget* widget) { _objectLayer->addChild(widget, _objectLayer->getChildrenCount()); }
-    void addWidgetToCollectionLayer(Widget* widget) { _collectionLayer->addChild(widget, _collectionLayer->getChildrenCount()); }
-    void addWidgetToInteractiveLayer(Widget* widget) { _interactiveLayer->addChild(widget, _interactiveLayer->getChildrenCount()); }
-    void addWidgetToNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->addChild(widget, _nonInteractiveLayer->getChildrenCount()); }
+    void addWidgetToObjectLayer(Widget* widget);
+    void addWidgetToCollectionLayer(Widget* widget);
+    void addWidgetToInteractiveLayer(Widget* widget);
+    void addWidgetToNonInteractiveLayer(Widget* widget);
 
+    void removeWidgetFromObjectLayer(Widget* widget);
+    void removeWidgetFromCollectionLayer(Widget* widget);
+    void removeWidgetFromInteractiveLayer(Widget* widget);
+    void removeWidgetFromNonInteractiveLayer(Widget* widget);
 
-    void removeWidgetFromObjectLayer(Widget* widget) { _objectLayer->removeChild(widget); }
-    void removeWidgetFromCollectionLayer(Widget* widget) { _collectionLayer->removeChild(widget); }
-    void removeWidgetFromInteractiveLayer(Widget* widget) { _interactiveLayer->removeChild(widget); }
-    void removeWidgetFromNonInteractiveLayer(Widget* widget) { _nonInteractiveLayer->removeChild(widget); }
     void removeWidgetFromAllLayers(Widget* widget);
     
-    bool isWidgetInLayer(Widget* widget)
-    {
-        Node* parent = widget->getParent();
-        return parent == _objectLayer || parent == _collectionLayer ||
-               parent == _interactiveLayer || parent == _nonInteractiveLayer;
-    }
+    bool isWidgetInLayer(Widget* widget);
 
     void moveWidgetToFront(Widget* widget);
     void moveWidgetToBack(Widget* widget);
@@ -55,8 +39,8 @@ public:
     void hideWidget(Widget* widget);
     void showWidget(Widget* widget);
 
-    void deleteWidgets(set<Widget*>& widgets);
-    void duplicateWidgets(set<Widget*>& widgets);
+    void deleteWidgets(std::set<Widget*>& widgets);
+    void duplicateWidgets(std::set<Widget*>& widgets);
 
 private:
     static LayerManager* _instance;

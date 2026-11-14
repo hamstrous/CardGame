@@ -2,17 +2,9 @@
 
 #include "axmol.h"
 
-#include <string>
-#include <map>
-
-#include "utils/helper.h"
-#include "utils/Timer.hpp"
-
 #include "core/ui/data/InspectorData.h"
 
-using namespace ax; 
-
-class Widget : public Node
+class Widget : public ax::Node
 {
 public:
     enum BorderPosition
@@ -54,7 +46,8 @@ public:
 
     virtual void redrawEffect();
     virtual void clearEffect();
-    virtual void clearTransformModifyEffect();
+    virtual void drawModifyTransformEffect();
+    virtual void clearModifyTransformEffect();
     
     virtual void drawHoverEffect();
     virtual void clearHoverEffect();
@@ -80,76 +73,48 @@ public:
 
     virtual std::string getType() const { return "Widget"; }
 
-    Rect getWorldBoundingBox() const {
+    ax::Rect getWorldBoundingBox() const {
         // Axmol v3 has this
         auto& contentSize = getContentSize();
-        Rect rect         = Rect(0, 0, contentSize.width, contentSize.height);
-        return RectApplyTransform(rect, getNodeToWorldTransform());
+        ax::Rect rect         = ax::Rect(0, 0, contentSize.width, contentSize.height);
+        return ax::RectApplyTransform(rect, getNodeToWorldTransform());
     }
 
-    void markTransformDirty()
-    {
-        this->_rotationZ_Y = this->_rotationZ_X;
-        _transformUpdated = _transformDirty = _inverseDirty = true;
-        _anchorPointInPoints.set(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
-        updateRotationQuat();  // for updating rotation
-        redrawEffect();
-    }
+    void markTransformDirty();
+    
 
     std::set<int>& getAllowedRotation() { return _allowedRotation; }
-    void addAllowedRotation(int rotation)
-    {
-        if (rotation == 360 || rotation == 0)
-        {
-            _allowedRotation.insert(0);
-            _allowedRotation.insert(-360);
-            _allowedRotation.insert(360);
-            return;
-        }
-        _allowedRotation.insert(rotation % 360);
-        _allowedRotation.insert(-(360 - (rotation % 360)));
-    }
-    void eraseAllowedRotation(int rotation)
-    {
-        if (rotation == 360 || rotation == 0)
-        {
-            _allowedRotation.erase(0);
-            _allowedRotation.erase(-360);
-            _allowedRotation.erase(360);
-            return;
-        }
-        _allowedRotation.erase(rotation % 360);
-        _allowedRotation.erase(-(360 - (rotation % 360)));
-    }
+    void addAllowedRotation(int rotation);
+    void eraseAllowedRotation(int rotation);
     void rotateToNeareastAllowedRotation();
 
 protected:
     
-    BorderPosition isPointOnBorder(const Vec2& point, float threshold = 10.f) const;
-    bool isPointOnRotatableCircle(const Vec2& point, float threshold = 10.f) const;
+    BorderPosition isPointOnBorder(const ax::Vec2& point, float threshold = 10.f) const;
+    bool isPointOnRotatableCircle(const ax::Vec2& point, float threshold = 10.f) const;
 
-    std::unordered_map<BorderPosition, Vec2> _borderPointsNormalized = {
-        {BorderPosition::BOTTOM_LEFT, Vec2(0, 0)},    {BorderPosition::BOTTOM_RIGHT, Vec2(1, 0)},
-        {BorderPosition::TOP_RIGHT, Vec2(1, 1)},      {BorderPosition::TOP_LEFT, Vec2(0, 1)},
-        {BorderPosition::LEFT_BORDER, Vec2(0, 0.5f)}, {BorderPosition::RIGHT_BORDER, Vec2(1, 0.5f)},
-        {BorderPosition::TOP_BORDER, Vec2(0.5f, 1)},  {BorderPosition::BOTTOM_BORDER, Vec2(0.5f, 0)}};
+    std::unordered_map<BorderPosition, ax::Vec2> _borderPointsNormalized = {
+        {BorderPosition::BOTTOM_LEFT, ax::Vec2(0, 0)},    {BorderPosition::BOTTOM_RIGHT, ax::Vec2(1, 0)},
+        {BorderPosition::TOP_RIGHT, ax::Vec2(1, 1)},      {BorderPosition::TOP_LEFT, ax::Vec2(0, 1)},
+        {BorderPosition::LEFT_BORDER, ax::Vec2(0, 0.5f)}, {BorderPosition::RIGHT_BORDER, ax::Vec2(1, 0.5f)},
+        {BorderPosition::TOP_BORDER, ax::Vec2(0.5f, 1)},  {BorderPosition::BOTTOM_BORDER, ax::Vec2(0.5f, 0)}};
 
-    const Vec2 _rotatableCirclePosition = Vec2(0.5f, -25.f); // x is normalize, y is absolute
+    const ax::Vec2 _rotatableCirclePosition = ax::Vec2(0.5f, -25.f); // x is normalize, y is absolute
 
-    Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
+    ax::Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
     void setType(std::string type) { _type = type; }
 
     static int _count;
     int _id;
     std::string _type = "Widget";
 
-    EventListenerMouse* _mouseListener;
+    ax::EventListenerMouse* _mouseListener;
 
     //Visuals
-    DrawNode* _hoverVisual;
-    DrawNode* _selectedVisual;
-    DrawNode* _scalableBorderVisual;
-    DrawNode* _rotatableCircleVisual;
+    ax::DrawNode* _hoverVisual;
+    ax::DrawNode* _selectedVisual;
+    ax::DrawNode* _scalableBorderVisual;
+    ax::DrawNode* _rotatableCircleVisual;
     bool _hoverVisualActive = false;
     bool _selectedVisualActive = false;
     bool _scalableBorderVisualActive = false;
@@ -165,6 +130,6 @@ protected:
 
 
 private:
-    DrawNode* _placeholderVisual;
+    ax::DrawNode* _placeholderVisual;
 
 };

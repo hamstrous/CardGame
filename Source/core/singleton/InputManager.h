@@ -2,19 +2,11 @@
 
 #include "axmol.h"
 
-#include "core/object/Widget.h"
-#include "core/const/GameConstants.h"
-
-#include "core/event/EventMode.h"
-#include "core/event/EventListenerMode.h"
-
-#include "ImGui/ImGuiPresenter.h"
-#include "LayerManager.h"
-
-USING_NS_AX_EXT;
-using namespace ax;
-using namespace std;
-using namespace constant;
+class EventMode;
+class EventListenerMode;
+class Widget;
+class LayerManager;
+class Inspector;
 
 class InputManager : public ax::Node
 {
@@ -24,73 +16,47 @@ public:
     static InputManager* getInstance();
     static void destroyInstance();
 
-    bool onMouseDownBefore(Event* event);
-    bool onMouseDownAfter(Event* event);
-    bool onMouseMoveBefore(Event* event);
-    bool onMouseMoveAfter(Event* event);
-    bool onMouseUp(Event* event);
+    bool onMouseDownBefore(ax::Event* event);
+    bool onMouseDownAfter(ax::Event* event);
+    bool onMouseMoveBefore(ax::Event* event);
+    bool onMouseMoveAfter(ax::Event* event);
+    bool onMouseUp(ax::Event* event);
 
-    bool onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
-    bool onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
+    bool onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
+    bool onKeyReleased(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
 
     bool onModeChanged(EventMode* mode);
 
-    void startRubberBandSelection(const Vec2& startPoint);
-    void endRubberBandSelection(const Vec2& endPoint);
-    void updateRubberBandSelection(const Vec2& mousePosition);
+    void startRubberBandSelection(const ax::Vec2& startPoint);
+    void endRubberBandSelection(const ax::Vec2& endPoint);
+    void updateRubberBandSelection(const ax::Vec2& mousePosition);
 
     void startDragging();
     void endDragging();
-    void updateDragging(const Vec2& mousePosition);
+    void updateDragging(const ax::Vec2& mousePosition);
 
-    void startScaling(const Vec2& normalizedBorderPoint);
+    void startScaling(const ax::Vec2& normalizedBorderPoint);
     void endScaling();
-    void updateScaling(const Vec2& mousePosition);
+    void updateScaling(const ax::Vec2& mousePosition);
 
     void startRotating();
     void endRotating();
-    void updateRotating(const Vec2& mousePosition);
+    void updateRotating(const ax::Vec2& mousePosition);
 
     bool isWidgetIntersectingRubberBand(Widget* widget);
-    bool isWidgetSelected(Widget* widget) {
-        return _selectedWidgets.find(widget) != _selectedWidgets.end();
-    }
+    bool isWidgetSelected(Widget* widget);
 
-    void addSelectedWidget(Widget* widget) {
-        _selectedWidgets.insert(widget);
-        widget->drawSelectedEffect();
-        CheckAloneWidget();
-    }
+    void addSelectedWidget(Widget* widget);
+    void removeSelectedWidget(Widget* widget);
 
-    void removeSelectedWidget(Widget* widget) {
-        // This is the only place where we clear the visuals of a widget when it is deselected
-        widget->clearEffect();
-        _selectedWidgets.erase(widget);
-        CheckAloneWidget();
-    }
+    void checkAloneWidget();
 
-    void CheckAloneWidget();
+    void clearSelectedWidgets();
+    
+    std::set<Widget*>& getSelectedWidgets() { return _selectedWidgets; }
+    std::vector<Widget*>& getSortedSelectedWidgets();
 
-    void clearSelectedWidgets()
-    {
-        for (auto widget : _selectedWidgets)
-        {
-            widget->clearEffect();
-        }
-        _selectedWidgets.clear();
-    }
-
-    set<Widget*>& getSelectedWidgets() { return _selectedWidgets; }
-    vector<Widget*>& getSortedSelectedWidgets()
-    {
-        auto sorted = vector<Widget*>(_selectedWidgets.begin(), _selectedWidgets.end());
-        std::sort(sorted.begin(), sorted.end(), [](Widget* a, Widget* b) {
-            return a->getLocalZOrder() < b->getLocalZOrder();
-        });
-        return sorted;
-    }
-
-    Vec2 getMousePosition() const { return _mousePreviousPosition; }
+    ax::Vec2 getMousePosition() const { return _mousePreviousPosition; }
     Widget* getHoveringWidget() const { return _hoveringWidget; }
 
     void duplicateSelectedWidgets();
@@ -102,7 +68,7 @@ public:
     bool isRotating() const { return _rotating; }
 
     void justClickedInsideWidget(Widget* widget);
-    bool justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBorderPoint);
+    bool justClickedOnWidgetBorder(Widget* widget, ax::Vec2 normalizedBorderPoint);
     bool justClickedOnWidgetCircle(Widget* widget);
     void hoveringInsideWidget(Widget* widget);
 
@@ -113,20 +79,20 @@ private:
 
     LayerManager* _layerManager = nullptr;
 
-    EventListenerMouse* _mouseBeforeListener;
-    EventListenerMouse* _mouseAfterListener;
-    EventListenerKeyboard* _keyboardListener;
+    ax::EventListenerMouse* _mouseBeforeListener;
+    ax::EventListenerMouse* _mouseAfterListener;
+    ax::EventListenerKeyboard* _keyboardListener;
     EventListenerMode* _modeListener;
 
-    DrawNode* _drawNode;  // For drawing rubber band selection
-    set<Widget*> _selectedWidgets;  // Store selected widgets
+    ax::DrawNode* _drawNode;  // For drawing rubber band selection
+    std::set<Widget*> _selectedWidgets;  // Store selected widgets
     Widget* _hoveringWidget = nullptr;
     Widget* _selectedAloneWidget  = nullptr;
 
-    set<EventKeyboard::KeyCode> _pressingKeys;
+    std::set<ax::EventKeyboard::KeyCode> _pressingKeys;
 
-    Vec2 _startPoint;  // Starting point of the selection rectangle
-    Vec2 _mousePreviousPosition;  // Previous mouse position for dragging/scaling/rotating
+    ax::Vec2 _startPoint;  // Starting point of the selection rectangle
+    ax::Vec2 _mousePreviousPosition;  // Previous mouse position for dragging/scaling/rotating
 
     bool _justClickedInsideWidget = false;
     bool _dragging                = false;
@@ -135,15 +101,15 @@ private:
     bool _rubberBanding           = false;
 
     // Transform related
-    Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
-    Vec2 _previousAnchorPoint;   
+    ax::Vec2 _normalizedBorderPoint;  // Normalized point on the widget border where scaling started
+    ax::Vec2 _previousAnchorPoint;   
 
-    bool _canDrag         = true;
-    bool _canScale        = true;
-    bool _canRotate       = true;
-    bool _canRubberband   = true;
-    bool _canEnlarge      = false;
-    bool _toggleSelection   = false; //Click on widget to toggle select
+    bool _canDrag                = true;
+    bool _canScale               = true;
+    bool _canRotate              = true;
+    bool _canRubberband          = true;
+    bool _canEnlarge             = false;
+    bool _toggleSelection        = false;  // Click on widget to toggle select
     bool _dragMoveWidgetsToFront = true;
     bool _dragEmphasisEffect     = true;
 

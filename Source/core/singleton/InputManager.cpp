@@ -1,5 +1,22 @@
 #include "InputManager.h"
 
+#include "ImGui/ImGuiPresenter.h"
+
+#include "core/const/GameConstants.h"
+#include "utils/helper.h"
+
+#include "core/event/EventMode.h"
+#include "core/event/EventListenerMode.h"
+#include "core/object/Widget.h"
+
+#include "LayerManager.h"
+
+
+USING_NS_AX_EXT;
+using namespace ax;
+using namespace std;
+using namespace constant;
+
 using namespace helper;
 
 InputManager* InputManager::_instance = nullptr;
@@ -392,23 +409,61 @@ bool InputManager::isWidgetIntersectingRubberBand(Widget* widget) {
     return isIntersecting;
 }
 
-void InputManager::CheckAloneWidget()
+bool InputManager::isWidgetSelected(Widget* widget)
+{
+    return _selectedWidgets.find(widget) != _selectedWidgets.end();
+}
+
+void InputManager::addSelectedWidget(Widget* widget)
+{
+    _selectedWidgets.insert(widget);
+    widget->drawSelectedEffect();
+    checkAloneWidget();
+}
+
+void InputManager::removeSelectedWidget(Widget* widget)
+{
+    // This is the only place where we clear the visuals of a widget when it is deselected
+    widget->clearEffect();
+    _selectedWidgets.erase(widget);
+    checkAloneWidget();
+}
+
+void InputManager::checkAloneWidget()
 {
     if (_selectedWidgets.size() == 1)
     {
-        (*_selectedWidgets.begin())->drawScalableBorder();
-        (*_selectedWidgets.begin())->drawRotatableCircle();
+        (*_selectedWidgets.begin())->drawModifyTransformEffect();
     }
     else
     {
         for (auto widget : _selectedWidgets)
         {
-            widget->clearTransformModifyEffect();
+            widget->clearModifyTransformEffect();
         }
     }
 }
 
-void InputManager::duplicateSelectedWidgets() {
+void InputManager::clearSelectedWidgets()
+{
+    for (auto widget : _selectedWidgets)
+    {
+        widget->clearEffect();
+    }
+    _selectedWidgets.clear();
+}
+
+
+std::vector<Widget*>& InputManager::getSortedSelectedWidgets()
+{
+    auto sorted = std::vector<Widget*>(_selectedWidgets.begin(), _selectedWidgets.end());
+    std::sort(sorted.begin(), sorted.end(),
+              [](Widget* a, Widget* b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
+    return sorted;
+}
+
+void InputManager::duplicateSelectedWidgets()
+{
     _layerManager->duplicateWidgets(_selectedWidgets);
 }
 

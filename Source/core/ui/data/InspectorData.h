@@ -12,17 +12,7 @@ public:
 
     // BASIC
     bool haveBasicData = false; // flag
-    static bool gatherHaveBasicData(const std::vector<InspectorData>& datas)
-    {
-        int count = 0;
-        for (const auto& data : datas)
-        {
-            if (data.haveBasicData)
-                count++;
-        }
-
-        return (count == datas.size() && count != 0);
-    }
+    static bool gatherHaveBasicData(const std::vector<InspectorData>& datas);
 
     // Transform
     ax::Vec2* position = nullptr;

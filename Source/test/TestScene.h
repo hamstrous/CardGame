@@ -1,29 +1,13 @@
 #pragma once
 
 #include "axmol.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/filereadstream.h"
 
-#include "core/file/RapidJsonHelper.h"
-
-#include "core/ui/Inspector.h"
-#include "core/singleton/InputManager.h"
-#include "core/singleton/LayerManager.h"
-#include "core/object/Widget.h"
-
-#include "core/const/GameConstants.h"
-
-#include <map>
-#include <sstream>
-
+#include "core/event/EventMode.h"
 #include "ImGui/ImGuiPresenter.h"
 
-USING_NS_AX_EXT;
-using namespace rapidjson;
-using namespace constant;
+class LayerManager;
+class InputManager;
+class Inspector;
 
 class TestScene : public ax::Scene
 {
@@ -69,11 +53,11 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    Inspector* _inspector = Inspector::getInstance();
-    InputManager* _selectManager = InputManager::getInstance();
-    LayerManager* _layerManager  = LayerManager::getInstance();
+    Inspector* _inspector = nullptr;
+    InputManager* _selectManager = nullptr;
+    LayerManager* _layerManager  = nullptr;
 
-    ImGuiPresenter* _imGui = ImGuiPresenter::getInstance();
+    ax::extension::ImGuiPresenter* _imGui = nullptr;
 
     Mode _mode = Mode::EDIT;
 };

@@ -1,6 +1,19 @@
 #include "LayerManager.h"
 
 #include "InputManager.h"
+#include "ImGui/ImGuiPresenter.h"
+
+#include "core/object/Widget.h"
+#include "core/const/GameConstants.h"
+#include "utils/helper.h"
+
+#include "core/event/EventMode.h"
+#include "core/event/EventListenerMode.h"
+
+USING_NS_AX_EXT;
+using namespace ax;
+using namespace std;
+using namespace constant;
 
 using namespace helper;
 
@@ -37,12 +50,59 @@ void LayerManager::destroyInstance()
     }   
 }
 
+void LayerManager::addWidgetToObjectLayer(Widget* widget)
+{
+    _objectLayer->addChild(widget, _objectLayer->getChildrenCount());
+}
+
+void LayerManager::addWidgetToCollectionLayer(Widget* widget)
+{
+    _collectionLayer->addChild(widget, _collectionLayer->getChildrenCount());
+}
+
+void LayerManager::addWidgetToInteractiveLayer(Widget* widget)
+{
+    _interactiveLayer->addChild(widget, _interactiveLayer->getChildrenCount());
+}
+
+void LayerManager::addWidgetToNonInteractiveLayer(Widget* widget)
+{
+    _nonInteractiveLayer->addChild(widget, _nonInteractiveLayer->getChildrenCount());
+}
+
+void LayerManager::removeWidgetFromObjectLayer(Widget* widget)
+{
+    _objectLayer->removeChild(widget);
+}
+
+void LayerManager::removeWidgetFromCollectionLayer(Widget* widget)
+{
+    _collectionLayer->removeChild(widget);
+}
+
+void LayerManager::removeWidgetFromInteractiveLayer(Widget* widget)
+{
+    _interactiveLayer->removeChild(widget);
+}
+
+void LayerManager::removeWidgetFromNonInteractiveLayer(Widget* widget)
+{
+    _nonInteractiveLayer->removeChild(widget);
+}
+
 void LayerManager::removeWidgetFromAllLayers(Widget* widget)
 {
     removeWidgetFromObjectLayer(widget);
     removeWidgetFromCollectionLayer(widget);
     removeWidgetFromInteractiveLayer(widget);
     removeWidgetFromNonInteractiveLayer(widget);
+}
+
+bool LayerManager::isWidgetInLayer(Widget* widget)
+{
+    Node* parent = widget->getParent();
+    return parent == _objectLayer || parent == _collectionLayer || parent == _interactiveLayer ||
+           parent == _nonInteractiveLayer;
 }
 
 void LayerManager::moveWidgetToFront(Widget* widget) {

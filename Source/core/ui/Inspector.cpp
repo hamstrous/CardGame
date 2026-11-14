@@ -2,6 +2,13 @@
 
 #include "core/singleton/InputManager.h"
 
+#include "ImGui/ImGuiPresenter.h"
+
+#include "core/object/Widget.h"
+
+#include "core/ui/data/InspectorData.h"
+
+USING_NS_AX_EXT;
 using namespace std;
 using namespace ax;
 

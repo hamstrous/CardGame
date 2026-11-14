@@ -1,6 +1,7 @@
 #include "GuiManager.h"
 
 #include "core/singleton/InputManager.h"
+#include "ImGui/ImGuiPresenter.h"
 
 GuiManager* GuiManager::_instance = nullptr;
 
@@ -26,17 +27,6 @@ void GuiManager::drawUI() {
     ImGui::Begin("GuiManager");
 
     InputManager* InputManager = InputManager::getInstance();
-    if (InputManager)
-    {
-        auto selectedWidgets = InputManager->getSelectedWidgets();
-        if (!selectedWidgets.empty())
-        {
-            for (auto widget : selectedWidgets)
-            {
-                widget->drawProperties();  
-            }
-        }
-    }
 
     ImGui::End();
 }

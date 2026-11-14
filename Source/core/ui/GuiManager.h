@@ -2,8 +2,6 @@
 
 #include "axmol.h"
 
-#include "ImGui/ImGuiPresenter.h"
-USING_NS_AX_EXT;
 
 class GuiManager : public ax::Node
 {

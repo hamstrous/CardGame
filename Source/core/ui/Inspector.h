@@ -2,9 +2,6 @@
 
 #include "axmol.h"
 
-#include "ImGui/ImGuiPresenter.h"
-USING_NS_AX_EXT;
-
 class InspectorData;
 
 class Inspector : public ax::Node
