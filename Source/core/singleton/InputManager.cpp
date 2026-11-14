@@ -244,6 +244,11 @@ void InputManager::updateRubberBandSelection(const Vec2& mousePosition) {
 void InputManager::startDragging() {
     if (!_canDrag)
         return;
+    for (auto widget : _selectedWidgets)
+    {
+        widget->stopActionByTag(constant::ActionTag::WIDGET_ROTATION);
+    }
+
     auto selectedWidgets = getSortedSelectedWidgets();
     
     for (auto widget : _selectedWidgets)
@@ -270,6 +275,7 @@ void InputManager::endDragging() {
             widget->clearEmphasisEffect();
         else
             widget->clearTransparentEffect();
+        widget->rotateToNeareastAllowedRotation();
     }
 }
 

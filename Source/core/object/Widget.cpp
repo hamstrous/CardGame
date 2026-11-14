@@ -352,6 +352,7 @@ void Widget::drawEmphasisEffect() {
 
 void Widget::clearEmphasisEffect() {
     // Reset the scale and rotation to their original values
+    this->stopActionByTag(constant::ActionTag::WIDGET_ROTATION);
     this->stopActionByTag(constant::ActionTag::WIDGET_DRAG_EMPHASIS);
     auto scaleTo  = ax::ScaleTo::create(0.05f, 1.f, 1.f);
     auto rotateTo = ax::RotateTo::create(0.05f, _previousRotation);
@@ -414,7 +415,9 @@ void Widget::rotateToNeareastAllowedRotation() {
         if (abs(currentRotation - degree) < abs(currentRotation - nearest))
             nearest = degree;
     }
-    runAction(RotateTo::create(0.1f, nearest));
+    auto rotateTo = ax::RotateTo::create(0.1f, nearest);
+    rotateTo->setTag(constant::ActionTag::WIDGET_ROTATION);
+    runAction(rotateTo);
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
