@@ -118,23 +118,19 @@ bool Widget::onMouseDown(ax::Event* event)
     EventMouse* e = static_cast<ax::EventMouse*>(event);
 
     bool isRightMouseButton = e->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
-    if (isRightMouseButton)
-    {
-        return false;
-    }
-
+    
     auto mousePos = ax::Vec2(e->getCursorX(), e->getCursorY());
 
     // If click on border and in select mode alone then drag
     auto borderPos = isPointOnBorder(mousePos, 10);
-    if (borderPos != BorderPosition::NONE)
+    if (!isRightMouseButton && borderPos != BorderPosition::NONE)
     {
         if(InputManager::getInstance()->justClickedOnWidgetBorder(this, _borderPointsNormalized[borderPos]))
             return true;
     }
 
     // If click on rotatable circle and in select mode alone then rotate
-    if (isPointOnRotatableCircle(mousePos, 10))
+    if (!isRightMouseButton && isPointOnRotatableCircle(mousePos, 10))
     {
         if (InputManager::getInstance()->justClickedOnWidgetCircle(this))
             return true;

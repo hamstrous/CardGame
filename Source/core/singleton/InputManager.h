@@ -104,6 +104,7 @@ private:
     ax::Vec2 _mousePreviousPosition;  // Previous mouse position for dragging/scaling/rotating
 
     bool _justClickedInsideWidget = false;
+    bool _rightMouseDown          = false;
     bool _dragging                = false;
     bool _scaling                 = false;
     bool _rotating                = false;

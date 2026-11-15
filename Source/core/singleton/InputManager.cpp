@@ -79,6 +79,11 @@ bool InputManager::onMouseDownBefore(Event* event)
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos     = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
 
+    if (mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT)
+    {
+        // Right click, show context menu
+        _rightMouseDown = true;
+    }
 
     return false;
 }
@@ -93,13 +98,7 @@ bool InputManager::onMouseDownAfter(Event* event)
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
     _justClickedInsideWidget = false;
 
-    if (isRightClick)
-    {
-        justRightClicked();
-        return false;
-    }
-
-    if (_dragging)
+    if (_dragging || isRightClick)
     {
         return false;
     }
@@ -115,9 +114,10 @@ bool InputManager::onMouseMoveBefore(Event* event)
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
 
-    if (_justClickedInsideWidget)
+    if (_justClickedInsideWidget && !_rightMouseDown)
     {
         // Mouse moved before up so it is a drag
+        // Does not work if right mouse is down
         startDragging();
         _justClickedInsideWidget = false;
     }
@@ -161,6 +161,9 @@ bool InputManager::onMouseMoveAfter(Event* event) {
 bool InputManager::onMouseUp(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
+
+    bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
+
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
     
     endRubberBandSelection(mousePos);
@@ -168,13 +171,20 @@ bool InputManager::onMouseUp(Event* event)
     endScaling();
     endRotating();
 
-    if (_justClickedInsideWidget)
+    if (_justClickedInsideWidget && !isRightClick)
     {
         _justClickedInsideWidget = false;
         clickOnSelectedWidgets();
     }
 
+    if (isRightClick)
+    {
+        justRightClicked();
+    }
+
     endClickEffect();
+    _rightMouseDown = false;
+    _justClickedInsideWidget = false;
     return false;
 }
 
@@ -513,7 +523,7 @@ void InputManager::justMouseDownInsideWidget(Widget* widget)
 
     bool isShiftPressed = _pressingKeys.find(EventKeyboard::KeyCode::KEY_SHIFT) != _pressingKeys.end();
 
-    if (isShiftPressed)
+    if (isShiftPressed && !_rightMouseDown)
     {
         // If shift is pressed then click effect will not be activated
         _justClickedInsideWidget = false;
