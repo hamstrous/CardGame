@@ -1,6 +1,9 @@
 #include "GuiManager.h"
 
 #include "core/singleton/InputManager.h"
+#include "Inspector.h"
+#include "ContextMenu.h"
+
 #include "ImGui/ImGuiPresenter.h"
 
 GuiManager* GuiManager::_instance = nullptr;
@@ -23,10 +26,13 @@ void GuiManager::destroyInstance()
     }
 }
 
-void GuiManager::drawUI() {
+void GuiManager::drawGui() {
     ImGui::Begin("GuiManager");
 
-    InputManager* InputManager = InputManager::getInstance();
+    ContextMenu* contextMenu = ContextMenu::getInstance();
+    contextMenu->drawGui();
+    Inspector* inspector = Inspector::getInstance();
+    inspector->drawGui();
 
     ImGui::End();
 }

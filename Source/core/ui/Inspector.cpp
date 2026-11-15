@@ -106,44 +106,47 @@ void Inspector::drawBoolPointer(const std::vector<bool*>& boolPointers, const ch
 {
     bool* value;
     bool sameValue = InspectorData::sameBoolPointers(boolPointers, value);
+    auto buttonSize = ImVec2(130, 40);
 
     bool trueClicked = false;
     bool falseClicked = false;
+
+    ImGui::PushFont(NULL, 16.0f);
 
     if (sameValue)
     {
         if (*value)
         {
             pushStyleSelectedButton();
-            ImGui::Button(labelTrue);
+            ImGui::Button(labelTrue, buttonSize);
             popStyleButton();
             ImGui::SameLine();
 
             pushStyleNonSelectedButton();
-            falseClicked = ImGui::Button(labelFalse);
+            falseClicked = ImGui::Button(labelFalse, buttonSize);
             popStyleButton();
         }
         else
         {
             pushStyleNonSelectedButton();
-            trueClicked = ImGui::Button(labelTrue);
+            trueClicked = ImGui::Button(labelTrue, buttonSize);
             popStyleButton();
             ImGui::SameLine();
 
             pushStyleSelectedButton();
-            ImGui::Button(labelFalse);
+            ImGui::Button(labelFalse, buttonSize);
             popStyleButton();
         }
     }
     else
     {
         pushStyleUndeterminedButton();
-        trueClicked = ImGui::Button(labelTrue);
+        trueClicked = ImGui::Button(labelTrue, buttonSize);
         popStyleButton();
         ImGui::SameLine();
 
         pushStyleUndeterminedButton();
-        falseClicked = ImGui::Button(labelFalse);
+        falseClicked = ImGui::Button(labelFalse, buttonSize);
         popStyleButton();
         
     }
@@ -156,6 +159,8 @@ void Inspector::drawBoolPointer(const std::vector<bool*>& boolPointers, const ch
     {
         InspectorData::setAllBoolPointers(boolPointers, false);
     }
+
+    ImGui::PopFont();
 
 }
 
@@ -172,6 +177,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     ImGui::PopFont();
     ImGui::Text("Where the widget is located");
 
+    // Separating the data into different lists 
     vector<float*> positionXList, positionYList;
     vector<float*> rotationList;
     vector<float*> widthList, heightList;

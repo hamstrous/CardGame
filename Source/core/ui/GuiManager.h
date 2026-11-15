@@ -11,7 +11,7 @@ public:
     static GuiManager* getInstance();
     static void destroyInstance();
 
-    void drawUI();
+    void drawGui();
 
 private:
     static GuiManager* _instance;

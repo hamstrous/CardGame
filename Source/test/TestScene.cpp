@@ -9,10 +9,12 @@
 #include "core/file/RapidJsonHelper.h"
 #include "ImGui/ImGuiPresenter.h"
 
-#include "core/ui/Inspector.h"
+#include "core/ui/GuiManager.h"
 #include "core/singleton/InputManager.h"
 #include "core/singleton/LayerManager.h"
 #include "core/object/Widget.h"
+
+#include "core/event/EventMode.h"
 
 #include "core/const/GameConstants.h"
 
@@ -39,10 +41,10 @@ bool TestScene::init()
     safeArea    = _director->getSafeAreaRect();
     safeOrigin  = safeArea.origin;
 
-    _inspector     = Inspector::getInstance();
-    _selectManager = InputManager::getInstance();
-    _layerManager  = LayerManager::getInstance();
-    _imGui         = ImGuiPresenter::getInstance();
+    _guiManager   = GuiManager::getInstance();
+    _inputManager = InputManager::getInstance();
+    _layerManager = LayerManager::getInstance();
+    _imGui        = ImGuiPresenter::getInstance();
 
     _keyboardListener = EventListenerKeyboard::create();
     _keyboardListener->onKeyPressed = AX_CALLBACK_2(TestScene::onKeyPressed, this);
@@ -79,8 +81,8 @@ bool TestScene::init()
 
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
-    this->addChild(_inspector);
-    this->addChild(_selectManager);
+    // Need for layer, event, transform
+    this->addChild(_inputManager);
     this->addChild(_layerManager);
 
     auto camera = this->getDefaultCamera();
@@ -120,8 +122,9 @@ TestScene::TestScene() {}
 
 TestScene::~TestScene()
 {
-    _inspector->destroyInstance();
-    _selectManager->destroyInstance();
+    _inputManager->destroyInstance();
+    _layerManager->destroyInstance();
+    _guiManager->destroyInstance();
 }
 
 void TestScene::onEnter() {
@@ -153,5 +156,5 @@ void TestScene::onImGuiDraw()
     //    ImGui::Text("Thanks for clicking me!");
     //}
 
-    _inspector->drawGui();
+    _guiManager->drawGui();
 }

@@ -6,6 +6,7 @@
 #include "ImGui/ImGuiPresenter.h"
 
 class LayerManager;
+class GuiManager;
 class InputManager;
 class Inspector;
 
@@ -53,11 +54,11 @@ private:
     ax::Rect safeArea    = _director->getSafeAreaRect();
     ax::Vec2 safeOrigin  = safeArea.origin;
 
-    Inspector* _inspector = nullptr;
-    InputManager* _selectManager = nullptr;
+    GuiManager* _guiManager      = nullptr;
+    InputManager* _inputManager = nullptr;
     LayerManager* _layerManager  = nullptr;
 
     ax::extension::ImGuiPresenter* _imGui = nullptr;
 
-    Mode _mode = Mode::EDIT;
+    Mode _mode = Mode::EDIT; // Reason that force inclusion of EventMode.h
 };
