@@ -86,7 +86,7 @@ public:
     
     std::set<int>& getAllowedRotation() { return _allowedRotation; }
     void addAllowedRotation(int rotation);
-    void eraseAllowedRotation(int rotation);
+    void removeAllowedRotation(int rotation);
     void rotateToNeareastAllowedRotation();
 
     virtual void clickEffect();

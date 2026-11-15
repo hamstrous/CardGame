@@ -169,6 +169,10 @@ InspectorData Widget::createInspectorData()
     data.isAllowClick = &this->_clickable;
     data.isAllowDrag  = &this->_draggable;
 
+    data.allowedRotation       = &this->_allowedRotation;
+    data.allowRotationCallback = AX_CALLBACK_1(Widget::addAllowedRotation, this);
+    data.notAllowRotationCallback = AX_CALLBACK_1(Widget::removeAllowedRotation, this);
+
     return data;
 }
 
@@ -383,7 +387,7 @@ void Widget::addAllowedRotation(int rotation)
     _allowedRotation.insert(-(360 - (rotation % 360)));
 }
 
-void Widget::eraseAllowedRotation(int rotation)
+void Widget::removeAllowedRotation(int rotation)
 {
     if (rotation == 360 || rotation == 0)
     {

@@ -40,7 +40,7 @@ public:
     bool* isAllowDrag = nullptr;
 
     // Allow rotation
-    std::set<int>* allowedRotation;
+    std::set<int>* allowedRotation; // 0->360
     std::function<void(float)> allowRotationCallback    = nullptr;
     std::function<void(float)> notAllowRotationCallback = nullptr;
 

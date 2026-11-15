@@ -51,8 +51,8 @@ void Inspector::pushStyleNonSelectedButton()
 
 void Inspector::pushStyleUndeterminedButton()
 {
-    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.f, 0.f, 1.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.f, 0.f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1.f, 0.5f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1.f, 0.5f, 0.5f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 }
@@ -164,6 +164,84 @@ void Inspector::drawBoolPointer(const std::vector<bool*>& boolPointers, const ch
 
 }
 
+void Inspector::drawAllowedRotation(const std::vector<std::set<int>*>& allowedRotationLists,
+                                    const std::vector<std::function<void(float)>>& allowRotationCallbackList,
+                                    const std::vector<std::function<void(float)>>& notAllowRotationCallbackList)
+{
+    vector<int> degreeList {
+        0,
+        45,
+        90,
+        135,
+        180,
+        225,
+        270,
+        315,
+        360
+    };
+
+    auto buttonSize = ImVec2(60, 40);
+
+    for (int degree : degreeList)
+    {
+        bool allHaveDegree    = true;
+        bool allNotHaveDegree = true;
+        for (const auto& allowedRotation : allowedRotationLists)
+        {
+            if (allowedRotation->find(degree) == allowedRotation->end())
+            {
+                allHaveDegree = false;
+            }
+            else
+            {
+                allNotHaveDegree = false;
+            }
+        }
+
+        if (degree > 0)
+        {
+            ImGui::SameLine();
+        }
+
+        if (allHaveDegree)
+        {
+            pushStyleSelectedButton();
+            if (ImGui::Button(std::to_string(degree).c_str(), buttonSize))
+            {
+                for (const auto& notAllowRotationCallback : notAllowRotationCallbackList)
+                {
+                    notAllowRotationCallback(degree);
+                }
+            };
+            popStyleButton();
+        }
+        else if (allNotHaveDegree)
+        {
+            pushStyleNonSelectedButton();
+            if (ImGui::Button(std::to_string(degree).c_str(), buttonSize))
+            {
+                for (const auto& allowRotationCallback : allowRotationCallbackList)
+                {
+                    allowRotationCallback(degree);
+                }
+            }
+            popStyleButton();
+        }
+        else
+        {
+            pushStyleUndeterminedButton();
+            if (ImGui::Button(std::to_string(degree).c_str(), buttonSize))
+            {
+                for (const auto& allowRotationCallback : allowRotationCallbackList)
+                {
+                    allowRotationCallback(degree);
+                }
+            }
+            popStyleButton();
+        }
+    }
+}
+
 void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 {
     bool gatheredBasicData = InspectorData::allHaveBasicData(inspectorDataList);
@@ -182,6 +260,8 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<float*> rotationList;
     vector<float*> widthList, heightList;
     vector<bool*> isAllowClickList, isAllowDragList;
+    vector<std::set<int>*> allowedRotationLists;
+    vector<function<void(float)>> allowRotationCallbackList, notAllowRotationCallbackList;
 
     for (const auto& data : inspectorDataList)
     {
@@ -207,6 +287,19 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
         {
             isAllowDragList.push_back(data.isAllowDrag);
         }
+        if (data.allowedRotation)
+        {
+            allowedRotationLists.push_back(data.allowedRotation);
+        }
+        if (data.allowRotationCallback)
+        {
+            allowRotationCallbackList.push_back(data.allowRotationCallback);
+        }
+        if (data.notAllowRotationCallback)
+        {
+            notAllowRotationCallbackList.push_back(data.notAllowRotationCallback);
+        }
+
     }
 
     drawFloatPointer(positionXList, "X", 0.5f);
@@ -226,6 +319,14 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     ImGui::Text("Allow Drag");
     ImGui::PopFont();
     drawBoolPointer(isAllowDragList, "Allow Dragging", "Do Nothing##drag");
+
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Rotation Constraints");
+    ImGui::PopFont();
+
+    ImGui::Text("Select angles objects can rotate to");
+
+    drawAllowedRotation(allowedRotationLists, allowRotationCallbackList, notAllowRotationCallbackList);
 
 }
 

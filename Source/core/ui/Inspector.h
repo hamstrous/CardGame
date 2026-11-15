@@ -21,6 +21,10 @@ public:
     void drawFloatPointer(const std::vector<float*>& floatPointers, const char* label, float speed = 0.5f);
     void drawBoolPointer(const std::vector<bool*>& boolPointers, const char* labelTrue, const char* labelFalse);
 
+    void drawAllowedRotation(const std::vector<std::set<int>*>& allowedRotationLists,
+                             const std::vector<std::function<void(float)>>& allowRotationCallbackList,
+                             const std::vector<std::function<void(float)>>& notAllowRotationCallbackList);
+
     void drawGui();
 
     void drawBasic(const std::vector<InspectorData>& inspectorDataList);
