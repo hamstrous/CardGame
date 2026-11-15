@@ -33,6 +33,35 @@ void Inspector::destroyInstance()
     }
 }
 
+void Inspector::pushStyleSelectedButton()
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void Inspector::pushStyleNonSelectedButton()
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.f, 0.f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.f, 0.f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void Inspector::pushStyleUndeterminedButton()
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.f, 0.f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.f, 0.f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.f, 0.f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void Inspector::popStyleButton()
+{
+    ImGui::PopStyleColor(4);
+}
+
 void Inspector::drawFloatPointer(const std::vector<float*>& floatPointers, const char* label, float speed) {
     float* value;
     bool sameValue = InspectorData::sameFloatPointers(floatPointers, value);
@@ -73,6 +102,63 @@ void Inspector::drawFloatPointer(const std::vector<float*>& floatPointers, const
     }
 }
 
+void Inspector::drawBoolPointer(const std::vector<bool*>& boolPointers, const char* labelTrue, const char* labelFalse)
+{
+    bool* value;
+    bool sameValue = InspectorData::sameBoolPointers(boolPointers, value);
+
+    bool trueClicked = false;
+    bool falseClicked = false;
+
+    if (sameValue)
+    {
+        if (*value)
+        {
+            pushStyleSelectedButton();
+            ImGui::Button(labelTrue);
+            popStyleButton();
+            ImGui::SameLine();
+
+            pushStyleNonSelectedButton();
+            falseClicked = ImGui::Button(labelFalse);
+            popStyleButton();
+        }
+        else
+        {
+            pushStyleNonSelectedButton();
+            trueClicked = ImGui::Button(labelTrue);
+            popStyleButton();
+            ImGui::SameLine();
+
+            pushStyleSelectedButton();
+            ImGui::Button(labelFalse);
+            popStyleButton();
+        }
+    }
+    else
+    {
+        pushStyleUndeterminedButton();
+        trueClicked = ImGui::Button(labelTrue);
+        popStyleButton();
+        ImGui::SameLine();
+
+        pushStyleUndeterminedButton();
+        falseClicked = ImGui::Button(labelFalse);
+        popStyleButton();
+        
+    }
+
+    if (trueClicked)
+    {
+        InspectorData::setAllBoolPointers(boolPointers, true);
+    }
+    else if (falseClicked)
+    {
+        InspectorData::setAllBoolPointers(boolPointers, false);
+    }
+
+}
+
 void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 {
     bool gatheredBasicData = InspectorData::allHaveBasicData(inspectorDataList);
@@ -89,6 +175,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<float*> positionXList, positionYList;
     vector<float*> rotationList;
     vector<float*> widthList, heightList;
+    vector<bool*> isAllowClickList;
 
     for (const auto& data : inspectorDataList)
     {
@@ -106,6 +193,10 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
             widthList.push_back(&data.size->width);
             heightList.push_back(&data.size->height);
         }
+        if (data.isAllowClick)
+        {
+            isAllowClickList.push_back(data.isAllowClick);
+        }
     }
 
     drawFloatPointer(positionXList, "X", 0.5f);
@@ -115,6 +206,11 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     drawFloatPointer(widthList, "Width", 0.5f);
     ImGui::SameLine();
     drawFloatPointer(heightList, "Height", 0.5f);
+
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Allow Click");
+    ImGui::PopFont();
+    drawBoolPointer(isAllowClickList, "Allow Clicking", "Do Nothing");
 
 }
 

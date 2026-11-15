@@ -12,7 +12,14 @@ public:
     static Inspector* getInstance();
     static void destroyInstance();
 
+    void pushStyleSelectedButton();
+    void pushStyleNonSelectedButton();
+    void pushStyleUndeterminedButton();
+
+    void popStyleButton();
+
     void drawFloatPointer(const std::vector<float*>& floatPointers, const char* label, float speed = 0.5f);
+    void drawBoolPointer(const std::vector<bool*>& boolPointers, const char* labelTrue, const char* labelFalse);
 
     void drawGui();
 

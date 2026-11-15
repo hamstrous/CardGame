@@ -287,7 +287,8 @@ void InputManager::updateDragging(const Vec2& mousePosition) {
     Vec2 delta = mousePosition - _mousePreviousPosition;
     for (auto widget : _selectedWidgets)
     {
-        widget->setPosition(widget->getPosition() + delta);
+        if (widget->isDraggable())
+            widget->setPosition(widget->getPosition() + delta);
     }
 }
 
@@ -522,7 +523,6 @@ void InputManager::clickOnSelectedWidgets() {
 void InputManager::justMouseDownInsideWidget(Widget* widget)
 {
     _justClickedInsideWidget = true;
-    startClickEffect();
     // If click on the same set of selected widgets
     // Then we can drag all
     // Else this is the new selected widget

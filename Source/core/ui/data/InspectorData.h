@@ -11,6 +11,8 @@ public:
     // Helper
     static bool sameBool(const std::vector<bool>& bools, bool& outBool);
 
+    static bool sameBoolPointers(const std::vector<bool*>& boolPointers, bool*& outBool);
+    static void setAllBoolPointers(const std::vector<bool*>& boolPointers, const bool value);
     static bool sameFloatPointers(const std::vector<float*>& floatPointers, float*& outFloat);
     static void setAllFloatPointers(const std::vector<float*>& floatPointers, const float value);
 
@@ -32,9 +34,7 @@ public:
     ax::Vec2* size     = nullptr;
 
     // Allow click
-    std::function<bool()> isAllowClick          = nullptr;
-    std::function<void()> allowClickCallback    = nullptr;
-    std::function<void()> notAllowClickCallback = nullptr;
+    bool* isAllowClick          = nullptr;
 
     // Allow movement
     std::function<bool()> isAllowMovement          = nullptr;

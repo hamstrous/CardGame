@@ -80,13 +80,17 @@ public:
 
     void markTransformDirty();
     
-
     std::set<int>& getAllowedRotation() { return _allowedRotation; }
     void addAllowedRotation(int rotation);
     void eraseAllowedRotation(int rotation);
     void rotateToNeareastAllowedRotation();
 
     virtual void clickEffect();
+
+    bool isClickable() const { return _clickable; }
+    void setClickable(bool clickable) { _clickable = clickable; }
+    bool isDraggable() const { return _draggable; }
+    void setDraggable(bool draggable) { _draggable = draggable; }
 
 protected:
     
@@ -129,6 +133,8 @@ protected:
     std::set<int> _allowedRotation;
 
     // Click & Drag
+    bool _clickable = true;
+    bool _draggable = true;
 
 private:
     ax::DrawNode* _placeholderVisual;

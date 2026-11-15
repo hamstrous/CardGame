@@ -19,6 +19,33 @@ bool InspectorData::sameBool(const std::vector<bool>& bools, bool& outBool)
     return sameBool;
 }
 
+bool InspectorData::sameBoolPointers(const std::vector<bool*>& boolPointers, bool*& outBool)
+{
+    bool sameBoolPointer = true;
+    if (boolPointers.empty())
+        return false;
+    outBool = boolPointers[0];
+    for (bool* b : boolPointers)
+    {
+        if (b == nullptr)
+            return false;
+        if (*b != *outBool)
+        {
+            sameBoolPointer = false;
+            break;
+        }
+    }
+    return sameBoolPointer;
+}
+
+void InspectorData::setAllBoolPointers(const std::vector<bool*>& boolPointers, const bool value)
+{
+    for (auto& boolPointer : boolPointers)
+    {
+        *boolPointer = value;
+    }
+}
+
 bool InspectorData::sameFloatPointers(const std::vector<float*>& floatPointers, float*& outFloat)
 {
     bool sameFloatPointer = true;

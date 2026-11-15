@@ -167,6 +167,8 @@ InspectorData Widget::createInspectorData()
     data.rotation      = &this->_rotationZ_X;
     data.size          = &this->_contentSize;
 
+    data.isAllowClick = &this->_clickable;
+
     return data;
 }
 
@@ -402,6 +404,8 @@ void Widget::rotateToNeareastAllowedRotation() {
 
 void Widget::clickEffect()
 {
+    if (!isClickable())
+        return;
     AXLOGD("{} got clicked", this->getName());
 }
 
