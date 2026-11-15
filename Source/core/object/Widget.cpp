@@ -117,8 +117,11 @@ bool Widget::onMouseDown(ax::Event* event)
 {
     EventMouse* e = static_cast<ax::EventMouse*>(event);
 
-    if (e->getMouseButton() != ax::EventMouse::MouseButton::BUTTON_LEFT)
+    bool isRightMouseButton = e->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
+    if (isRightMouseButton)
+    {
         return false;
+    }
 
     auto mousePos = ax::Vec2(e->getCursorX(), e->getCursorY());
 

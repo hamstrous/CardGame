@@ -30,6 +30,11 @@ LayerManager::LayerManager()
     this->addChild(_collectionLayer, 2);
     this->addChild(_interactiveLayer, 1);
     this->addChild(_nonInteractiveLayer, 0);
+
+    _layerList.push_back(_objectLayer);
+    _layerList.push_back(_collectionLayer);
+    _layerList.push_back(_interactiveLayer);
+    _layerList.push_back(_nonInteractiveLayer);
 }
 
 LayerManager* LayerManager::getInstance()
@@ -160,7 +165,106 @@ void LayerManager::moveWidgetToSpecificOrder(Widget* widget, int order) {
 
 }
 
-void LayerManager::hideWidget(Widget* widget) {
+void LayerManager::moveWidgetsToFront(std::set<Widget*>& widgets) {
+    moveWidgetsByOffsetPreparation(widgets, 0);
+}
+
+void LayerManager::moveWidgetsToBack(std::set<Widget*>& widgets) {
+    moveWidgetsByOffsetPreparation(widgets, 2);
+}
+
+void LayerManager::moveWidgetsForward(std::set<Widget*>& widgets) {
+    moveWidgetsByOffsetPreparation(widgets, 1);
+}
+
+void LayerManager::moveWidgetsBackward(std::set<Widget*>& widgets) {
+    moveWidgetsByOffsetPreparation(widgets, 3);
+}
+
+void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, int type) {
+    sortAllChildren();
+    map<Node*, vector<Widget*>> needMovingWidgets;
+    map<Node*, Vector<Node*>> layerChildren;
+
+    for (auto& layer : _layerList)
+    {
+        layerChildren[layer] = layer->getChildren();
+    }
+
+    for (auto& [layer, children] : layerChildren)
+    {
+        needMovingWidgets[layer] = vector<Widget*>();
+        for (auto& child : children)
+        {
+            if (widgets.find(static_cast<Widget*>(child)) != widgets.end())
+            {
+                needMovingWidgets[layer].push_back(static_cast<Widget*>(child));
+            }
+        }
+
+        if (needMovingWidgets[layer].empty())
+            continue;
+
+        long long minOrder, maxOrder, offset;
+        minOrder = needMovingWidgets[layer].front()->getLocalZOrder();
+        maxOrder = needMovingWidgets[layer].back()->getLocalZOrder();
+        if (type == 0)  // move to front
+        {
+            offset = max(layer->getChildrenCount() - 1 - maxOrder, 1LL);
+        }
+        else if (type == 1)  // move forward
+        {
+            offset = 1;
+        }
+        else if (type == 2)  // move to back
+        {
+            offset = min(-minOrder, -1LL);
+        }
+        else if (type == 3)  // move backward
+        {
+            offset = -1;
+        }
+        moveWidgetsOnSpecificLayerByOffset(layerChildren[layer], needMovingWidgets[layer], offset);
+
+    }
+
+
+}
+
+void LayerManager::moveWidgetsOnSpecificLayerByOffset(ax::Vector<Node*>& layerChildren,
+                                                      std::vector<Widget*>& needMovingWidgets,
+                                                      long long offset)
+{
+    int increment  = (offset > 0) ? 1 : -1;
+
+    int bound = (offset > 0) ? min(layerChildren.size() - 1, needMovingWidgets.back()->getLocalZOrder() + offset)
+                             : max(0LL, needMovingWidgets.front()->getLocalZOrder() + offset);
+
+    int startIndex = (offset > 0) ? needMovingWidgets.front()->getLocalZOrder() : needMovingWidgets.back()->getLocalZOrder();
+
+    int lowOrder = startIndex;
+    int highOrder = bound + increment * (-needMovingWidgets.size() + 1);
+
+    for (int i = startIndex; (offset > 0) ? (i <= bound) : (i >= bound); i += increment)
+    {
+        auto child = static_cast<Widget*>(layerChildren.at(i));
+        AXASSERT(child != nullptr, "Layer child is null");
+        if (std::find(needMovingWidgets.begin(), needMovingWidgets.end(), child) != needMovingWidgets.end())
+        {
+            child->setLocalZOrder(highOrder);
+            highOrder += increment;
+        }
+        else
+        {
+            child->setLocalZOrder(lowOrder);
+            lowOrder += increment;
+        }
+    }
+
+}
+
+void LayerManager::hideWidget(Widget* widget)
+{
     widget->pause();
     widget->setVisible(false);
 }
@@ -210,5 +314,12 @@ void LayerManager::duplicateWidgets(set<Widget*>& widgets) {
     for (auto newWidget : newWidgets)
     {
         InputManager::getInstance()->addSelectedWidget(newWidget);
+    }
+}
+
+void LayerManager::sortAllLayersChildren() {
+    for (auto& layer : _layerList)
+    {
+        layer->sortAllChildren();
     }
 }

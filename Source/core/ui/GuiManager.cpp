@@ -27,12 +27,8 @@ void GuiManager::destroyInstance()
 }
 
 void GuiManager::drawGui() {
-    ImGui::Begin("GuiManager");
-
     ContextMenu* contextMenu = ContextMenu::getInstance();
     contextMenu->drawGui();
     Inspector* inspector = Inspector::getInstance();
     inspector->drawGui();
-
-    ImGui::End();
 }

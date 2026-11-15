@@ -95,7 +95,7 @@ bool InputManager::onMouseDownAfter(Event* event)
 
     if (isRightClick)
     {
-        ContextMenu::getInstance()->justRightClicked();
+        justRightClicked();
         return false;
     }
 
@@ -577,4 +577,8 @@ void InputManager::hoveringInsideWidget(Widget* widget)
     }
     _hoveringWidget = widget;
     _hoveringWidget->drawHoverEffect();    
+}
+
+void InputManager::justRightClicked() {
+    ContextMenu::getInstance()->justRightClicked();
 }

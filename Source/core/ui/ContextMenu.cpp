@@ -67,6 +67,27 @@ void ContextMenu::drawGui() {
                         LayerManager::getInstance()->deleteWidgets(selectedWidgets);
                     }
                 }
+
+            if (ImGui::BeginMenu("Layer"))
+            {
+                if(ImGui::MenuItem("Bring to front"))
+                {
+                    LayerManager::getInstance()->moveWidgetsToFront(selectedWidgets);
+                }
+                if(ImGui::MenuItem("Bring forward"))
+                {
+                    LayerManager::getInstance()->moveWidgetsForward(selectedWidgets);
+                }
+                if(ImGui::MenuItem("Bring to back"))
+                {
+                    LayerManager::getInstance()->moveWidgetsToBack(selectedWidgets);
+                }
+                if(ImGui::MenuItem("Bring backward"))
+                {
+                    LayerManager::getInstance()->moveWidgetsBackward(selectedWidgets);
+                }
+                ImGui::EndMenu();
+            }
             
             ImGui::EndPopup();
         }

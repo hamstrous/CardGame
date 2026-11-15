@@ -36,17 +36,29 @@ public:
     void moveWidgetBackward(Widget* widget);
     void moveWidgetToSpecificOrder(Widget* widget, int order);
 
+    void moveWidgetsToFront(std::set<Widget*>& widgets);
+    void moveWidgetsToBack(std::set<Widget*>& widgets);
+    void moveWidgetsForward(std::set<Widget*>& widgets);
+    void moveWidgetsBackward(std::set<Widget*>& widgets);
+
+    void moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, int type); //0 : front, 1: forward, 2: back, 3: backward
+    void moveWidgetsOnSpecificLayerByOffset(ax::Vector<Node*>& layerChildren, std::vector<Widget*>& needMovingWidgets, long long offset);
+
     void hideWidget(Widget* widget);
     void showWidget(Widget* widget);
 
     void deleteWidgets(std::set<Widget*>& widgets);
     void duplicateWidgets(std::set<Widget*>& widgets);
 
+    void sortAllLayersChildren();
+
 private:
     static LayerManager* _instance;
 
-    Node* _objectLayer         = nullptr;
-    Node* _collectionLayer     = nullptr;
-    Node* _interactiveLayer    = nullptr;
-    Node* _nonInteractiveLayer = nullptr;
+    ax::Node* _objectLayer         = nullptr;
+    ax::Node* _collectionLayer     = nullptr;
+    ax::Node* _interactiveLayer    = nullptr;
+    ax::Node* _nonInteractiveLayer = nullptr;
+
+    std::vector<ax::Node*> _layerList;
 };

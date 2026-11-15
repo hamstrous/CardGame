@@ -74,6 +74,8 @@ public:
     bool justClickedOnWidgetCircle(Widget* widget);
     void hoveringInsideWidget(Widget* widget);
 
+    void justRightClicked();
+
     //void changeMode(const Mode& mode);
 
     Widget* getSelectedAloneWidget() const { return _selectedAloneWidget; }
