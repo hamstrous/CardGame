@@ -551,16 +551,7 @@ void InputManager::justMouseDownInsideWidget(Widget* widget)
         addSelectedWidget(widget);
     }
 
-    for (auto widget : _selectedWidgets)
-    {
-        if (widget != nullptr)
-        {
-            if (_dragEmphasisEffect)
-                widget->drawEmphasisEffect();
-            else
-                widget->drawTransparentEffect();
-        }
-    }
+    startClickEffect();
 }
 
 void InputManager::justDraggedWidget(Widget* widget) {}

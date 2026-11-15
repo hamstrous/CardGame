@@ -175,7 +175,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<float*> positionXList, positionYList;
     vector<float*> rotationList;
     vector<float*> widthList, heightList;
-    vector<bool*> isAllowClickList;
+    vector<bool*> isAllowClickList, isAllowDragList;
 
     for (const auto& data : inspectorDataList)
     {
@@ -197,6 +197,10 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
         {
             isAllowClickList.push_back(data.isAllowClick);
         }
+        if (data.isAllowDrag)
+        {
+            isAllowDragList.push_back(data.isAllowDrag);
+        }
     }
 
     drawFloatPointer(positionXList, "X", 0.5f);
@@ -210,7 +214,12 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     ImGui::PushFont(NULL, 18.0f);
     ImGui::Text("Allow Click");
     ImGui::PopFont();
-    drawBoolPointer(isAllowClickList, "Allow Clicking", "Do Nothing");
+    drawBoolPointer(isAllowClickList, "Allow Clicking", "Do Nothing##click");
+
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Allow Drag");
+    ImGui::PopFont();
+    drawBoolPointer(isAllowDragList, "Allow Dragging", "Do Nothing##drag");
 
 }
 

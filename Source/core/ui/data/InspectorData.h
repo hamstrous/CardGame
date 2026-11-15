@@ -37,9 +37,7 @@ public:
     bool* isAllowClick          = nullptr;
 
     // Allow movement
-    std::function<bool()> isAllowMovement          = nullptr;
-    std::function<void()> allowMovementCallback    = nullptr;
-    std::function<void()> notAllowMovementCallback = nullptr;
+    bool* isAllowDrag = nullptr;
 
     // Allow rotation
     std::set<int>* allowedRotation;

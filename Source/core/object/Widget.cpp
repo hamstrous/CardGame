@@ -168,6 +168,7 @@ InspectorData Widget::createInspectorData()
     data.size          = &this->_contentSize;
 
     data.isAllowClick = &this->_clickable;
+    data.isAllowDrag  = &this->_draggable;
 
     return data;
 }
