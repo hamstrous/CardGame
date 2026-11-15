@@ -13,5 +13,7 @@ public:
 public:
     ContextMenuData() = default;
 
+    std::function<void()> duplicateCallback = nullptr;
+    std::function<void()> deleteCallback = nullptr;
 
 };

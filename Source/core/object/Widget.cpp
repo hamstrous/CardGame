@@ -173,6 +173,15 @@ InspectorData Widget::createInspectorData()
     return data;
 }
 
+ContextMenuData Widget::createContextMenuData()
+{
+    ContextMenuData data;
+    data.deleteCallback = [this]() {
+        this->removeFromParent();
+    };
+    return data;
+}
+
 void Widget::redrawEffect() {
     // if the visual is active then it can be redraw
     if (_hoverVisualActive)

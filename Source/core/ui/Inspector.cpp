@@ -236,7 +236,7 @@ void Inspector::drawGui() {
     InputManager* InputManager = InputManager::getInstance();
     if (InputManager)
     {
-        auto selectedWidgets = InputManager->getSelectedWidgets();
+        auto& selectedWidgets = InputManager->getSelectedWidgets();
         vector<InspectorData> inspectorDataList;
 
         for (auto widget : selectedWidgets)

@@ -3,6 +3,7 @@
 #include "axmol.h"
 
 #include "core/ui/data/InspectorData.h"
+#include "core/ui/data/ContextMenuData.h"
 
 class Widget : public ax::Node
 {
@@ -41,6 +42,9 @@ public:
 
     virtual InspectorData createInspectorData();
     InspectorData& getInspectorData() { return _inspectorData; }
+
+    virtual ContextMenuData createContextMenuData();
+    ContextMenuData& getContextMenuData() { return _contextMenuData; }
 
     virtual void redrawEffect();
     virtual void clearEffect();
@@ -126,6 +130,7 @@ protected:
 
     //Gui
     InspectorData _inspectorData;
+    ContextMenuData _contextMenuData;
 
     //Action
     float _previousRotation;

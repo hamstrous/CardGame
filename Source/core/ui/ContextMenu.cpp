@@ -1,6 +1,7 @@
 #include "ContextMenu.h"
 
 #include "core/singleton/InputManager.h"
+#include "core/singleton/LayerManager.h"
 
 #include "ImGui/ImGuiPresenter.h"
 #include "ImGui/imgui.h"
@@ -33,11 +34,44 @@ void ContextMenu::destroyInstance()
     }
 }
 
+void ContextMenu::justRightClicked()
+{
+    _justRightClicked = true;
+}
+
 
 void ContextMenu::drawGui() {
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    ImGui::Begin("ContextMenu", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+    InputManager* InputManager = InputManager::getInstance();
+    if (InputManager)
+    {
+        auto& selectedWidgets = InputManager->getSelectedWidgets();
+        ImGui::PushID("ContextMenu");
+        const char* functionalities[] = {"Duplicate", "Delete"};
+        if (_justRightClicked && !selectedWidgets.empty())
+        {
+            ImGui::OpenPopup("context_menu");
+        }
+        _justRightClicked = false;
+        if (ImGui::BeginPopup("context_menu"))
+        {
+            ImGui::SeparatorText("Context Menu");
+            for (int i = 0; i < IM_ARRAYSIZE(functionalities); i++)
+                if (ImGui::Selectable(functionalities[i]))
+                {
+                    if (strcmp(functionalities[i], "Duplicate") == 0)
+                    {
+                        LayerManager::getInstance()->duplicateWidgets(selectedWidgets);
+                    }
+                    else if (strcmp(functionalities[i], "Delete") == 0)
+                    {
+                        LayerManager::getInstance()->deleteWidgets(selectedWidgets);
+                    }
+                }
+            
+            ImGui::EndPopup();
+        }
 
+        ImGui::PopID();
+    }
 
-    ImGui::End();
 }

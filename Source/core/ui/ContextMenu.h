@@ -12,8 +12,11 @@ public:
     static ContextMenu* getInstance();
     static void destroyInstance();
 
+    void justRightClicked();
+
     void drawGui();
 
 private:
+    bool _justRightClicked = false;
     static ContextMenu* _instance;
 };

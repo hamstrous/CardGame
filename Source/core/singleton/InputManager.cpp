@@ -9,6 +9,8 @@
 #include "core/event/EventListenerMode.h"
 #include "core/object/Widget.h"
 
+#include "core/ui/ContextMenu.h"
+
 #include "LayerManager.h"
 
 
@@ -77,6 +79,7 @@ bool InputManager::onMouseDownBefore(Event* event)
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
     auto mousePos     = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
 
+
     return false;
 }
 
@@ -84,8 +87,17 @@ bool InputManager::onMouseDownAfter(Event* event)
 {
     // no widget got clicked
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
+
+    bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
+
     auto mousePos   = Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
     _justClickedInsideWidget = false;
+
+    if (isRightClick)
+    {
+        ContextMenu::getInstance()->justRightClicked();
+        return false;
+    }
 
     if (_dragging)
     {
@@ -169,14 +181,7 @@ bool InputManager::onMouseUp(Event* event)
 bool InputManager::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
     _pressingKeys.insert(keyCode);
-    if (keyCode == EventKeyboard::KeyCode::KEY_C)
-    {
-        duplicateSelectedWidgets();
-    }
-    if (keyCode == EventKeyboard::KeyCode::KEY_D)
-    {
-        deleteSelectedWidgets();
-    }
+ 
     return false;
 }
 
@@ -490,27 +495,6 @@ std::vector<Widget*>& InputManager::getSortedSelectedWidgets()
     std::sort(sorted.begin(), sorted.end(),
               [](Widget* a, Widget* b) { return a->getLocalZOrder() < b->getLocalZOrder(); });
     return sorted;
-}
-
-void InputManager::duplicateSelectedWidgets()
-{
-    _layerManager->duplicateWidgets(_selectedWidgets);
-}
-
-void InputManager::deleteSelectedWidgets()
-{
-    _layerManager->deleteWidgets(_selectedWidgets);
-    // Dont use the clearSelectedWidgets() function here,
-    // because it will clear the visuals of the widgets, which are already deleted
-    if (isWidgetSelected(_selectedAloneWidget))
-    {
-        _selectedAloneWidget = nullptr;
-    }
-    if (isWidgetSelected(_hoveringWidget))
-    {
-        _hoveringWidget = nullptr;
-    }
-    _selectedWidgets.clear();  
 }
 
 void InputManager::clickOnSelectedWidgets() {

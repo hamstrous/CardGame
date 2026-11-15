@@ -60,10 +60,6 @@ public:
     std::vector<Widget*>& getSortedSelectedWidgets();
 
     ax::Vec2 getMousePosition() const { return _mousePreviousPosition; }
-    Widget* getHoveringWidget() const { return _hoveringWidget; }
-
-    void duplicateSelectedWidgets();
-    void deleteSelectedWidgets();
 
     bool isDragging() const { return _dragging; }
     bool isRubberBanding() const { return _rubberBanding; }
@@ -79,6 +75,11 @@ public:
     void hoveringInsideWidget(Widget* widget);
 
     //void changeMode(const Mode& mode);
+
+    Widget* getSelectedAloneWidget() const { return _selectedAloneWidget; }
+    void setSelectedAloneWidget(Widget* widget) { _selectedAloneWidget = widget; }
+    Widget* getHoveringWidget() const { return _hoveringWidget; }
+    void setHoveringWidget(Widget* widget) { _hoveringWidget = widget; }
 
 private:
     static InputManager* _instance;

@@ -172,10 +172,23 @@ void LayerManager::showWidget(Widget* widget)
 }
 
 void LayerManager::deleteWidgets(set<Widget*>& widgets) {
+    auto inputManager = InputManager::getInstance();
+    AXASSERT(inputManager != nullptr, "InputManager instance is null");
     for (auto widget : widgets)
     {
         widget->removeFromParentAndCleanup(true);
     }
+    // Dont use the clearSelectedWidgets() function here,
+    // because it will clear the visuals of the widgets, which are already deleted
+    if (inputManager->isWidgetSelected(inputManager->getSelectedAloneWidget()))
+    {
+        inputManager->setSelectedAloneWidget(nullptr);
+    }
+    if (inputManager->isWidgetSelected(inputManager->getHoveringWidget()))
+    {
+        inputManager->setHoveringWidget(nullptr);
+    }
+    widgets.clear();
 }
 
 void LayerManager::duplicateWidgets(set<Widget*>& widgets) {
