@@ -20,7 +20,6 @@ Widget* Widget::create()
     Widget* widget = new (std::nothrow) Widget();
     if (widget && widget->init())
     {
-        widget->_id = ++_count;
         widget->autorelease();
         return widget;
     }
@@ -54,6 +53,7 @@ bool Widget::init()
 
     _inspectorData = createInspectorData();
 
+    _id = _count++;
     this->setName(getId());
 
     addAllowedRotation(0);
