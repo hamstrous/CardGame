@@ -242,6 +242,60 @@ void Inspector::drawAllowedRotation(const std::vector<std::set<int>*>& allowedRo
     }
 }
 
+void Inspector::drawMultipleIntValueButton(const std::vector<int*>& intPointers,
+                                           const std::vector<int> allowedValues,
+                                           const std::vector<std::string> labels)
+{
+    AXASSERT(allowedValues.size() == labels.size(), "Inspector draw multiple int button: values and labels must have equal size");
+    auto buttonSize = ImVec2(60, 40);
+    int* value;
+    bool sameInt = InspectorData::sameIntPointers(intPointers, value);
+    if (sameInt)
+    {
+        for (int i = 0; i < allowedValues.size(); i++)
+        {
+            if (i > 0)
+                ImGui::SameLine();
+
+            int allowedValue = allowedValues[i];
+            string label     = labels[i];
+            if (*value == allowedValue)
+            {
+                pushStyleSelectedButton();
+                ImGui::Button(label.c_str(), buttonSize);
+                popStyleButton();
+            }
+            else
+            {
+                pushStyleNonSelectedButton();
+                if (ImGui::Button(label.c_str(), buttonSize))
+                {
+                    InspectorData::setAllIntPointers(intPointers, allowedValue);
+                }
+                popStyleButton();
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < allowedValues.size(); i++)
+        {
+            if (i > 0)
+                ImGui::SameLine();
+
+            int allowedValue = allowedValues[i];
+            string label     = labels[i];
+            pushStyleUndeterminedButton();
+            if (ImGui::Button(label.c_str(), buttonSize))
+            {
+                InspectorData::setAllIntPointers(intPointers, allowedValue);
+            }
+            popStyleButton();
+            
+        }
+    }
+}
+
 void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 {
     bool gatheredBasicData = InspectorData::allHaveBasicData(inspectorDataList);
@@ -262,6 +316,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<bool*> isAllowClickList, isAllowDragList;
     vector<std::set<int>*> allowedRotationLists;
     vector<function<void(float)>> allowRotationCallbackList, notAllowRotationCallbackList;
+    vector<int*> faceCycleList;
 
     for (const auto& data : inspectorDataList)
     {
@@ -299,6 +354,10 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
         {
             notAllowRotationCallbackList.push_back(data.notAllowRotationCallback);
         }
+        if (data.faceCycle)
+        {
+            faceCycleList.push_back(data.faceCycle);
+        }
 
     }
 
@@ -328,6 +387,9 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 
     drawAllowedRotation(allowedRotationLists, allowRotationCallbackList, notAllowRotationCallbackList);
 
+    vector<int> allowedFaceCycle = {1, -1, 0};
+    vector<string> faceCycleLabel = {"Forward", "Backward", "Random"};
+    drawMultipleIntValueButton(faceCycleList, allowedFaceCycle, faceCycleLabel);
 }
 
 void Inspector::drawGui() {

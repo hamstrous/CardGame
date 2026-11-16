@@ -15,6 +15,8 @@ public:
     static void setAllBoolPointers(const std::vector<bool*>& boolPointers, const bool value);
     static bool sameFloatPointers(const std::vector<float*>& floatPointers, float*& outFloat);
     static void setAllFloatPointers(const std::vector<float*>& floatPointers, const float value);
+    static bool sameIntPointers(const std::vector<int*>& intPointers, int*& outInt);
+    static void setAllIntPointers(const std::vector<int*>& intPointers, int value);
 
 public:
     InspectorData() = default;
@@ -43,6 +45,9 @@ public:
     std::set<int>* allowedRotation; // 0->360
     std::function<void(float)> allowRotationCallback    = nullptr;
     std::function<void(float)> notAllowRotationCallback = nullptr;
+
+    // Face cycle
+    int* faceCycle = nullptr;
 
     // DECK
     bool haveDeckData = false;  // flag

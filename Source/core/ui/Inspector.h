@@ -25,6 +25,8 @@ public:
                              const std::vector<std::function<void(float)>>& allowRotationCallbackList,
                              const std::vector<std::function<void(float)>>& notAllowRotationCallbackList);
 
+    void drawMultipleIntValueButton(const std::vector<int*>& intPointers, const std::vector<int> allowedValues, const std::vector<std::string> labels);
+
     void drawGui();
 
     void drawBasic(const std::vector<InspectorData>& inspectorDataList);

@@ -72,6 +72,33 @@ void InspectorData::setAllFloatPointers(const std::vector<float*>& floatPointers
     }
 }
 
+bool InspectorData::sameIntPointers(const std::vector<int*>& intPointers, int*& outInt)
+{
+    bool sameIntPointer = true;
+    if (intPointers.empty())
+        return false;
+    outInt = intPointers[0];
+    for (int* i : intPointers)
+    {
+        if (i == nullptr)
+            return false;
+        if (*i != *outInt)
+        {
+            sameIntPointer = false;
+            break;
+        }
+    }
+    return sameIntPointer;
+}
+
+void InspectorData::setAllIntPointers(const std::vector<int*>& intPointers, int value)
+{
+    for (auto& intPointer : intPointers)
+    {
+        *intPointer = value;
+    }
+}
+
 bool InspectorData::allHaveBasicData(const std::vector<InspectorData>& datas)
 {
     if (datas.empty())
