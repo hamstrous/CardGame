@@ -60,5 +60,7 @@ private:
     ax::Node* _interactiveLayer    = nullptr;
     ax::Node* _nonInteractiveLayer = nullptr;
 
+    ax::Sprite* _enlargeSprite = nullptr;
+
     std::vector<ax::Node*> _layerList;
 };

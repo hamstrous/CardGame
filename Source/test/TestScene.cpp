@@ -6,6 +6,8 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/filereadstream.h"
 
+#include "utils/helper.h"
+
 #include "core/file/RapidJsonHelper.h"
 #include "ImGui/ImGuiPresenter.h"
 
@@ -51,6 +53,10 @@ bool TestScene::init()
     _keyboardListener->onKeyReleased = AX_CALLBACK_2(TestScene::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, 10);
 
+    _mouseListener = EventListenerMouse::create();
+    _mouseListener->onMouseMove = AX_CALLBACK_1(TestScene::onMouseMove, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_mouseListener, 10);
+
     //RapidJsonHelper helper;
     //Document _document;
 
@@ -94,13 +100,23 @@ bool TestScene::init()
     this->addChild(_layerManager);
 
     auto camera = this->getDefaultCamera();
-    //camera->setZoom(2.0f);
+    camera->setZoom(2.0f);
+    camera->setPosition(Vec2(100, 100));
 
     return true;
 }
 
 void TestScene::update(float delta)
+{}
+
+bool TestScene::onMouseMove(ax::Event* event)
 {
+    ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
+    auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
+    auto mouseWorldPos = helper::convertScreenPositionToWorld(this, mousePos);
+    AXLOGD("Mouse position : ({};{})", mousePos.x, mousePos.y);
+    AXLOGD("World position: ({};{})", mouseWorldPos.x, mouseWorldPos.y);
+    return false;
 }
 
 void TestScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {

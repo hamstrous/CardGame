@@ -35,6 +35,9 @@ LayerManager::LayerManager()
     _layerList.push_back(_collectionLayer);
     _layerList.push_back(_interactiveLayer);
     _layerList.push_back(_nonInteractiveLayer);
+
+    _enlargeSprite = Sprite::create();
+    this->addChild(_enlargeSprite);
 }
 
 LayerManager* LayerManager::getInstance()

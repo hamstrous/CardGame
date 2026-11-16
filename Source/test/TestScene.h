@@ -20,7 +20,7 @@ public:
     //// mouse
     //bool onMouseDown(ax::Event* event);
     //bool onMouseUp(ax::Event* event);
-    //bool onMouseMove(ax::Event* event);
+    bool onMouseMove(ax::Event* event);
     //bool onMouseScroll(ax::Event* event);
 
     //bool onMoveModeMouseDown(ax::Event* event);

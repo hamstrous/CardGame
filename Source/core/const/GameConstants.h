@@ -18,7 +18,8 @@ enum ObjectTag
 enum ZOrder
 {
     CARD_DEFAULT  = 0,
-    CARD_DRAGGING = 100
+    CARD_DRAGGING = 100,
+    TOP_MOST = 10000,
 };
 
 enum ActionTag

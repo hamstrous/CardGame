@@ -248,5 +248,33 @@ ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& l
     return ax::Vec2(x, y);
 }
 
+void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename) {
+    AXASSERT(sprite != nullptr, "Sprite is null");
+    sprite->initWithFile(filename);
+    sprite->setStretchEnabled(true);
+    sprite->getTexture()->setAliasTexParameters();
+    sprite->setAnchorPoint(ax::Vec2(0.f, 0.f));
+}
+
+ax::Vec2 convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition)
+{
+    AXASSERT(node != nullptr, "Node is null");
+    auto runningScene           = node->getScene();
+    if (dynamic_cast<ax::Scene*>(node))
+        runningScene = dynamic_cast<ax::Scene*>(node);
+    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    auto screenSize             = ax::Director::getInstance()->getVisibleSize();
+    int zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
+    auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
+    auto camSize                = screenSize * zoomFactor;
+    ax::Vec2 camStartBottomLeft = camPosition - (camSize / 2);
+
+    auto screenPositionRatio = screenPosition / screenSize;
+
+    ax::Vec2 worldPosition = camStartBottomLeft + screenPositionRatio * camSize;
+
+    return worldPosition;
+}
+
 
 }  // namespace helper
