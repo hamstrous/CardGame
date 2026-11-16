@@ -31,6 +31,10 @@ public:
 
     void update(float delta) override;
 
+    // Override
+    void setContentSize(const ax::Size& contentSize) override;
+
+
     virtual void setUpInteractEffect();
     virtual void setUpMainVisual();
 
@@ -96,6 +100,12 @@ public:
     bool isDraggable() const { return _draggable; }
     void setDraggable(bool draggable) { _draggable = draggable; }
 
+    void addFace(const std::string& faceImageLink);
+    void updateFaceImage(int index, const std::string& faceImageLink);
+    void removeFace(int index);
+    void setActiveFace(int index);
+    void setFaceCycle(int cycle) { _faceCycle = cycle; }
+
 protected:
     
     BorderPosition isPointOnBorder(const ax::Vec2& point, float threshold = 10.f) const;
@@ -118,7 +128,14 @@ protected:
 
     ax::EventListenerMouse* _mouseListener;
 
-    //Visuals
+    //Appearance
+    ax::Sprite* _image = nullptr;
+    std::vector<std::string> _faceImageLinkList;
+    int _activeFace = 0;
+    int _faceCycle  = 0;  // 1: forward, -1: backward, 0: random
+    int _faceCount  = 0;
+
+    //Visuals Effect
     ax::DrawNode* _hoverVisual;
     ax::DrawNode* _selectedVisual;
     ax::DrawNode* _scalableBorderVisual;

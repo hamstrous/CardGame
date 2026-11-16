@@ -79,6 +79,14 @@ bool TestScene::init()
     widget4->setPosition(visibleSize / 2 + Vec2(100, 100));
     _layerManager->addWidgetToObjectLayer(widget4);
 
+    auto vectorWidget = {widget, widget2, widget3, widget4};
+    for (auto& w : vectorWidget)
+    {
+        w->addFace("card/Card Back 1.png");
+        w->addFace("card/Card Back 2.png");
+        w->addFace("card/Card Back 3.png");
+    }
+
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
     // Need for layer, event, transform

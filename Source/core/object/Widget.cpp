@@ -46,7 +46,7 @@ bool Widget::init()
     _mouseListener->setSwallowMouse(true);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
 
-    setUpMainVisual();
+    setUpMainVisual();  //Before effect
     setUpInteractEffect();
 
     scheduleUpdate();
@@ -60,6 +60,8 @@ bool Widget::init()
     addAllowedRotation(90);
     addAllowedRotation(180);
     addAllowedRotation(270);
+
+    _faceCycle = 1;
 
     return true;
 }
@@ -77,6 +79,13 @@ Widget* Widget::clone() const
 void Widget::update(float delta) {
     InputManager* inputManager = InputManager::getInstance();
     inputManager->isWidgetIntersectingRubberBand(this);
+}
+
+void Widget::setContentSize(const ax::Size& contentSize) {
+    Node::setContentSize(contentSize);
+    if (_image) {
+        _image->setContentSize(contentSize);
+    }
 }
 
 void Widget::setUpInteractEffect() {
@@ -105,6 +114,12 @@ void Widget::setUpMainVisual() {
     _placeholderVisual = ax::DrawNode::create();
     _placeholderVisual->properties.setDrawOrder(true);
     this->addChild(_placeholderVisual);
+
+    //_image = Sprite::create("virtualtabletop assets/cards-default/1B.svg");
+    _image = Sprite::create();
+    this->addChild(_image);
+
+    addFace("card/2B.png");
 
     schedule([this](float delta) {
         _placeholderVisual->clear();
@@ -419,7 +434,54 @@ void Widget::clickEffect()
 {
     if (!isClickable())
         return;
-    AXLOGD("{} got clicked", this->getName());
+
+    if (_faceCycle == 0)
+    {
+        _activeFace = random(0, _faceCount - 1);
+    }
+    else
+    {
+        _activeFace = (_activeFace + _faceCycle + _faceCount) % _faceCount;  // Ensure positive modulo
+    }
+    setActiveFace(_activeFace);
+    AXLOGD("{} got clicked; face: {}", this->getName(), _activeFace);
+}
+
+void Widget::addFace(const std::string& faceImageLink)
+{
+    _faceImageLinkList.push_back(faceImageLink);
+    _faceCount++;
+    if (_faceCount == 1)
+    {
+        //Default face
+        setActiveFace(0);
+    }
+}
+
+void Widget::removeFace(int index)
+{
+    if (index < 0 || index >= _faceCount)
+        return;
+    _faceImageLinkList.erase(_faceImageLinkList.begin() + index);
+    _faceCount--;
+    if (index == _activeFace)
+    {
+        if (_faceCount > 0)
+            setActiveFace(0);
+    }
+    else if (index < _activeFace)
+    {
+        _activeFace--;
+    }
+}
+
+void Widget::setActiveFace(int index)
+{
+    _image->initWithFile(_faceImageLinkList[index]);
+    _image->setStretchEnabled(true);
+    _image->getTexture()->setAliasTexParameters();
+    _image->setAnchorPoint(Vec2(0.f, 0.f));
+    _image->setContentSize(this->getContentSize());
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
