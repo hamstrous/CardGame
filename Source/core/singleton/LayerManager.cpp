@@ -92,6 +92,9 @@ void LayerManager::enlargeWidget(Widget* widget)
         return;
     }
 
+    if (widget->getEnlargeRatio() == 0)
+        return;
+
     helper::spriteSetUpWithFileName(_enlargeSprite, widget->getActiveFaceFileLink(), Vec2(0.5, 0.5f));
 
     ScreenHelper::getWorldPositionForEnlargePreview(widget, _enlargeSprite, widget->getEnlargeRatio());

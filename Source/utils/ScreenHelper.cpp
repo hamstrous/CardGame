@@ -41,7 +41,7 @@ ax::Vec2 ScreenHelper::convertWorldPositionToScreen(ax::Node* node, ax::Vec2 wor
     return screenPosition;
 }
 
-void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite* enlargeSprite, float enlargeRatio)
+void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite* enlargeSprite, int enlargeRatio)
 {
     auto nodeScreenPosition = convertWorldPositionToScreen(node, helper::getNodePositionInWorldSpace(node));
     auto nodeSize           = node->getContentSize();
@@ -49,11 +49,25 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
     auto screenSize         = ax::Director::getInstance()->getVisibleSize();
     auto ret                = ax::Vec2(0, 0);
 
+    // For determining enlarge size
+    float maximumLength = std::min(screenSize.width, screenSize.height); // The base size compare to screen size
+    const int maxEnlargeRatio = 3; // Only 3 level on enlargement
+    enlargeRatio = std::min(enlargeRatio, maxEnlargeRatio);
+    float actualRatio         = (maxEnlargeRatio + 1 - enlargeRatio); // compare to maximum length
+    float ratioLength          = maximumLength / actualRatio;
+
+    float longerSide = std::max(nodeSize.width, nodeSize.height);
+    float shorterSide = std::min(nodeSize.width, nodeSize.height);
+    float sideRatio = 0;
+   
+    sideRatio = ratioLength / longerSide;
+    
+    enlargeSize = nodeSize * sideRatio;
+
     bool moveRight = nodeScreenPosition.x < (screenSize.x / 2);
     bool moveUp    = nodeScreenPosition.y < (screenSize.y / 2);
-    bool stickHorizontally = nodeSize.width <= nodeSize.height;
 
-    float gap = 20.f;
+    float gap = 10.f;
 
     float horizontalPosition, horizontalOffset, horizontalPositive;
     float verticalPosition, verticalOffset, verticalPositive;
@@ -77,6 +91,7 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
                          spriteUseBothScreenPosition.x + enlargeSize.width / 2 > screenSize.width ||
                          spriteUseBothScreenPosition.y - enlargeSize.height / 2 < 0 ||
                          spriteUseBothScreenPosition.y + enlargeSize.height / 2 > screenSize.height;
+
 
     ret = isOutOfScreen ? screenSize / 2 : nodeScreenPosition + ax::Vec2(horizontalPosition, needVertical ? verticalPosition : 0);
 
