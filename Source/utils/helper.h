@@ -57,8 +57,9 @@ constexpr auto enumToNum(T e) noexcept
     return static_cast<std::underlying_type_t<T>>(e);
 }
 
-void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename);
+void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename, ax::Vec2 anchorPoint = ax::Vec2(0.f, 0.f));
 
 ax::Vec2 convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition);
+ax::Vec2 convertWorldPositionToScreen(ax::Node* node, ax::Vec2 worldPosition);
 
 }  // namespace helper

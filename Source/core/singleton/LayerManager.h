@@ -20,6 +20,11 @@ public:
     void onWidgetHover(ax::EventCustom* event);
     void onWidgetStopHover(ax::EventCustom* event);
 
+    void enlargeWidget(Widget* widget);
+    void stopEnlargeWidget();
+    void disruptEnlargeWidget();
+
+
     void addWidgetToObjectLayer(Widget* widget);
     void addWidgetToCollectionLayer(Widget* widget);
     void addWidgetToInteractiveLayer(Widget* widget);
@@ -64,7 +69,9 @@ private:
     ax::Node* _interactiveLayer    = nullptr;
     ax::Node* _nonInteractiveLayer = nullptr;
 
+    bool _enlarging            = false;
     ax::Sprite* _enlargeSprite = nullptr;
+    Widget* _hoverWidget       = nullptr;
 
     std::vector<ax::Node*> _layerList;
 

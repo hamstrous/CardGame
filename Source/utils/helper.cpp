@@ -248,12 +248,13 @@ ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& l
     return ax::Vec2(x, y);
 }
 
-void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename) {
+void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename, ax::Vec2 anchorPoint)
+{
     AXASSERT(sprite != nullptr, "Sprite is null");
     sprite->initWithFile(filename);
     sprite->setStretchEnabled(true);
     sprite->getTexture()->setAliasTexParameters();
-    sprite->setAnchorPoint(ax::Vec2(0.f, 0.f));
+    sprite->setAnchorPoint(anchorPoint);
 }
 
 ax::Vec2 convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition)
@@ -274,6 +275,26 @@ ax::Vec2 convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition)
     ax::Vec2 worldPosition = camStartBottomLeft + screenPositionRatio * camSize;
 
     return worldPosition;
+}
+
+ax::Vec2 convertWorldPositionToScreen(ax::Node* node, ax::Vec2 worldPosition)
+{
+    AXASSERT(node != nullptr, "Node is null");
+    auto runningScene = node->getScene();
+    if (dynamic_cast<ax::Scene*>(node))
+        runningScene = dynamic_cast<ax::Scene*>(node);
+    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    auto screenSize             = ax::Director::getInstance()->getVisibleSize();
+    int zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
+    auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
+    auto camSize                = screenSize * zoomFactor;
+    ax::Vec2 camStartBottomLeft = camPosition - (camSize / 2);
+
+    auto worldPositionRatio = (worldPosition - camStartBottomLeft) / camSize;
+
+    ax::Vec2 screenPosition = worldPositionRatio * screenSize;
+
+    return screenPosition;
 }
 
 

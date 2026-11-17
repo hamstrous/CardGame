@@ -104,7 +104,12 @@ public:
     void updateFaceImage(int index, const std::string& faceImageLink);
     void removeFace(int index);
     void setActiveFace(int index);
+    ax::Sprite* getActiveFace() { return _image; }
+    std::string getActiveFaceFileLink() { return _faceImageLinkList[_activeFace]; }
     void setFaceCycle(int cycle) { _faceCycle = cycle; }
+
+    void setEnlargeRatio(float ratio) { _enlargeRatio = ratio; }
+    float getEnlargeRatio() { return _enlargeRatio; }
 
 protected:
     
@@ -148,6 +153,9 @@ protected:
     //Gui
     InspectorData _inspectorData;
     ContextMenuData _contextMenuData;
+
+    //Enlarge
+    float _enlargeRatio = 0; // 0, 2, 4 
 
     //Action
     float _previousRotation;

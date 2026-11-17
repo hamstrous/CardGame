@@ -42,6 +42,7 @@ LayerManager::LayerManager()
 
     _enlargeSprite = Sprite::create();
     _enlargeSprite->setGlobalZOrder(helper::enumToNum(constant::ZOrder::TOP_MOST));
+    _enlargeSprite->setVisible(false);
     this->addChild(_enlargeSprite);
 }
 
@@ -66,13 +67,46 @@ void LayerManager::destroyInstance()
 void LayerManager::onWidgetHover(ax::EventCustom* event)
 {
     Widget* hoveredWidget = static_cast<Widget*>(event->getUserData());
-    AXLOGD("{} is hovering", hoveredWidget->getName());
+
+    _hoverWidget = hoveredWidget;
+
+    stopEnlargeWidget();
+
+    scheduleOnce([=](float delta) { enlargeWidget(hoveredWidget); }, 2.f, "enlarge_widget");
 }
 
 void LayerManager::onWidgetStopHover(ax::EventCustom* event)
 {
     Widget* stopHoveredWidget = static_cast<Widget*>(event->getUserData());
-    AXLOGD("{} stop hover", stopHoveredWidget->getName());
+    stopEnlargeWidget();
+    _hoverWidget = nullptr;
+}
+
+void LayerManager::enlargeWidget(Widget* widget)
+{
+    if (_hoverWidget != widget)
+    {
+        AXLOGD("Enlarge widget different from hover widget");
+        return;
+    }
+
+    helper::spriteSetUpWithFileName(_enlargeSprite, widget->getActiveFaceFileLink(), Vec2(0.5, 0.5f));
+    _enlargeSprite->setPosition(widget->getPosition());
+    _enlargeSprite->setContentSize(widget->getContentSize() * 2);
+    _enlargeSprite->setVisible(true);
+
+}
+
+void LayerManager::stopEnlargeWidget()
+{
+    unschedule("enlarge_widget");
+    _enlargeSprite->setVisible(false);
+}
+
+void LayerManager::disruptEnlargeWidget()
+{
+    stopEnlargeWidget();
+    scheduleOnce([=](float delta) { enlargeWidget(_hoverWidget); }, 2.f, "enlarge_widget");
 }
 
 void LayerManager::addWidgetToObjectLayer(Widget* widget)
