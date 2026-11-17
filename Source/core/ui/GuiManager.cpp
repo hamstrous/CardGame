@@ -1,6 +1,7 @@
 #include "GuiManager.h"
 
 #include "core/singleton/InputManager.h"
+#include "core/singleton/ModeManager.h"
 #include "Inspector.h"
 #include "ContextMenu.h"
 
@@ -27,6 +28,9 @@ void GuiManager::destroyInstance()
 }
 
 void GuiManager::drawGui() {
+    if (ModeManager::getInstance()->getCurrentMode() != Mode::EDIT)
+        return;
+
     ContextMenu* contextMenu = ContextMenu::getInstance();
     contextMenu->drawGui();
     Inspector* inspector = Inspector::getInstance();

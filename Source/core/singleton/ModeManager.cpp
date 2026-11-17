@@ -7,6 +7,9 @@ ModeManager* ModeManager::_instance = nullptr;
 
 ModeManager::ModeManager()
 {
+    _keyboardListener = EventListenerKeyboard::create();
+    _keyboardListener->onKeyPressed = AX_CALLBACK_2(ModeManager::onKeyPressed, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_keyboardListener, -1);
 }
 
 ModeManager* ModeManager::getInstance()

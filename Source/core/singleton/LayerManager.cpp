@@ -3,6 +3,7 @@
 #include "utils/ScreenHelper.h"
 
 #include "InputManager.h"
+#include "ModeManager.h"
 #include "ImGui/ImGuiPresenter.h"
 
 #include "core/object/Widget.h"
@@ -122,7 +123,7 @@ void LayerManager::enlargeWidget(Widget* widget)
         return;
     }
 
-    if (widget->getEnlargeRatio() == 0)
+    if (widget->getEnlargeRatio() == 0 || ModeManager::getInstance()->getCurrentMode() != Mode::PLAY)
         return;
 
     helper::spriteSetUpWithFileName(_enlargeSprite, widget->getActiveFaceFileLink(), Vec2(0.5, 0.5f));

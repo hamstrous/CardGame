@@ -7,6 +7,7 @@
 
 #include "core/singleton/InputManager.h"
 #include "core/singleton/LayerManager.h"
+#include "core/singleton/ModeManager.h"
 
 #include "ImGui/ImGuiPresenter.h"
 USING_NS_AX_EXT;
@@ -281,6 +282,9 @@ void Widget::drawScalableBorder() {
     if (_scalableBorderVisual == nullptr)
         return;
 
+    if (ModeManager::getInstance()->getCurrentMode() != Mode::EDIT)
+        return;
+
     _scalableBorderVisualActive = true;
 
     _scalableBorderVisual->clear();
@@ -490,6 +494,9 @@ void Widget::setActiveFace(int index)
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const
 {
+    if (ModeManager::getInstance()->getCurrentMode() != Mode::EDIT)
+        return BorderPosition::NONE;
+
     float width = this->getContentSize().width;
     float height = this->getContentSize().height;
 

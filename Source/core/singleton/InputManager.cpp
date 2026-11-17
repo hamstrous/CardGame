@@ -105,8 +105,10 @@ bool InputManager::onMouseDownAfter(Event* event)
         return false;
     }
 
-    if(_canRubberband)
-        startRubberBandSelection(mousePos);
+    if (_canRubberband)
+        startRubberBandSelection(mousePos); //Also help clear selected widget
+    else
+        clearSelectedWidgets();
 
     return false;
 }
@@ -220,7 +222,6 @@ bool InputManager::onModeChanged(EventMode* eventMode)
         _canRotate       = true;
         _canRubberband   = true;
         _toggleSelection = false;
-        _canEnlarge      = false;
         _dragEmphasisEffect = false;
         _dragMoveWidgetsToFront = false;
     }
@@ -228,10 +229,9 @@ bool InputManager::onModeChanged(EventMode* eventMode)
     {
         _canDrag         = true;
         _canScale        = false;
-        _canRotate       = false;
+        _canRotate       = true;
         _canRubberband   = false;
         _toggleSelection = false;
-        _canEnlarge      = false;
         _dragEmphasisEffect = true;
         _dragMoveWidgetsToFront = true;
     }

@@ -21,4 +21,5 @@ private:
     static ModeManager* _instance;
     Mode currentMode = Mode::EDIT;
 
+    ax::EventListenerKeyboard* _keyboardListener = nullptr;
 };
