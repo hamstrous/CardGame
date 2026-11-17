@@ -190,6 +190,7 @@ InspectorData Widget::createInspectorData()
     data.notAllowRotationCallback = AX_CALLBACK_1(Widget::removeAllowedRotation, this);
 
     data.faceCycle = &this->_faceCycle;
+    data.enlargeRatio = &this->_enlargeRatio;
 
     return data;
 }

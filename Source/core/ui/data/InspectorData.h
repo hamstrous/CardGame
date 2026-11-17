@@ -49,6 +49,9 @@ public:
     // Face cycle
     int* faceCycle = nullptr;
 
+    // Enlarge
+    int* enlargeRatio = nullptr;
+
     // DECK
     bool haveDeckData = false;  // flag
     // Spread

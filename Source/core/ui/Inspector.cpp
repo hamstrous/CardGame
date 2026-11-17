@@ -316,7 +316,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<bool*> isAllowClickList, isAllowDragList;
     vector<std::set<int>*> allowedRotationLists;
     vector<function<void(float)>> allowRotationCallbackList, notAllowRotationCallbackList;
-    vector<int*> faceCycleList;
+    vector<int*> faceCycleList, enlargeRatioList;
 
     for (const auto& data : inspectorDataList)
     {
@@ -358,6 +358,10 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
         {
             faceCycleList.push_back(data.faceCycle);
         }
+        if (data.enlargeRatio)
+        {
+            enlargeRatioList.push_back(data.enlargeRatio);
+        }
 
     }
 
@@ -387,9 +391,20 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 
     drawAllowedRotation(allowedRotationLists, allowRotationCallbackList, notAllowRotationCallbackList);
 
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Face Cycle");
+    ImGui::PopFont();
     vector<int> allowedFaceCycle = {1, -1, 0};
     vector<string> faceCycleLabel = {"Forward", "Backward", "Random"};
     drawMultipleIntValueButton(faceCycleList, allowedFaceCycle, faceCycleLabel);
+
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Enlarge Preview");
+    ImGui::PopFont();
+    vector<int> allowedEnlargeRatio = {0, 1, 2, 3};
+    vector<string> enlargeLabel     = {"Nothing", "Small", "Medium", "Big"};
+    drawMultipleIntValueButton(enlargeRatioList, allowedEnlargeRatio, enlargeLabel);
+
 }
 
 void Inspector::drawGui() {
