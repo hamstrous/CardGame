@@ -16,6 +16,10 @@ public:
     static LayerManager* getInstance();
     static void destroyInstance();
 
+    // Event
+    void onWidgetHover(ax::EventCustom* event);
+    void onWidgetStopHover(ax::EventCustom* event);
+
     void addWidgetToObjectLayer(Widget* widget);
     void addWidgetToCollectionLayer(Widget* widget);
     void addWidgetToInteractiveLayer(Widget* widget);
@@ -63,4 +67,7 @@ private:
     ax::Sprite* _enlargeSprite = nullptr;
 
     std::vector<ax::Node*> _layerList;
+
+    // Event
+    ax::EventListenerCustom* _customListener = nullptr;
 };

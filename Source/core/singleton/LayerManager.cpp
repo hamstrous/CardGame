@@ -21,6 +21,10 @@ LayerManager* LayerManager::_instance = nullptr;
 
 LayerManager::LayerManager()
 {
+    //_customListener = EventListenerCustom::create("on_widget_hover", AX_CALLBACK_1(LayerManager::onWidgetHovered, this));
+    _eventDispatcher->addCustomEventListener("on_widget_hover", AX_CALLBACK_1(LayerManager::onWidgetHover, this));
+    _eventDispatcher->addCustomEventListener("on_widget_stop_hover", AX_CALLBACK_1(LayerManager::onWidgetStopHover, this));
+
     _objectLayer = Node::create();
     _collectionLayer = Node::create();
     _interactiveLayer = Node::create();
@@ -37,6 +41,7 @@ LayerManager::LayerManager()
     _layerList.push_back(_nonInteractiveLayer);
 
     _enlargeSprite = Sprite::create();
+    _enlargeSprite->setGlobalZOrder(helper::enumToNum(constant::ZOrder::TOP_MOST));
     this->addChild(_enlargeSprite);
 }
 
@@ -56,6 +61,18 @@ void LayerManager::destroyInstance()
         _instance->removeFromParentAndCleanup(true);
         AX_SAFE_DELETE(_instance);
     }   
+}
+
+void LayerManager::onWidgetHover(ax::EventCustom* event)
+{
+    Widget* hoveredWidget = static_cast<Widget*>(event->getUserData());
+    AXLOGD("{} is hovering", hoveredWidget->getName());
+}
+
+void LayerManager::onWidgetStopHover(ax::EventCustom* event)
+{
+    Widget* stopHoveredWidget = static_cast<Widget*>(event->getUserData());
+    AXLOGD("{} stop hover", stopHoveredWidget->getName());
 }
 
 void LayerManager::addWidgetToObjectLayer(Widget* widget)

@@ -154,6 +154,7 @@ bool InputManager::onMouseMoveAfter(Event* event) {
     {
         if (_selectedWidgets.find(_hoveringWidget) == _selectedWidgets.end())
             _hoveringWidget->clearHoverEffect();
+        _eventDispatcher->dispatchCustomEvent("on_widget_stop_hover", static_cast<void*>(_hoveringWidget));
         _hoveringWidget = nullptr;
     }
     return false;
@@ -582,12 +583,18 @@ void InputManager::hoveringInsideWidget(Widget* widget)
 {
     if (_hoveringWidget == widget)
         return;
+
+    // Hover event for enlargement
+
     if (_hoveringWidget != nullptr)
     {
+        _eventDispatcher->dispatchCustomEvent("on_widget_stop_hover", static_cast<void*>(_hoveringWidget));
         _hoveringWidget->clearHoverEffect();
     }
     _hoveringWidget = widget;
-    _hoveringWidget->drawHoverEffect();    
+    _hoveringWidget->drawHoverEffect();
+
+    _eventDispatcher->dispatchCustomEvent("on_widget_hover", static_cast<void*>(widget));
 }
 
 void InputManager::justRightClicked() {

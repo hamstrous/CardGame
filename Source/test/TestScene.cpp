@@ -99,9 +99,9 @@ bool TestScene::init()
     this->addChild(_inputManager);
     this->addChild(_layerManager);
 
-    auto camera = this->getDefaultCamera();
-    camera->setZoom(2.0f);
-    camera->setPosition(Vec2(100, 100));
+    //auto camera = this->getDefaultCamera();
+    //camera->setZoom(2.0f);
+    //camera->setPosition(Vec2(100, 100));
 
     return true;
 }
@@ -114,8 +114,8 @@ bool TestScene::onMouseMove(ax::Event* event)
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
     auto mouseWorldPos = helper::convertScreenPositionToWorld(this, mousePos);
-    AXLOGD("Mouse position : ({};{})", mousePos.x, mousePos.y);
-    AXLOGD("World position: ({};{})", mouseWorldPos.x, mouseWorldPos.y);
+    //AXLOGD("Mouse position : ({};{})", mousePos.x, mousePos.y);
+    //AXLOGD("World position: ({};{})", mouseWorldPos.x, mouseWorldPos.y);
     return false;
 }
 
