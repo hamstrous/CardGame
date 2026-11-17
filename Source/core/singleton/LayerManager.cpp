@@ -27,6 +27,15 @@ LayerManager::LayerManager()
     _eventDispatcher->addCustomEventListener("on_widget_hover", AX_CALLBACK_1(LayerManager::onWidgetHover, this));
     _eventDispatcher->addCustomEventListener("on_widget_stop_hover", AX_CALLBACK_1(LayerManager::onWidgetStopHover, this));
 
+    _modeListener = EventListenerMode::create();
+    _modeListener->onModeChanged = AX_CALLBACK_1(LayerManager::onModeChanged, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_modeListener, 1);
+
+    _mouseListener = EventListenerMouse::create();
+    _mouseListener->onMouseDown = AX_CALLBACK_1(LayerManager::onMouseDown, this);
+    _mouseListener->onMouseUp = AX_CALLBACK_1(LayerManager::onMouseUp, this);
+    _eventDispatcher->addEventListenerWithFixedPriority(_mouseListener, -1);
+
     _objectLayer = Node::create();
     _collectionLayer = Node::create();
     _interactiveLayer = Node::create();
@@ -74,7 +83,7 @@ void LayerManager::onWidgetHover(ax::EventCustom* event)
 
     stopEnlargeWidget();
 
-    scheduleOnce([=](float delta) { enlargeWidget(hoveredWidget); }, 2.f, "enlarge_widget");
+    scheduleOnce([=](float delta) { enlargeWidget(hoveredWidget); }, 1.f, "enlarge_widget");
 }
 
 void LayerManager::onWidgetStopHover(ax::EventCustom* event)
@@ -82,6 +91,27 @@ void LayerManager::onWidgetStopHover(ax::EventCustom* event)
     Widget* stopHoveredWidget = static_cast<Widget*>(event->getUserData());
     stopEnlargeWidget();
     _hoverWidget = nullptr;
+}
+
+bool LayerManager::onModeChanged(EventMode* event)
+{
+    return false;
+}
+
+bool LayerManager::onMouseDown(Event* event)
+{
+    if (_enlarging)
+        disruptEnlargeWidget();
+    return false;
+}
+
+bool LayerManager::onMouseUp(Event* event)
+{
+    if (_enlarging) //Disrupted and still hover same widget
+    {
+        scheduleOnce([=](float delta) { enlargeWidget(_hoverWidget); }, 1.f, "enlarge_widget");
+    }
+    return false;
 }
 
 void LayerManager::enlargeWidget(Widget* widget)
@@ -99,18 +129,24 @@ void LayerManager::enlargeWidget(Widget* widget)
 
     ScreenHelper::getWorldPositionForEnlargePreview(widget, _enlargeSprite, widget->getEnlargeRatio());
     _enlargeSprite->setVisible(true);
+    _enlarging = true;
 }
 
 void LayerManager::stopEnlargeWidget()
 {
     unschedule("enlarge_widget");
     _enlargeSprite->setVisible(false);
+    _enlarging = false;
 }
 
 void LayerManager::disruptEnlargeWidget()
 {
-    stopEnlargeWidget();
-    scheduleOnce([=](float delta) { enlargeWidget(_hoverWidget); }, 2.f, "enlarge_widget");
+    // Mouse down while enlarging
+    if (_enlarging)
+    {
+        stopEnlargeWidget();
+        _enlarging = true;
+    }
 }
 
 void LayerManager::addWidgetToObjectLayer(Widget* widget)

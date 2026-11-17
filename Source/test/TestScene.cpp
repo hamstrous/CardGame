@@ -123,21 +123,7 @@ bool TestScene::onMouseMove(ax::Event* event)
 }
 
 void TestScene::onKeyPressed(EventKeyboard::KeyCode code, Event* event) {
-    if (code == EventKeyboard::KeyCode::KEY_E)
-    {
-        EventMode* e = new EventMode(Mode::EDIT);
-        _eventDispatcher->dispatchEvent(e);
-    }
-    else if (code == EventKeyboard::KeyCode::KEY_P)
-    {
-        EventMode* e = new EventMode(Mode::PLAY);
-        _eventDispatcher->dispatchEvent(e);
-    }
-    else if (code == EventKeyboard::KeyCode::KEY_S)
-    {
-        EventMode* e = new EventMode(Mode::SELECT);
-        _eventDispatcher->dispatchEvent(e);
-    }
+
     
 }
 

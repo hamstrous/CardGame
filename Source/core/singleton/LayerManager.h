@@ -3,7 +3,8 @@
 #include "axmol.h"
 
 class Widget;
-
+class EventListenerMode;
+class EventMode;
 // This class organize the order each widget appear on screen
 // object -> collection -> interactive -> non interactive
 // Ensure the order of each widget is from 0 to count, with no gap or duplicate
@@ -19,6 +20,11 @@ public:
     // Event
     void onWidgetHover(ax::EventCustom* event);
     void onWidgetStopHover(ax::EventCustom* event);
+
+    bool onModeChanged(EventMode* event);
+
+    bool onMouseDown(ax::Event* event);
+    bool onMouseUp(ax::Event* event);
 
     void enlargeWidget(Widget* widget);
     void stopEnlargeWidget();
@@ -77,4 +83,6 @@ private:
 
     // Event
     ax::EventListenerCustom* _customListener = nullptr;
+    EventListenerMode* _modeListener;
+    ax::EventListenerMouse* _mouseListener = nullptr;
 };
