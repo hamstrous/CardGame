@@ -7,6 +7,7 @@
 #include "rapidjson/filereadstream.h"
 
 #include "utils/helper.h"
+#include "utils/ScreenHelper.h"
 
 #include "core/file/RapidJsonHelper.h"
 #include "ImGui/ImGuiPresenter.h"
@@ -113,9 +114,11 @@ bool TestScene::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    auto mouseWorldPos = helper::convertScreenPositionToWorld(this, mousePos);
+    auto mouseWorldPos = ScreenHelper::convertScreenPositionToWorld(this, mousePos);
+    auto mousePosFromWorld = ScreenHelper::convertWorldPositionToScreen(this, mouseWorldPos);
     //AXLOGD("Mouse position : ({};{})", mousePos.x, mousePos.y);
     //AXLOGD("World position: ({};{})", mouseWorldPos.x, mouseWorldPos.y);
+    //AXLOGD("Mouse position from world: ({};{})", mousePosFromWorld.x, mousePosFromWorld.y);
     return false;
 }
 

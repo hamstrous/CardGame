@@ -58,8 +58,4 @@ constexpr auto enumToNum(T e) noexcept
 }
 
 void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename, ax::Vec2 anchorPoint = ax::Vec2(0.f, 0.f));
-
-ax::Vec2 convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition);
-ax::Vec2 convertWorldPositionToScreen(ax::Node* node, ax::Vec2 worldPosition);
-
 }  // namespace helper

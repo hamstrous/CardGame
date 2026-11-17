@@ -1,5 +1,6 @@
 #include "Widget.h"
 #include "utils/helper.h"
+#include "utils/ScreenHelper.h"
 
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
@@ -134,7 +135,7 @@ bool Widget::onMouseDown(ax::Event* event)
 
     bool isRightMouseButton = e->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
     
-    auto mousePos = helper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
 
     // If click on border and in select mode alone then drag
     auto borderPos = isPointOnBorder(mousePos, 10);
@@ -163,7 +164,7 @@ bool Widget::onMouseDown(ax::Event* event)
 bool Widget::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = helper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
+    auto mousePos     = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
     if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
     {
         InputManager::getInstance()->hoveringInsideWidget(this);

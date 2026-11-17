@@ -1,5 +1,7 @@
 #include "LayerManager.h"
 
+#include "utils/ScreenHelper.h"
+
 #include "InputManager.h"
 #include "ImGui/ImGuiPresenter.h"
 
@@ -91,10 +93,9 @@ void LayerManager::enlargeWidget(Widget* widget)
     }
 
     helper::spriteSetUpWithFileName(_enlargeSprite, widget->getActiveFaceFileLink(), Vec2(0.5, 0.5f));
-    _enlargeSprite->setPosition(widget->getPosition());
-    _enlargeSprite->setContentSize(widget->getContentSize() * 2);
-    _enlargeSprite->setVisible(true);
 
+    ScreenHelper::getWorldPositionForEnlargePreview(widget, _enlargeSprite, widget->getEnlargeRatio());
+    _enlargeSprite->setVisible(true);
 }
 
 void LayerManager::stopEnlargeWidget()

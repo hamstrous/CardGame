@@ -4,6 +4,7 @@
 
 #include "core/const/GameConstants.h"
 #include "utils/helper.h"
+#include "utils/ScreenHelper.h"
 
 #include "core/event/EventMode.h"
 #include "core/event/EventListenerMode.h"
@@ -77,7 +78,7 @@ void InputManager::destroyInstance()
 bool InputManager::onMouseDownBefore(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
-    auto mousePos = helper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     if (mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT)
     {
@@ -95,7 +96,7 @@ bool InputManager::onMouseDownAfter(Event* event)
 
     bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
 
-    auto mousePos = helper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     _justClickedInsideWidget = false;
 
@@ -113,7 +114,7 @@ bool InputManager::onMouseDownAfter(Event* event)
 bool InputManager::onMouseMoveBefore(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
-    auto mousePos = helper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     if (_justClickedInsideWidget && !_rightMouseDown)
     {
@@ -166,7 +167,7 @@ bool InputManager::onMouseUp(Event* event)
 
     bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
 
-    auto mousePos = helper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
     
     endRubberBandSelection(mousePos);
     endDragging();

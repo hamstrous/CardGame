@@ -155,7 +155,7 @@ protected:
     ContextMenuData _contextMenuData;
 
     //Enlarge
-    float _enlargeRatio = 0; // 0, 2, 4 
+    float _enlargeRatio = 2; // 0, 2, 4 
 
     //Action
     float _previousRotation;
