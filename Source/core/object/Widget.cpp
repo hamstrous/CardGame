@@ -168,7 +168,7 @@ bool Widget::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
-    if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
+    if (Collision::overlap(this, mousePos))  // containPoint(this,mousePos))
     {
         InputManager::getInstance()->hoveringInsideWidget(this);
         return true;  // Event swallowed
