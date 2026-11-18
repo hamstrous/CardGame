@@ -21,6 +21,7 @@ public:
     bool onMouseMoveBefore(ax::Event* event);
     bool onMouseMoveAfter(ax::Event* event);
     bool onMouseUp(ax::Event* event);
+    bool onMouseScroll(ax::Event* event);
 
     bool onKeyPressed(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);
     bool onKeyReleased(ax::EventKeyboard::KeyCode keyCode, ax::Event* event);

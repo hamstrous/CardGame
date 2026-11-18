@@ -137,7 +137,7 @@ bool Widget::onMouseDown(ax::Event* event)
 
     bool isRightMouseButton = e->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
     
-    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(e->getCursorX(), e->getCursorY()));
 
     // If click on border and in select mode alone then drag
     auto borderPos = isPointOnBorder(mousePos, 10);
@@ -167,7 +167,7 @@ bool Widget::onMouseDown(ax::Event* event)
 bool Widget::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
-    auto mousePos     = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(e->getCursorX(), e->getCursorY()));
+    auto mousePos     = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(e->getCursorX(), e->getCursorY()));
     if (Collision::overlap(this, mousePos))  // containPoint(this,mousePos))
     {
         InputManager::getInstance()->hoveringInsideWidget(this);

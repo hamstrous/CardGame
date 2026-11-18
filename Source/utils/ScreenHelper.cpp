@@ -1,13 +1,11 @@
 #include "ScreenHelper.h"
 #include "helper.h"
 
-ax::Vec2 ScreenHelper::convertScreenPositionToWorld(ax::Node* node, ax::Vec2 screenPosition)
+ax::Vec2 ScreenHelper::convertScreenPositionToWorld(ax::Vec2 screenPosition)
 {
-    AXASSERT(node != nullptr, "Node is null");
-    auto runningScene = node->getScene();
-    if (dynamic_cast<ax::Scene*>(node))
-        runningScene = dynamic_cast<ax::Scene*>(node);
-    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    auto runningScene = ax::Director::getInstance()->getRunningScene();
+    if (runningScene == nullptr)
+        return ax::Vec2::ZERO;
     auto screenSize             = ax::Director::getInstance()->getVisibleSize();
     float zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
     auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
@@ -21,13 +19,11 @@ ax::Vec2 ScreenHelper::convertScreenPositionToWorld(ax::Node* node, ax::Vec2 scr
     return worldPosition;
 }
 
-ax::Vec2 ScreenHelper::convertWorldPositionToScreen(ax::Node* node, ax::Vec2 worldPosition)
+ax::Vec2 ScreenHelper::convertWorldPositionToScreen(ax::Vec2 worldPosition)
 {
-    AXASSERT(node != nullptr, "Node is null");
-    auto runningScene = node->getScene();
-    if (dynamic_cast<ax::Scene*>(node))
-        runningScene = dynamic_cast<ax::Scene*>(node);
-    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    auto runningScene = ax::Director::getInstance()->getRunningScene();
+    if (runningScene == nullptr)
+        return ax::Vec2::ZERO;
     auto screenSize             = ax::Director::getInstance()->getVisibleSize();
     float zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
     auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
@@ -43,17 +39,15 @@ ax::Vec2 ScreenHelper::convertWorldPositionToScreen(ax::Node* node, ax::Vec2 wor
 
 void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite* enlargeSprite, int enlargeRatio)
 {
-    auto nodeScreenPosition = convertWorldPositionToScreen(node, helper::getNodePositionInWorldSpace(node));
+    auto nodeScreenPosition = convertWorldPositionToScreen(helper::getNodePositionInWorldSpace(node));
     auto nodeSize           = node->getContentSize();
     auto enlargeSize        = node->getContentSize() * enlargeRatio;
     auto screenSize         = ax::Director::getInstance()->getVisibleSize();
     auto ret                = ax::Vec2(0, 0);
 
-    AXASSERT(node != nullptr, "Node is null");
-    auto runningScene = node->getScene();
-    if (dynamic_cast<ax::Scene*>(node))
-        runningScene = dynamic_cast<ax::Scene*>(node);
-    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    auto runningScene = ax::Director::getInstance()->getRunningScene();
+    if (runningScene == nullptr)
+        return;
     float zoomFactor            = (runningScene->getDefaultCamera())->getZoom();
     auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
     auto camSize                = screenSize * zoomFactor;
@@ -108,6 +102,6 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
 
     ret = isOutOfScreen ? screenSize / 2 : nodeScreenPosition + ax::Vec2(horizontalPosition, needVertical ? verticalPosition : 0) / zoomFactor;
 
-    enlargeSprite->setPosition(convertScreenPositionToWorld(node, ret));
+    enlargeSprite->setPosition(convertScreenPositionToWorld(ret));
     enlargeSprite->setContentSize(enlargeSize);
 }

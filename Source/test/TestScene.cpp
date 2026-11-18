@@ -114,8 +114,8 @@ bool TestScene::onMouseMove(ax::Event* event)
 {
     ax::EventMouse* e = static_cast<ax::EventMouse*>(event);
     auto mousePos     = ax::Vec2(e->getCursorX(), e->getCursorY());
-    auto mouseWorldPos = ScreenHelper::convertScreenPositionToWorld(this, mousePos);
-    auto mousePosFromWorld = ScreenHelper::convertWorldPositionToScreen(this, mouseWorldPos);
+    auto mouseWorldPos = ScreenHelper::convertScreenPositionToWorld(mousePos);
+    auto mousePosFromWorld = ScreenHelper::convertWorldPositionToScreen(mouseWorldPos);
     //AXLOGD("Mouse position : ({};{})", mousePos.x, mousePos.y);
     //AXLOGD("World position: ({};{})", mouseWorldPos.x, mouseWorldPos.y);
     //AXLOGD("Mouse position from world: ({};{})", mousePosFromWorld.x, mousePosFromWorld.y);

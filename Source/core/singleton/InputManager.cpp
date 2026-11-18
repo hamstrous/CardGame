@@ -36,6 +36,7 @@ InputManager::InputManager()
     _mouseAfterListener->onMouseDown = AX_CALLBACK_1(InputManager::onMouseDownAfter, this);
     _mouseAfterListener->onMouseMove = AX_CALLBACK_1(InputManager::onMouseMoveAfter, this);
     _mouseAfterListener->onMouseUp = AX_CALLBACK_1(InputManager::onMouseUp, this);
+    _mouseAfterListener->onMouseScroll = AX_CALLBACK_1(InputManager::onMouseScroll, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_mouseAfterListener, 1);  // get called after scene graph
 
 
@@ -78,7 +79,7 @@ void InputManager::destroyInstance()
 bool InputManager::onMouseDownBefore(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
-    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     if (mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT)
     {
@@ -96,7 +97,7 @@ bool InputManager::onMouseDownAfter(Event* event)
 
     bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
 
-    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     _justClickedInsideWidget = false;
 
@@ -116,7 +117,7 @@ bool InputManager::onMouseDownAfter(Event* event)
 bool InputManager::onMouseMoveBefore(Event* event)
 {
     auto mouseEvent = static_cast<ax::EventMouse*>(event);
-    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
 
     if (_justClickedInsideWidget && !_rightMouseDown)
     {
@@ -169,7 +170,7 @@ bool InputManager::onMouseUp(Event* event)
 
     bool isRightClick = mouseEvent->getMouseButton() == ax::EventMouse::MouseButton::BUTTON_RIGHT;
 
-    auto mousePos = ScreenHelper::convertScreenPositionToWorld(this, ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
+    auto mousePos = ScreenHelper::convertScreenPositionToWorld(ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY()));
     
     endRubberBandSelection(mousePos);
     endDragging();
@@ -192,6 +193,39 @@ bool InputManager::onMouseUp(Event* event)
     _justClickedInsideWidget = false;
     return false;
 }
+
+bool InputManager::onMouseScroll(ax::Event* event) {
+    auto mouseEvent = static_cast<ax::EventMouse*>(event);
+
+    //Mouse position on screen
+    auto mouseScreenPos = ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
+    auto previousMouseWorldPos = ScreenHelper::convertScreenPositionToWorld(mouseScreenPos);
+    Vec2 midScreen  = Director::getInstance()->getVisibleSize() / 2;
+    float zoomValue = mouseEvent->getScrollY() * 0.02f;
+    
+    auto camera = this->getScene()->getDefaultCamera();
+    float currentZoomFactor = camera->getZoom();
+
+    // Zoom factor in range of 0.02f to 1.f
+    camera->setZoom(min(max(currentZoomFactor + zoomValue, 0.02f), 1.f));
+
+    auto mouseWorldPos = ScreenHelper::convertScreenPositionToWorld(mouseScreenPos);
+    Vec2 fixedPointOffset = previousMouseWorldPos - mouseWorldPos;
+
+    if (camera->getZoom() == 1.f)
+    {
+        // If original zoom factor then camera should capture the entire original screen
+        camera->setPosition(midScreen);
+    }
+    else
+    {
+        // Zoom toward the point mouse hover on
+        camera->setPosition(camera->getPosition() + fixedPointOffset);
+    }
+
+    return false;
+}
+
 
 bool InputManager::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {

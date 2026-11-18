@@ -32,7 +32,7 @@ void ModeManager::destroyInstance()
 
 void ModeManager::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
 {
-    EventMode* e;
+    EventMode* e = nullptr;
     if (code == EventKeyboard::KeyCode::KEY_E)
     {
         e = new EventMode(Mode::EDIT);
@@ -44,6 +44,10 @@ void ModeManager::onKeyPressed(EventKeyboard::KeyCode code, Event* event)
     else if (code == EventKeyboard::KeyCode::KEY_S)
     {
         e = new EventMode(Mode::SELECT);
+    }
+    else
+    {
+        return;
     }
     currentMode = e->getMode();
     _eventDispatcher->dispatchEvent(e);
