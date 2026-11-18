@@ -28,6 +28,34 @@ void GuiManager::destroyInstance()
 }
 
 void GuiManager::drawGui() {
+
+    auto runningScene = ax::Director::getInstance()->getRunningScene();
+    if (runningScene == nullptr)
+        return;
+    auto camera = runningScene->getDefaultCamera();
+
+    static float cameraX      = camera->getPositionX();
+    static float cameraY      = camera->getPositionY();
+    static float cameraFactor = camera->getZoom();
+
+    ImGui::Begin("Camera Test");
+
+    if (ImGui::DragFloat("X", &cameraX, 0.5f))
+    {
+        camera->setPositionX(cameraX);
+    }
+    if (ImGui::DragFloat("Y", &cameraY, 0.5f))
+    {
+        camera->setPositionX(cameraY);
+    }
+
+    if (ImGui::DragFloat("Factor", &cameraFactor, 0.005f))
+    {
+        camera->setZoom(cameraFactor);
+        camera->applyZoom();
+    }
+    ImGui::End();
+
     if (ModeManager::getInstance()->getCurrentMode() != Mode::EDIT)
         return;
 
