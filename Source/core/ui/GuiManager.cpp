@@ -46,7 +46,7 @@ void GuiManager::drawGui() {
     }
     if (ImGui::DragFloat("Y", &cameraY, 0.5f))
     {
-        camera->setPositionX(cameraY);
+        camera->setPositionY(cameraY);
     }
 
     if (ImGui::DragFloat("Factor", &cameraFactor, 0.005f))

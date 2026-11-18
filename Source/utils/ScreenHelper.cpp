@@ -9,7 +9,7 @@ ax::Vec2 ScreenHelper::convertScreenPositionToWorld(ax::Node* node, ax::Vec2 scr
         runningScene = dynamic_cast<ax::Scene*>(node);
     AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
     auto screenSize             = ax::Director::getInstance()->getVisibleSize();
-    int zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
+    float zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
     auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
     auto camSize                = screenSize * zoomFactor;
     ax::Vec2 camStartBottomLeft = camPosition - (camSize / 2);
