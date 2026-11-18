@@ -200,7 +200,7 @@ bool InputManager::onMouseScroll(ax::Event* event) {
     //Mouse position on screen
     auto mouseScreenPos = ax::Vec2(mouseEvent->getCursorX(), mouseEvent->getCursorY());
     auto previousMouseWorldPos = ScreenHelper::convertScreenPositionToWorld(mouseScreenPos);
-    Vec2 midScreen  = Director::getInstance()->getVisibleSize() / 2;
+    Vec2 midScreen  = Director::getInstance()->getVisibleSize() / 2; // Original camera position
     float zoomValue = mouseEvent->getScrollY() * 0.02f;
     
     auto camera = this->getScene()->getDefaultCamera();
@@ -212,12 +212,16 @@ bool InputManager::onMouseScroll(ax::Event* event) {
     auto mouseWorldPos = ScreenHelper::convertScreenPositionToWorld(mouseScreenPos);
     Vec2 fixedPointOffset = previousMouseWorldPos - mouseWorldPos;
 
-    if (camera->getZoom() == 1.f)
+    //Smoothly bring camera back to original position with proportion reasoning
+    Vec2 offsetToCameraOriginalPosition = (midScreen - camera->getPosition()) * zoomValue / (1 - currentZoomFactor);
+
+    if (zoomValue > 0.f && currentZoomFactor < 1.f)
     {
         // If original zoom factor then camera should capture the entire original screen
-        camera->setPosition(midScreen);
+        camera->setPosition(camera->getPosition() + offsetToCameraOriginalPosition);
+        AXLOGD("Camera position: {},{}", camera->getPositionX(), camera->getPositionY());
     }
-    else
+    else if (zoomValue < 0.f)
     {
         // Zoom toward the point mouse hover on
         camera->setPosition(camera->getPosition() + fixedPointOffset);
