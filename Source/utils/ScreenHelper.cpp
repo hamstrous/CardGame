@@ -29,7 +29,7 @@ ax::Vec2 ScreenHelper::convertWorldPositionToScreen(ax::Node* node, ax::Vec2 wor
         runningScene = dynamic_cast<ax::Scene*>(node);
     AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
     auto screenSize             = ax::Director::getInstance()->getVisibleSize();
-    int zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
+    float zoomFactor              = (runningScene->getDefaultCamera())->getZoom();
     auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
     auto camSize                = screenSize * zoomFactor;
     ax::Vec2 camStartBottomLeft = camPosition - (camSize / 2);
@@ -45,9 +45,19 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
 {
     auto nodeScreenPosition = convertWorldPositionToScreen(node, helper::getNodePositionInWorldSpace(node));
     auto nodeSize           = node->getContentSize();
-    auto enlargeSize        = node->getContentSize() * enlargeRatio; // temp
+    auto enlargeSize        = node->getContentSize() * enlargeRatio;
     auto screenSize         = ax::Director::getInstance()->getVisibleSize();
     auto ret                = ax::Vec2(0, 0);
+
+    AXASSERT(node != nullptr, "Node is null");
+    auto runningScene = node->getScene();
+    if (dynamic_cast<ax::Scene*>(node))
+        runningScene = dynamic_cast<ax::Scene*>(node);
+    AXASSERT(runningScene != nullptr, "Node does not belong to any scene");
+    float zoomFactor            = (runningScene->getDefaultCamera())->getZoom();
+    auto camPosition            = (runningScene->getDefaultCamera())->getPosition();
+    auto camSize                = screenSize * zoomFactor;
+    ax::Vec2 camStartBottomLeft = camPosition - (camSize / 2);
 
     // For determining enlarge size
     float maximumLength = std::min(screenSize.width, screenSize.height); // The base size compare to screen size
@@ -63,6 +73,7 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
     sideRatio = ratioLength / longerSide;
     
     enlargeSize = nodeSize * sideRatio;
+    enlargeSize *= zoomFactor;
 
     bool moveRight = nodeScreenPosition.x < (screenSize.x / 2);
     bool moveUp    = nodeScreenPosition.y < (screenSize.y / 2);
@@ -80,20 +91,22 @@ void ScreenHelper::getWorldPositionForEnlargePreview(ax::Node* node, ax::Sprite*
     verticalOffset   = nodeSize.height / 2 + enlargeSize.height / 2;
     verticalPosition = (verticalOffset + gap) * verticalPositive;
 
+    auto enlargeScreenSize = enlargeSize / zoomFactor;
+
     // Only use vertical position if needed
-    bool needVertical = (nodeScreenPosition.y - enlargeSize.height / 2 < 0) ||
-                        (nodeScreenPosition.y + enlargeSize.height / 2 > screenSize.height);
+    bool needVertical = (nodeScreenPosition.y - enlargeScreenSize.height / 2 < 0) ||
+                        (nodeScreenPosition.y + enlargeScreenSize.height / 2 > screenSize.height);
 
     // If use both but still out of screen then just render it in the middle
-    auto spriteUseBothScreenPosition = nodeScreenPosition + ax::Vec2(horizontalPosition, verticalPosition);
+    auto spriteUseBothScreenPosition = nodeScreenPosition + ax::Vec2(horizontalPosition, verticalPosition) / zoomFactor;
 
-    bool isOutOfScreen = spriteUseBothScreenPosition.x - enlargeSize.width / 2 < 0 ||
-                         spriteUseBothScreenPosition.x + enlargeSize.width / 2 > screenSize.width ||
-                         spriteUseBothScreenPosition.y - enlargeSize.height / 2 < 0 ||
-                         spriteUseBothScreenPosition.y + enlargeSize.height / 2 > screenSize.height;
+    bool isOutOfScreen = spriteUseBothScreenPosition.x - enlargeScreenSize.width / 2 < 0 ||
+                         spriteUseBothScreenPosition.x + enlargeScreenSize.width / 2 > screenSize.width ||
+                         spriteUseBothScreenPosition.y - enlargeScreenSize.height / 2 < 0 ||
+                         spriteUseBothScreenPosition.y + enlargeScreenSize.height / 2 > screenSize.height;
 
 
-    ret = isOutOfScreen ? screenSize / 2 : nodeScreenPosition + ax::Vec2(horizontalPosition, needVertical ? verticalPosition : 0);
+    ret = isOutOfScreen ? screenSize / 2 : nodeScreenPosition + ax::Vec2(horizontalPosition, needVertical ? verticalPosition : 0) / zoomFactor;
 
     enlargeSprite->setPosition(convertScreenPositionToWorld(node, ret));
     enlargeSprite->setContentSize(enlargeSize);
