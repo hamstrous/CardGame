@@ -502,7 +502,7 @@ void InputManager::clearSelectedWidgets()
 }
 
 
-std::vector<Widget*>& InputManager::getSortedSelectedWidgets()
+std::vector<Widget*> InputManager::getSortedSelectedWidgets()
 {
     auto sorted = std::vector<Widget*>(_selectedWidgets.begin(), _selectedWidgets.end());
     std::sort(sorted.begin(), sorted.end(),

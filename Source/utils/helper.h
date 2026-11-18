@@ -15,6 +15,8 @@ bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint);
 ax::Vec2 getNodePositionInWorldSpace(ax::Node* node);
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition);
 
+ax::Rect getNodeWorldBoundingBox(ax::Node* node);
+
 void moveNodeToFront(ax::Node* node);
 void reparentPreserveTransform(ax::Node* child, ax::Node* newParent);
 

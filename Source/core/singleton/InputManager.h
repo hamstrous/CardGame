@@ -57,7 +57,7 @@ public:
     void clearSelectedWidgets();
     
     std::set<Widget*>& getSelectedWidgets() { return _selectedWidgets; }
-    std::vector<Widget*>& getSortedSelectedWidgets();
+    std::vector<Widget*> getSortedSelectedWidgets();
 
     ax::Vec2 getMousePosition() const { return _mousePreviousPosition; }
 

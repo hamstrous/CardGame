@@ -1,6 +1,7 @@
 #include "Widget.h"
 #include "utils/helper.h"
 #include "utils/ScreenHelper.h"
+#include "utils/Collision.h"
 
 #include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
@@ -153,7 +154,8 @@ bool Widget::onMouseDown(ax::Event* event)
             return true;
     }
 
-    if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
+    //if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
+    if (Collision::overlap(this, mousePos))
     {
         //AXLOGD("Widget clicked");
         InputManager::getInstance()->justMouseDownInsideWidget(this);
