@@ -44,9 +44,9 @@ private:
     {
     public:
         Polygon(std::vector<ax::Vec2> vertices) {
+            this->vertices.clear();
             for (auto vertex : vertices)
             {
-                this->vertices.clear();
                 this->vertices.push_back(vertex);
             }
         }

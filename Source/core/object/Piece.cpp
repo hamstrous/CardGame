@@ -39,8 +39,6 @@ bool Piece::init(std::string type)
 
     setUpInteractEffect();
 
-    _type = type;
-
     scheduleUpdate();
     return true;
 }

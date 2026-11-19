@@ -61,13 +61,13 @@ bool Collision::overlap(ax::Node* node1, ax::Node* node2, ax::Vec2& minimumTrans
 
     // Convert node boundpoint to world space then create polygon
     node1Vectices.push_back(node1->convertToWorldSpace(ax::Vec2(0, 0)));
-    node1Vectices.push_back(node1->convertToWorldSpace(node1->getContentSize()));
     node1Vectices.push_back(node1->convertToWorldSpace(ax::Vec2(node1->getContentSize().width, 0)));
+    node1Vectices.push_back(node1->convertToWorldSpace(node1->getContentSize()));
     node1Vectices.push_back(node1->convertToWorldSpace(ax::Vec2(0, node1->getContentSize().height)));
 
     node2Vectices.push_back(node2->convertToWorldSpace(ax::Vec2(0, 0)));
-    node2Vectices.push_back(node2->convertToWorldSpace(node2->getContentSize()));
     node2Vectices.push_back(node2->convertToWorldSpace(ax::Vec2(node2->getContentSize().width, 0)));
+    node2Vectices.push_back(node2->convertToWorldSpace(node2->getContentSize()));
     node2Vectices.push_back(node2->convertToWorldSpace(ax::Vec2(0, node2->getContentSize().height)));
 
     Polygon polygon1(node1Vectices);

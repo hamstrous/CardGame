@@ -3,6 +3,7 @@
 #include "axmol.h"
 
 class Widget;
+class Holder;
 class EventListenerMode;
 class EventMode;
 // This class organize the order each widget appear on screen
@@ -66,6 +67,8 @@ public:
     void duplicateWidgets(std::set<Widget*>& widgets);
 
     void sortAllLayersChildren();
+
+    Holder* findHoveredOnHolder(Widget* widget);
 
 private:
     static LayerManager* _instance;

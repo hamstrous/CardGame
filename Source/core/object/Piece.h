@@ -28,8 +28,6 @@ public:
 
     int getCount() const { return _count; }
 
-    std::string getType() const override { return _type; } 
-
 protected:
 
     static int _count;

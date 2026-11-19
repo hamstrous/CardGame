@@ -7,6 +7,7 @@
 #include "ImGui/ImGuiPresenter.h"
 
 #include "core/object/Widget.h"
+#include "core/object/Holder.h"
 #include "core/const/GameConstants.h"
 #include "utils/helper.h"
 
@@ -83,7 +84,7 @@ void LayerManager::onWidgetHover(ax::EventCustom* event)
     _hoverWidget = hoveredWidget;
 
     stopEnlargeWidget();
-
+    _enlarging = true;
     scheduleOnce([=](float delta) { enlargeWidget(hoveredWidget); }, 1.f, "enlarge_widget");
 }
 
@@ -92,6 +93,7 @@ void LayerManager::onWidgetStopHover(ax::EventCustom* event)
     Widget* stopHoveredWidget = static_cast<Widget*>(event->getUserData());
     stopEnlargeWidget();
     _hoverWidget = nullptr;
+    _enlarging   = false;
 }
 
 bool LayerManager::onModeChanged(EventMode* event)
@@ -130,14 +132,12 @@ void LayerManager::enlargeWidget(Widget* widget)
 
     ScreenHelper::getWorldPositionForEnlargePreview(widget, _enlargeSprite, widget->getEnlargeRatio());
     _enlargeSprite->setVisible(true);
-    _enlarging = true;
 }
 
 void LayerManager::stopEnlargeWidget()
 {
     unschedule("enlarge_widget");
     _enlargeSprite->setVisible(false);
-    _enlarging = false;
 }
 
 void LayerManager::disruptEnlargeWidget()
@@ -417,4 +417,29 @@ void LayerManager::sortAllLayersChildren() {
     {
         layer->sortAllChildren();
     }
+}
+
+Holder* LayerManager::findHoveredOnHolder(Widget* widget)
+{
+    // Holder on non interactive layer
+    auto nonInteractiveWidgets = _nonInteractiveLayer->getChildren();
+    float mtvMaxLength            = 0;
+    Holder* bestFitHolder      = nullptr;
+    for (auto node : nonInteractiveWidgets)
+    {
+        Holder* holder = dynamic_cast<Holder*>(node);
+        if (holder == nullptr || holder->getType() != "Holder")
+            continue;
+        Vec2 mtv(0, 0);
+        if (holder->isWidgetHoveringOn(widget, mtv))
+        {
+            float mtvLength = mtv.length();
+            if (mtvLength > mtvMaxLength)
+            {
+                mtvMaxLength = mtvLength;
+                bestFitHolder = holder;
+            }
+        }
+    }
+    return bestFitHolder;
 }

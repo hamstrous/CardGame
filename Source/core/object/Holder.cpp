@@ -88,7 +88,7 @@ Holder* Holder::clone() const
 
 void Holder::drawGui()
 {
-    ImGui::DragFloat("Corner", &_roundedCorner, 0.05f, 0.f, 1.f);
+    //ImGui::DragFloat("Corner", &_roundedCorner, 0.005f, 0.f, 1.f);
 }
 
 void Holder::update(float delta) {
@@ -122,4 +122,24 @@ void Holder::setUpMainVisual()
 
         //_drawNodeVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
     }, "placeholder_visual");
+}
+
+bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
+{
+    // Fast checking
+    Rect box = helper::getNodeWorldBoundingBox(this);
+    Rect widgetBox = helper::getNodeWorldBoundingBox(widget);
+
+    if (!box.intersectsRect(widgetBox) || !Collision::overlap(this, widget, mtv))
+    {
+        setHoverTarget(nullptr); // Remove target 
+        return false;
+    }
+    return true;
+}
+
+void Holder::otherHoveringOnAbove(Widget* widget)
+{
+    AXLOGD("{} hovering on {}", widget->getName(), this->getName());
+    setHoverTarget(widget);
 }

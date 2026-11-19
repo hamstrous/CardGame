@@ -3,8 +3,8 @@
 #include "utils/ScreenHelper.h"
 #include "utils/Collision.h"
 
-#include "core/event/EventCard.h"
 #include "core/const/GameConstants.h"
+#include "core/object/Holder.h"
 
 #include "core/singleton/InputManager.h"
 #include "core/singleton/LayerManager.h"
@@ -460,6 +460,11 @@ void Widget::clickEffect()
     AXLOGD("{} got clicked; face: {}", this->getName(), _activeFace);
 }
 
+void Widget::drag(Vec2 delta)
+{
+    this->setPosition(this->getPosition() + delta);
+}
+
 void Widget::addFace(const std::string& faceImageLink)
 {
     _faceImageLinkList.push_back(faceImageLink);
@@ -495,6 +500,24 @@ void Widget::setActiveFace(int index)
     _image->getTexture()->setAliasTexParameters();
     _image->setAnchorPoint(Vec2(0.f, 0.f));
     _image->setContentSize(this->getContentSize());
+}
+
+void Widget::draggingAlone()
+{
+    if (ModeManager::getInstance()->getCurrentMode() != Mode::PLAY)
+        return;
+
+    auto hoveredOnHolder = LayerManager::getInstance()->findHoveredOnHolder(this);
+    if (hoveredOnHolder != nullptr)
+    {
+        hoveredOnHolder->otherHoveringOnAbove(this);
+        this->otherHoveringDownBelow(hoveredOnHolder);
+    }
+}
+
+void Widget::otherHoveringDownBelow(Widget* widget)
+{
+    this->setHoverParent(widget);
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const

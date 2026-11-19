@@ -338,12 +338,45 @@ void InputManager::endDragging() {
 void InputManager::updateDragging(const Vec2& mousePosition) {
     if (!_canDrag || !_dragging)
         return;
+    queue<Widget*> undraggedWidgetChildren;
+    unordered_set<Widget*> draggedWidgets;
+
     // Move every selected widget by the delta of the mouse movement
     Vec2 delta = mousePosition - _mousePreviousPosition;
     for (auto widget : _selectedWidgets)
     {
+        // If selected is not draggable then dont
         if (widget->isDraggable())
-            widget->setPosition(widget->getPosition() + delta);
+        {
+            widget->drag(delta);
+            auto& widgetChildren = widget->getWidgetChildren();
+            for (auto child : widgetChildren)
+                // A selected child but not draggable then parent will force it
+                if (!_selectedWidgets.contains(child) || !widget->isDraggable())
+                    undraggedWidgetChildren.push(child);
+            draggedWidgets.insert(widget);
+
+            if (_selectedAloneWidget == widget)
+            {
+                // This widget is being drag alone (not counting non selected children)
+                widget->draggingAlone();
+            }
+        }
+    }
+
+    while (!undraggedWidgetChildren.empty())
+    {
+        auto widget = undraggedWidgetChildren.front();
+        undraggedWidgetChildren.pop();
+
+        widget->drag(delta);
+        draggedWidgets.insert(widget);
+
+        auto& widgetChildren = widget->getWidgetChildren();
+
+        for (auto child : widgetChildren)
+            if (!draggedWidgets.contains(child))
+                undraggedWidgetChildren.push(child);
     }
 }
 
@@ -518,7 +551,8 @@ void InputManager::checkAloneWidget()
 {
     if (_selectedWidgets.size() == 1)
     {
-        (*_selectedWidgets.begin())->drawModifyTransformEffect();
+        _selectedAloneWidget = *_selectedWidgets.begin();
+        _selectedAloneWidget->drawModifyTransformEffect();
     }
     else
     {
@@ -598,7 +632,6 @@ bool InputManager::justClickedOnWidgetBorder(Widget* widget, Vec2 normalizedBord
     if (_selectedWidgets.size() != 1)
         return false;
 
-    _selectedAloneWidget = widget;
     startScaling(normalizedBorderPoint);
     return true;
 }
@@ -612,7 +645,6 @@ bool InputManager::justClickedOnWidgetCircle(Widget* widget)
     if (_selectedWidgets.size() != 1)
         return false;
 
-    _selectedAloneWidget = widget;
     startRotating();
     return true;
 }

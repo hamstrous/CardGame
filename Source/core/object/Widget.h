@@ -96,6 +96,8 @@ public:
 
     virtual void clickEffect();
 
+    void drag(ax::Vec2 delta);
+
     bool isClickable() const { return _clickable; }
     void setClickable(bool clickable) { _clickable = clickable; }
     bool isDraggable() const { return _draggable; }
@@ -112,6 +114,21 @@ public:
     void setEnlargeRatio(float ratio) { _enlargeRatio = ratio; }
     float getEnlargeRatio() { return _enlargeRatio; }
 
+    std::vector<Widget*>& getWidgetChildren() { return _children; }
+    std::vector<Widget*> addWidgetChildren(Widget* widget) { _children.push_back(widget); }
+    std::vector<Widget*> removeWidgetChildren(Widget* widget) { std::erase(_children, widget); }
+
+
+    // For holder interaction
+    void draggingAlone();
+    void droppedAlone();
+
+    virtual void otherHoveringOnAbove(Widget* widget) {};
+    virtual void otherHoveringDownBelow(Widget* widget);
+
+    void setHoverTarget(Widget* widget) { hoverTarget = widget; }
+    void setHoverParent(Widget* widget) { hoverParent = widget; }
+
 protected:
     
     BorderPosition isPointOnBorder(const ax::Vec2& point, float threshold = 10.f) const;
@@ -126,11 +143,9 @@ protected:
     const ax::Vec2 _rotatableCirclePosition = ax::Vec2(0.5f, -25.f); // x is normalize, y is absolute
 
     ax::Vec2 getBorderPoint(BorderPosition position, float offset = 0.f) const;
-    void setType(std::string type) { _type = type; }
 
     static int _count;
     int _id;
-    std::string _type = "Widget";
 
     ax::EventListenerMouse* _mouseListener;
 
@@ -169,5 +184,10 @@ protected:
 
     // Draw Node Visual
     ax::DrawNode* _drawNodeVisual;
+
+    std::vector<Widget*> _children;
+
+    Widget* hoverTarget = nullptr;
+    Widget* hoverParent = nullptr;
 
 };

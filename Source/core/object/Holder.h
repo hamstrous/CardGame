@@ -29,11 +29,19 @@ public:
 
     std::string getType() const override { return "Holder"; }
 
+    bool isWidgetHoveringOn(Widget* widget, ax::Vec2& mtv);
+
+    void otherHoveringOnAbove(Widget* widget) override;
+
 protected:
     static int _count;
     int _id;
-    std::string _type = "Holder";
 
-    float _roundedCorner = 0;
-
+    float _roundedCorner = 0.5;
+    bool _alignChilren   = true;
+    int _dropLimit       = -1;
+    bool _showLimit      = false;
+    bool _dropShadow     = true;
+    bool _preventPile    = false;
+    std::vector<std::string> _dropTarget;
 };
