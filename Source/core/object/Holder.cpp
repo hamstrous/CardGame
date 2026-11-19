@@ -4,6 +4,7 @@
 
 #include "utils/helper.h"
 #include "utils/ScreenHelper.h"
+#include "utils/DrawNodeHelper.h"
 #include "utils/Collision.h"
 
 #include "core/event/EventCard.h"
@@ -87,7 +88,7 @@ Holder* Holder::clone() const
 
 void Holder::drawGui()
 {
-    ImGui::DragFloat("Corner", &_roundedCorner, 0.5f);
+    ImGui::DragFloat("Corner", &_roundedCorner, 0.05f, 0.f, 1.f);
 }
 
 void Holder::update(float delta) {
@@ -113,25 +114,11 @@ void Holder::setUpMainVisual()
     this->addChild(_image);
 
     schedule([this](float delta) {
-        float lineThickness = 5.f;
-        float curveThickness = 2.5f;
+        float thickness = 2.5f;
         Vec2 size       = this->getContentSize();
-        Vec2 sizeX      = size * Vec2::UNIT_X;
-        Vec2 sizeY      = size * Vec2::UNIT_Y;
-
-        Vec2 roundedCornerX = _roundedCorner * Vec2::UNIT_X;
-        Vec2 roundedCornerY = _roundedCorner * Vec2::UNIT_Y;
         
         _drawNodeVisual->clear();
-        _drawNodeVisual->drawLine(roundedCornerX, sizeX - roundedCornerX, Color4F::BLACK, lineThickness);
-        _drawNodeVisual->drawLine(roundedCornerX + sizeY, size - roundedCornerX, Color4F::BLACK, lineThickness);
-        _drawNodeVisual->drawLine(roundedCornerY, sizeY - roundedCornerY, Color4F::BLACK, lineThickness);
-        _drawNodeVisual->drawLine(roundedCornerY + sizeX, size - roundedCornerY, Color4F::BLACK, lineThickness);
-
-        _drawNodeVisual->drawQuadBezier(roundedCornerX, Vec2::ZERO, roundedCornerY, 10, Color4F::BLACK, curveThickness);
-        _drawNodeVisual->drawQuadBezier(sizeY - roundedCornerY, sizeY, sizeY + roundedCornerX, 10, Color4F::BLACK, curveThickness);
-        _drawNodeVisual->drawQuadBezier(size - roundedCornerX, size, size - roundedCornerY, 10, Color4F::BLACK, curveThickness);
-        _drawNodeVisual->drawQuadBezier(sizeX + roundedCornerY, sizeX, sizeX - roundedCornerX, 10, Color4F::BLACK, curveThickness);
+        DrawNodeHelper::drawSolidCornerRect(_drawNodeVisual, size, Color4F::WHITE, Color4F::BLACK, thickness, _roundedCorner);
 
         //_drawNodeVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
     }, "placeholder_visual");
