@@ -27,6 +27,11 @@ void GuiManager::destroyInstance()
     }
 }
 
+void GuiManager::addCallbackToImGuiDrawLoop(std::function<void()> callback) {
+    _imGuiDrawCallbackList.push_back(callback);
+}
+
+
 void GuiManager::drawGui() {
 
     auto runningScene = ax::Director::getInstance()->getRunningScene();
@@ -63,4 +68,9 @@ void GuiManager::drawGui() {
     contextMenu->drawGui();
     Inspector* inspector = Inspector::getInstance();
     inspector->drawGui();
+
+    for (auto& callback : _imGuiDrawCallbackList)
+    {
+        callback();
+    }
 }

@@ -16,6 +16,7 @@
 #include "core/singleton/InputManager.h"
 #include "core/singleton/LayerManager.h"
 #include "core/object/Widget.h"
+#include "core/object/Holder.h"
 
 #include "core/event/EventMode.h"
 
@@ -94,6 +95,11 @@ bool TestScene::init()
         w->addFace("card/Card Back 3.png");
     }
 
+    
+    Holder* holder = Holder::create();
+    holder->setContentSize(Size(200, 100));
+    holder->setPosition(visibleSize - Vec2(300, 300));
+    _layerManager->addWidgetToNonInteractiveLayer(holder);
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
     // Need for layer, event, transform

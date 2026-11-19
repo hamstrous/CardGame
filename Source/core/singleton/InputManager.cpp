@@ -219,7 +219,6 @@ bool InputManager::onMouseScroll(ax::Event* event) {
     {
         // If original zoom factor then camera should capture the entire original screen
         camera->setPosition(camera->getPosition() + offsetToCameraOriginalPosition);
-        AXLOGD("Camera position: {},{}", camera->getPositionX(), camera->getPositionY());
     }
     else if (zoomValue < 0.f)
     {

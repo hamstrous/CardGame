@@ -29,11 +29,12 @@ public:
     bool init();
     virtual Widget* clone() const;
 
+    virtual void drawGui() {};
+
     void update(float delta) override;
 
     // Override
     void setContentSize(const ax::Size& contentSize) override;
-
 
     virtual void setUpInteractEffect();
     virtual void setUpMainVisual();
@@ -166,7 +167,7 @@ protected:
     bool _clickable = true;
     bool _draggable = true;
 
-private:
-    ax::DrawNode* _placeholderVisual;
+    // Draw Node Visual
+    ax::DrawNode* _drawNodeVisual;
 
 };

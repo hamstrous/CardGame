@@ -114,9 +114,9 @@ void Widget::setUpInteractEffect() {
 }
 
 void Widget::setUpMainVisual() {
-    _placeholderVisual = ax::DrawNode::create();
-    _placeholderVisual->properties.setDrawOrder(true);
-    this->addChild(_placeholderVisual);
+    _drawNodeVisual = ax::DrawNode::create();
+    _drawNodeVisual->properties.setDrawOrder(true);
+    this->addChild(_drawNodeVisual);
 
     //_image = Sprite::create("virtualtabletop assets/cards-default/1B.svg");
     _image = Sprite::create();
@@ -125,9 +125,9 @@ void Widget::setUpMainVisual() {
     addFace("card/2B.png");
 
     schedule([this](float delta) {
-        _placeholderVisual->clear();
-        _placeholderVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-        _placeholderVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
+        _drawNodeVisual->clear();
+        _drawNodeVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
+        _drawNodeVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
     }, "placeholder_visual");
 }
 
@@ -443,6 +443,9 @@ void Widget::rotateToNeareastAllowedRotation() {
 void Widget::clickEffect()
 {
     if (!isClickable())
+        return;
+
+    if (_faceCount == 0)
         return;
 
     if (_faceCycle == 0)
