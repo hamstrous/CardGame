@@ -155,7 +155,8 @@ bool Widget::onMouseDown(ax::Event* event)
     }
 
     //if (isWorldPositionInNode(this, mousePos))  // containPoint(this,mousePos))
-    if (Collision::overlap(this, mousePos))
+    //if (Collision::overlap(this, mousePos))
+    if (this->hitTest(mousePos))
     {
         //AXLOGD("Widget clicked");
         InputManager::getInstance()->justMouseDownInsideWidget(this);
@@ -507,6 +508,12 @@ void Widget::draggingAlone()
     if (ModeManager::getInstance()->getCurrentMode() != Mode::PLAY)
         return;
 
+    if (_holderParent != nullptr)
+    {
+        _holderParent->onWidgetLeave(this);
+        _holderParent = nullptr;
+    }
+
     auto hoveredOnHolder = LayerManager::getInstance()->findHoveredOnHolder(this);
     if (hoveredOnHolder != nullptr)
     {
@@ -517,6 +524,19 @@ void Widget::draggingAlone()
         _hoverParent->otherStopHoveringOnAbove(this);
         this->otherStopHoveringDownBelow(_hoverParent);
     }
+}
+
+void Widget::droppedAlone()
+{
+    if (_hoverParent == nullptr)
+        return;
+
+    auto holder = dynamic_cast<Holder*>(_hoverParent);
+    if (holder == nullptr)
+        return;
+
+    holder->onWidgetEnter(this);
+    this->setHoverParent(nullptr);
 }
 
 void Widget::otherHoveringDownBelow(Widget* widget)

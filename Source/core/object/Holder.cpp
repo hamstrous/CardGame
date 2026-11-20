@@ -161,7 +161,12 @@ void Holder::otherStopHoveringOnAbove(Widget* widget)
     moveWidgetBackToPosition();
 }
 
-void Holder::onWidgetEnter(Widget* widget) {}
+void Holder::onWidgetEnter(Widget* widget)
+{
+    int index = getIndexOfClosestSnapPoint(widget);
+    moveOtherWidgetAside(index);
+
+}
 
 void Holder::onWidgetLeave(Widget* widget) {}
 

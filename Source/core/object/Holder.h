@@ -39,7 +39,6 @@ public:
     void otherHoveringOnAbove(Widget* widget) override;
     void otherStopHoveringOnAbove(Widget* widget) override;
 
-
     void onWidgetEnter(Widget* widget);
     void onWidgetLeave(Widget* widget);
 
