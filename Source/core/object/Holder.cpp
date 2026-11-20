@@ -117,6 +117,7 @@ void Holder::setUpMainVisual()
     }, "placeholder_visual");
 }
 
+// Just checking to see if widget is hovering
 bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
 {
     // Fast checking
@@ -153,7 +154,8 @@ void Holder::otherHoveringOnAbove(Widget* widget)
     if (snapIndex != _currentHoveringIndex)
     {
         this->stopActionByTag(_widgetHolderActionTag);
-        moveOtherWidgetAside(snapIndex);
+        moveOtherWidgetsFront(snapIndex);
+        moveOtherWidgetsBack(snapIndex - 1); 
         _currentHoveringIndex = snapIndex;
     }
 
@@ -174,7 +176,7 @@ void Holder::onWidgetEnter(Widget* widget)
 {
     int index = getIndexOfClosestSnapPoint(widget);
     this->stopActionByTag(_widgetHolderActionTag);
-    moveOtherWidgetAside(index);
+    moveOtherWidgetsFront(index);
 
     // Add widget
     addWidgetChildren(widget);
@@ -222,7 +224,7 @@ void Holder::moveWidgetBackToPosition()
     this->runAction(moveWidgetsAsideAction);
 }
 
-void Holder::moveOtherWidgetAside(int snapIndex)
+void Holder::moveOtherWidgetsFront(int snapIndex)
 {
     AXASSERT(_snapPositionList.size() == _childrenWithOrder.size() + 1, "Snap position list not correct to move widgets aside");
 
@@ -238,6 +240,33 @@ void Holder::moveOtherWidgetAside(int snapIndex)
         auto widget = _childrenWithOrder[i];
         auto newPosition = getSnapPositionInNodeParentSpaceAtIndex(widget, i + 1);
         auto moveToAction = MoveTo::create(0.2f, newPosition);
+        auto targetedAction = TargetedAction::create(widget, moveToAction);
+        targetedActionList.pushBack(targetedAction);
+    }
+
+    // Combine it to one and run it with holder
+    auto moveWidgetsAsideAction = Spawn::create(targetedActionList);
+    moveWidgetsAsideAction->setTag(_widgetHolderActionTag);
+    this->runAction(moveWidgetsAsideAction);
+}
+
+void Holder::moveOtherWidgetsBack(int snapIndex)
+{
+    AXASSERT(_snapPositionList.size() == _childrenWithOrder.size() + 1,
+             "Snap position list not correct to move widgets aside");
+
+    if (_childrenWithOrder.empty() || snapIndex < 0)
+    {
+        return;
+    }
+
+    // Get list of target action on each widget
+    Vector<FiniteTimeAction*> targetedActionList;
+    for (int i = 0; i <= snapIndex; i++)
+    {
+        auto widget         = _childrenWithOrder[i];
+        auto newPosition    = getSnapPositionInNodeParentSpaceAtIndex(widget, i);
+        auto moveToAction   = MoveTo::create(0.2f, newPosition);
         auto targetedAction = TargetedAction::create(widget, moveToAction);
         targetedActionList.pushBack(targetedAction);
     }
