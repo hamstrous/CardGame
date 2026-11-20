@@ -43,8 +43,7 @@ public:
     void onWidgetLeave(Widget* widget);
 
     void moveWidgetBackToPosition();
-    void moveOtherWidgetsFront(int snapIndex);
-    void moveOtherWidgetsBack(int snapIndex);
+    void moveOtherWidgetsAside(int snapIndex);
 
     void updateSnapPositionList();
 

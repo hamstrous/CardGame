@@ -151,7 +151,6 @@ void Holder::otherHoveringOnAbove(Widget* widget)
 
     int snapIndex     = getIndexOfClosestSnapPoint(widget);
     auto layerManager = LayerManager::getInstance();
-
     if (snapIndex != _currentHoveringIndex)
     {
         if (_currentHoveringIndex == -1)
@@ -161,12 +160,11 @@ void Holder::otherHoveringOnAbove(Widget* widget)
             layerManager->moveWidgetsToFront(_children);
             layerManager->moveWidgetToFront(widget);
             // Temporary move widget layer order to last for easy layer handle
-            _currentHoveringIndex = _snapPositionList.size();
+            _currentHoveringIndex = _snapPositionList.size() - 1;
             
         }
-        this->stopActionByTag(_widgetHolderActionTag);
-        moveOtherWidgetsFront(snapIndex);
-        moveOtherWidgetsBack(snapIndex - 1);
+        this->stopAllActionsByTag(_widgetHolderActionTag);
+        moveOtherWidgetsAside(snapIndex);
         // Move widget order one by one
         while (_currentHoveringIndex != snapIndex)
         {
@@ -200,7 +198,7 @@ void Holder::onWidgetEnter(Widget* widget)
 {
     int index = getIndexOfClosestSnapPoint(widget);
     this->stopActionByTag(_widgetHolderActionTag);
-    moveOtherWidgetsFront(index);
+    moveOtherWidgetsAside(index);
 
     addWidgetChildren(widget);
     _childrenWithOrder.insert(_childrenWithOrder.begin() + index, widget);
@@ -226,6 +224,7 @@ void Holder::onWidgetLeave(Widget* widget)
 
 void Holder::moveWidgetBackToPosition()
 {
+    this->stopAllActionsByTag(_widgetHolderActionTag);
     Vector<FiniteTimeAction*> targetedActionList;
     if (_childrenWithOrder.empty())
     {
@@ -246,11 +245,11 @@ void Holder::moveWidgetBackToPosition()
     this->runAction(moveWidgetsAsideAction);
 }
 
-void Holder::moveOtherWidgetsFront(int snapIndex)
+void Holder::moveOtherWidgetsAside(int snapIndex)
 {
     AXASSERT(_snapPositionList.size() == _childrenWithOrder.size() + 1, "Snap position list not correct to move widgets aside");
 
-    if (_childrenWithOrder.empty() || snapIndex >= _childrenWithOrder.size())
+    if (_childrenWithOrder.empty())
     {
         return;
     }
@@ -265,26 +264,7 @@ void Holder::moveOtherWidgetsFront(int snapIndex)
         auto targetedAction = TargetedAction::create(widget, moveToAction);
         targetedActionList.pushBack(targetedAction);
     }
-
-    // Combine it to one and run it with holder
-    auto moveWidgetsAsideAction = Spawn::create(targetedActionList);
-    moveWidgetsAsideAction->setTag(_widgetHolderActionTag);
-    this->runAction(moveWidgetsAsideAction);
-}
-
-void Holder::moveOtherWidgetsBack(int snapIndex)
-{
-    AXASSERT(_snapPositionList.size() == _childrenWithOrder.size() + 1,
-             "Snap position list not correct to move widgets aside");
-
-    if (_childrenWithOrder.empty() || snapIndex < 0)
-    {
-        return;
-    }
-
-    // Get list of target action on each widget
-    Vector<FiniteTimeAction*> targetedActionList;
-    for (int i = 0; i <= snapIndex; i++)
+    for (int i = 0; i <= snapIndex - 1; i++)
     {
         auto widget         = _childrenWithOrder[i];
         auto newPosition    = getSnapPositionInNodeParentSpaceAtIndex(widget, i);
@@ -301,8 +281,6 @@ void Holder::moveOtherWidgetsBack(int snapIndex)
 
 void Holder::updateSnapPositionList()
 {
-    AXLOGD("Update snap position list");
-
     // Recreate the snap list with the current state;
 
     auto size = this->getContentSize();
@@ -341,8 +319,6 @@ void Holder::updateSnapPositionList()
         auto nodeSnapPoint = _dropOffset + _stackOffset * i;
         _snapPositionList.push_back(nodeSnapPoint);
     }
-
-    AXLOGD("Updated snap list: snap count {}, children of holder count {}", _snapPositionList.size(), _childrenWithOrder.size());
 }
 
 std::vector<ax::Vec2> Holder::getAvailableWorldSnapPosition()

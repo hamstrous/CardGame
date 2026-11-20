@@ -369,12 +369,6 @@ void LayerManager::moveWidgetsOnSpecificLayerByOffset(ax::Vector<Node*>& layerCh
             lowOrder += increment;
         }
     }
-
-    for (auto& child : layerChildren)
-    {
-        AXLOGD("Child {}: z order {}", child->getName(), child->getLocalZOrder());
-    }
-    AXLOGD("-------------WIDGETS LAYER AFTER MOVED---------");
 }
 
 void LayerManager::hideWidget(Widget* widget)
