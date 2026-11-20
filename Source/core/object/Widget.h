@@ -77,6 +77,8 @@ public:
     void drawTransparentEffect();
     void clearTransparentEffect();
 
+    void propertyUpdated(); // Some properties got update, run to set in the effect
+
     int getCount() const { return _count; }
 
     virtual std::string getId() const { return getType() + "_" + std::to_string(_id); }

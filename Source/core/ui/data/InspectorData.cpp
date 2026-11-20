@@ -112,6 +112,19 @@ bool InspectorData::allHaveBasicData(const std::vector<InspectorData>& datas)
     return true;
 }
 
+bool InspectorData::allHaveHolderData(const std::vector<InspectorData>& datas)
+{
+    if (datas.empty())
+        return false;
+
+    for (auto& data : datas)
+    {
+        if (!data.haveHolderData)
+            return false;
+    }
+    return true;
+}
+
 bool InspectorData::gatherHaveSamePositionX(const std::vector<InspectorData>& datas, float*& outPositionX)
 {
     std::vector<float*> positionXVector;

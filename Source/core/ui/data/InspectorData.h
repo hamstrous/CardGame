@@ -2,6 +2,9 @@
 
 #include "axmol.h"
 
+// For template
+#include <vector>
+
 #include "GuiData.h"
 
 class InspectorData : public GuiData
@@ -17,6 +20,36 @@ public:
     static void setAllFloatPointers(const std::vector<float*>& floatPointers, const float value);
     static bool sameIntPointers(const std::vector<int*>& intPointers, int*& outInt);
     static void setAllIntPointers(const std::vector<int*>& intPointers, int value);
+
+    template <typename T>
+    static bool samePointers(const std::vector<T*>& pointers, T*& out)
+    {
+        bool samePointer = true;
+        if (pointers.empty())
+            return false;
+        out = pointers[0];
+        for (T* p : pointers)
+        {
+            if (p == nullptr)
+                return false;
+            if (*p != *out)
+            {
+                samePointer = false;
+                break;
+            }
+        }
+        return samePointer;
+    }
+
+    template <typename T>
+    static void setAllPointers(std::vector<T*> pointers, T value)
+    {
+        for (auto& pointer : pointers)
+        {
+            *pointer = value;
+        }
+    }
+
 
 public:
     InspectorData() = default;
@@ -52,10 +85,11 @@ public:
     // Enlarge
     int* enlargeRatio = nullptr;
 
-    // DECK
-    bool haveDeckData = false;  // flag
+    // HOLDER
+    bool haveHolderData = false;  // flag
+    static bool allHaveHolderData(const std::vector<InspectorData>& datas);
+
     // Spread
-    float* horizontalSpread = nullptr;
-    float* verticalSpread   = nullptr;
+    ax::Vec2* spreadDirection = nullptr;
 
 };

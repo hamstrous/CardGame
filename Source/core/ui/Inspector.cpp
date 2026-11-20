@@ -304,10 +304,6 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
         ImGui::Text("%d widgets selected", inspectorDataList.size());
         return;
     }
-    ImGui::PushFont(NULL, 18.0f);
-    ImGui::Text("Position");
-    ImGui::PopFont();
-    ImGui::Text("Where the widget is located");
 
     // Separating the data into different lists 
     vector<float*> positionXList, positionYList;
@@ -365,6 +361,11 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 
     }
 
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Position");
+    ImGui::PopFont();
+    ImGui::Text("Where the widget is located");
+
     drawFloatPointer(positionXList, "X", 0.5f);
     ImGui::SameLine();
     drawFloatPointer(positionYList, "Y", 0.5f);
@@ -407,6 +408,34 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
 
 }
 
+void Inspector::drawHolder(const std::vector<InspectorData>& inspectorDataList)
+{
+    bool gatheredHolderData = InspectorData::allHaveHolderData(inspectorDataList);
+    if (!gatheredHolderData)
+    {
+        ImGui::Text("%d widgets selected", inspectorDataList.size());
+        return;
+    }
+
+    vector<Vec2*> spreadDirectionList;
+
+    for (const auto& data : inspectorDataList)
+    {
+        if (data.spreadDirection) {
+            spreadDirectionList.push_back(data.spreadDirection);
+        }
+    }
+
+    ImGui::PushFont(NULL, 18.0f);
+    ImGui::Text("Spread Mode");
+    ImGui::PopFont();
+    ImGui::Text("Where the widget is located");
+
+    vector<Vec2> allowedSpreadDirection = {Vec2(-1, 0), Vec2(1, 0), Vec2(0, 1), Vec2(0, -1)};
+    vector<string> spreadLabel     = {"Left", "Right", "Top", "Down"};
+    drawMultipleValueButton<Vec2>(spreadDirectionList, allowedSpreadDirection, spreadLabel);
+}
+
 void Inspector::drawGui() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
     ImGui::Begin("Inspector", NULL, ImGuiWindowFlags_AlwaysAutoResize);
@@ -425,6 +454,7 @@ void Inspector::drawGui() {
         ImGui::PushID("Inspector");
 
         drawBasic(inspectorDataList);
+        drawHolder(inspectorDataList);
         for (auto widget : selectedWidgets)
             widget->markTransformDirty(); // Mark dirty after updating with inspector
 

@@ -23,6 +23,9 @@ public:
     void setContentSize(const ax::Size &size) override;
     void setUpMainVisual() override;
 
+    InspectorData createInspectorData() override;
+
+
     Holder() = default;
     ~Holder() = default;    
 

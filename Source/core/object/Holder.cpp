@@ -117,6 +117,15 @@ void Holder::setUpMainVisual()
     }, "placeholder_visual");
 }
 
+InspectorData Holder::createInspectorData()
+{
+    auto data = Widget::createInspectorData();
+    data.haveHolderData  = true;
+    data.spreadDirection = &_spreadDirection;
+
+    return data;
+}
+
 // Just checking to see if widget is hovering
 bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
 {
