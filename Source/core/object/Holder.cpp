@@ -120,6 +120,8 @@ void Holder::setUpMainVisual()
 // Just checking to see if widget is hovering
 bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
 {
+    AXLOGD("Checking if widget hovering on holder");
+
     // Fast checking
     Rect box = helper::getNodeWorldBoundingBox(this);
     Rect widgetBox = helper::getNodeWorldBoundingBox(widget);
@@ -142,6 +144,8 @@ bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
 
 void Holder::otherHoveringOnAbove(Widget* widget)
 {
+    AXLOGD("Widget hovering on holder");
+
     setHoverTarget(widget);
     helper::spriteSetUpWithFileName(_shadow, widget->getActiveFaceFileLink(), Vec2(0.5f, 0.5f));
     _shadow->setVisible(true);
@@ -149,14 +153,38 @@ void Holder::otherHoveringOnAbove(Widget* widget)
     // Turn dark
     _shadow->setColor(Color3B::GRAY);
 
-    int snapIndex          = getIndexOfClosestSnapPoint(widget);
+    int snapIndex     = getIndexOfClosestSnapPoint(widget);
+    auto layerManager = LayerManager::getInstance();
 
     if (snapIndex != _currentHoveringIndex)
     {
+        if (_currentHoveringIndex == -1)
+        {
+            //Just hovered recently
+            // Move all children widget to front
+            layerManager->moveWidgetsToFront(_children);
+            layerManager->moveWidgetToFront(widget);
+            // Temporary move widget layer order to last for easy layer handle
+            _currentHoveringIndex = _snapPositionList.size();
+            
+        }
         this->stopActionByTag(_widgetHolderActionTag);
         moveOtherWidgetsFront(snapIndex);
-        moveOtherWidgetsBack(snapIndex - 1); 
-        _currentHoveringIndex = snapIndex;
+        moveOtherWidgetsBack(snapIndex - 1);
+        // Move widget order one by one
+        while (_currentHoveringIndex != snapIndex)
+        {
+            if (_currentHoveringIndex < snapIndex)
+            {
+                layerManager->moveWidgetForward(widget);
+                _currentHoveringIndex++;
+            }
+            else
+            {
+                layerManager->moveWidgetBackward(widget);
+                _currentHoveringIndex--;
+            }
+        }
     }
 
     // Move shadow to the snap
@@ -166,6 +194,8 @@ void Holder::otherHoveringOnAbove(Widget* widget)
 
 void Holder::otherStopHoveringOnAbove(Widget* widget)
 {
+    AXLOGD("Widget stop hovering on holder");
+
     setHoverTarget(nullptr);
     moveWidgetBackToPosition();
     _currentHoveringIndex = -1;
@@ -174,14 +204,27 @@ void Holder::otherStopHoveringOnAbove(Widget* widget)
 
 void Holder::onWidgetEnter(Widget* widget)
 {
+    AXLOGD("Widget dropped on holder");
+
     int index = getIndexOfClosestSnapPoint(widget);
     this->stopActionByTag(_widgetHolderActionTag);
     moveOtherWidgetsFront(index);
 
     // Add widget
+    if (_children.size() != _childrenWithOrder.size())
+    {
+        AXLOGD("MIX MATCH SIZE---------------------");
+    }
+
     addWidgetChildren(widget);
     _childrenWithOrder.insert(_childrenWithOrder.begin() + index, widget);
+    
+    AXLOGD("Children size: {}; Children with order size: {}", _children.size(), _childrenWithOrder.size());
+    if (_children.size() != _childrenWithOrder.size())
+    {
+        AXLOGD("MIX MATCH SIZE---------------------");
 
+    }
     // Move widget to
     _shadow->setVisible(false);
     MoveTo* widgetMoveToAction = MoveTo::create(
@@ -195,11 +238,13 @@ void Holder::onWidgetEnter(Widget* widget)
 
 void Holder::onWidgetLeave(Widget* widget)
 {
+    AXLOGD("Widget leave holder");
+
     std::erase(_childrenWithOrder, widget);
     removeWidgetChildren(widget);
+    AXLOGD("Children size: {}; Children with order size: {}", _children.size(), _childrenWithOrder.size());
     updateSnapPositionList();
     moveWidgetBackToPosition();
-    removeWidgetChildren(widget);
 }
 
 void Holder::moveWidgetBackToPosition()
@@ -279,6 +324,8 @@ void Holder::moveOtherWidgetsBack(int snapIndex)
 
 void Holder::updateSnapPositionList()
 {
+    AXLOGD("Update snap position list");
+
     // Recreate the snap list with the current state;
 
     auto size = this->getContentSize();
@@ -318,7 +365,7 @@ void Holder::updateSnapPositionList()
         _snapPositionList.push_back(nodeSnapPoint);
     }
 
-    //moveWidgetBackToPosition();
+    AXLOGD("Updated snap list: snap count {}, children of holder count {}", _snapPositionList.size(), _childrenWithOrder.size());
 }
 
 std::vector<ax::Vec2> Holder::getAvailableWorldSnapPosition()

@@ -510,19 +510,35 @@ void Widget::draggingAlone()
 
     if (_holderParent != nullptr)
     {
+        AXLOGD("Children size on just drag and leave holder: {}", _holderParent->getWidgetChildren().size());
+
         _holderParent->onWidgetLeave(this);
         _holderParent = nullptr;
+        // If leave then stop cant also hover on the same frame
+        return;
     }
 
     auto hoveredOnHolder = LayerManager::getInstance()->findHoveredOnHolder(this);
-    if (hoveredOnHolder != nullptr)
+
+    // If the currently hover on different from before mean we left it
+    if (_hoverParent != hoveredOnHolder && _hoverParent != nullptr)
     {
-        hoveredOnHolder->otherHoveringOnAbove(this);
-        this->otherHoveringDownBelow(hoveredOnHolder);
-    }
-    else if (_hoverParent != nullptr) {
         _hoverParent->otherStopHoveringOnAbove(this);
         this->otherStopHoveringDownBelow(_hoverParent);
+
+    }
+    // If hovering on something constantly call it
+    if (hoveredOnHolder != nullptr)
+    {
+        AXLOGD("Children size on dragging alone before hovering: {}", hoveredOnHolder->getWidgetChildren().size());
+
+        hoveredOnHolder->otherHoveringOnAbove(this);
+        AXLOGD("Children size on dragging alone after checking on holder: {}", hoveredOnHolder->getWidgetChildren().size());
+
+        this->otherHoveringDownBelow(hoveredOnHolder);
+
+        AXLOGD("Children size on dragging alone after everything: {}", hoveredOnHolder->getWidgetChildren().size());
+
     }
 }
 
@@ -532,12 +548,12 @@ void Widget::droppedAlone()
         return;
 
     auto holder = dynamic_cast<Holder*>(_hoverParent);
+    this->setHoverParent(nullptr);
     if (holder == nullptr)
         return;
-
+    AXLOGD("Children size on dropped alone before enter: {}", holder->getWidgetChildren().size());
     holder->onWidgetEnter(this);
     _holderParent = holder;
-    this->setHoverParent(nullptr);
 }
 
 void Widget::otherHoveringDownBelow(Widget* widget)

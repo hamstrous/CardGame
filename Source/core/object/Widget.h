@@ -119,7 +119,7 @@ public:
     void setEnlargeRatio(float ratio) { _enlargeRatio = ratio; }
     float getEnlargeRatio() { return _enlargeRatio; }
 
-    std::unordered_set<Widget*>& getWidgetChildren() { return _children; }
+    std::set<Widget*>& getWidgetChildren() { return _children; }
     void addWidgetChildren(Widget* widget) { _children.insert(widget); }
     void removeWidgetChildren(Widget* widget) { _children.erase(widget); }
 
@@ -142,6 +142,8 @@ public:
     // Because the anchor fixed in the middle
     // Simulate setting position with different anchor 
     ax::Vec2 getPositionOffsetByDirection(ax::Vec2 postion, ax::Vec2 offsetDirection);
+
+    Holder* getParentHolder() { return _holderParent; }
 
 protected:
     
@@ -200,7 +202,7 @@ protected:
     // Draw Node Visual
     ax::DrawNode* _drawNodeVisual;
 
-    std::unordered_set<Widget*> _children;
+    std::set<Widget*> _children;
 
     Widget* _hoverTarget = nullptr;
     Widget* _hoverParent = nullptr;

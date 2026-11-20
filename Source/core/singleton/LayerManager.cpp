@@ -230,6 +230,7 @@ void LayerManager::moveWidgetToSpecificOrder(Widget* widget, int order) {
 
     int count = layer->getChildrenCount();
     auto& children = layer->getChildren();
+    
     int currentOrder = widget->getLocalZOrder();
 
     // make sure order is within bounds
@@ -253,6 +254,9 @@ void LayerManager::moveWidgetToSpecificOrder(Widget* widget, int order) {
                 {
                     child->setLocalZOrder(child->getLocalZOrder() - offset);
                 }
+                // We only move offseted amount to shift necessary widget order
+                if (order - currentOrder == j - i)
+                    return;
             }
 
             break;
@@ -286,11 +290,12 @@ void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, in
             heldWidgets.push_back(widget);
 
     }
+    // Reason for bug with children
     for (auto& widget : heldWidgets)
     {
         widgets.erase(widget);
     }
-    sortAllChildren();
+    sortAllLayersChildren();
     map<Node*, vector<Widget*>> needMovingWidgets;
     map<Node*, Vector<Node*>> layerChildren;
 
@@ -313,7 +318,7 @@ void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, in
         if (needMovingWidgets[layer].empty())
             continue;
 
-        long long minOrder, maxOrder, offset;
+        long long minOrder, maxOrder, offset = 0;
         minOrder = needMovingWidgets[layer].front()->getLocalZOrder();
         maxOrder = needMovingWidgets[layer].back()->getLocalZOrder();
         if (type == 0)  // move to front
@@ -369,6 +374,11 @@ void LayerManager::moveWidgetsOnSpecificLayerByOffset(ax::Vector<Node*>& layerCh
         }
     }
 
+    for (auto& child : layerChildren)
+    {
+        AXLOGD("Child {}: z order {}", child->getName(), child->getLocalZOrder());
+    }
+    AXLOGD("-------------WIDGETS LAYER AFTER MOVED---------");
 }
 
 void LayerManager::hideWidget(Widget* widget)

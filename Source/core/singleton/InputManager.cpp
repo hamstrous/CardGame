@@ -9,6 +9,7 @@
 #include "core/event/EventMode.h"
 #include "core/event/EventListenerMode.h"
 #include "core/object/Widget.h"
+#include "core/object/Holder.h"
 
 #include "core/ui/ContextMenu.h"
 
@@ -341,8 +342,7 @@ void InputManager::updateDragging(const Vec2& mousePosition) {
     if (!_canDrag || !_dragging)
         return;
     queue<Widget*> undraggedWidgetChildren;
-    unordered_set<Widget*> draggedWidgets;
-
+    set<Widget*> draggedWidgets;
     // Move every selected widget by the delta of the mouse movement
     Vec2 delta = mousePosition - _mousePreviousPosition;
     for (auto widget : _selectedWidgets)
@@ -352,7 +352,7 @@ void InputManager::updateDragging(const Vec2& mousePosition) {
         {
             widget->drag(delta);
             auto& widgetChildren = widget->getWidgetChildren();
-            for (auto child : widgetChildren)
+            for (auto& child : widgetChildren)
                 // A selected child but not draggable then parent will force it
                 if (!_selectedWidgets.contains(child) || !widget->isDraggable())
                     undraggedWidgetChildren.push(child);
@@ -376,7 +376,7 @@ void InputManager::updateDragging(const Vec2& mousePosition) {
 
         auto& widgetChildren = widget->getWidgetChildren();
 
-        for (auto child : widgetChildren)
+        for (auto& child : widgetChildren)
             if (!draggedWidgets.contains(child))
                 undraggedWidgetChildren.push(child);
     }
