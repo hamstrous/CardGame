@@ -77,6 +77,11 @@ bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition)
     return rect.containsPoint(worldPosition);  
 }
 
+ax::Vec2 convertWorldPositionToParentSpace(ax::Node* node, ax::Vec2 worldPosition)
+{
+    return node->getParent()->convertToNodeSpace(worldPosition);
+}
+
 ax::Rect getNodeWorldBoundingBox(ax::Node* node)
 {
     auto& contentSize = node->getContentSize();

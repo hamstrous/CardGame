@@ -536,6 +536,7 @@ void Widget::droppedAlone()
         return;
 
     holder->onWidgetEnter(this);
+    _holderParent = holder;
     this->setHoverParent(nullptr);
 }
 

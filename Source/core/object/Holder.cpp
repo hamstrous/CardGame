@@ -54,6 +54,8 @@ bool Holder::init()
 
     //updateSnapPositionList();
 
+    _widgetHolderActionTag = helper::enumToNum(constant::ActionTag::WIDGET_IN_HOLDER);
+
     return true;
 }
 
@@ -148,10 +150,15 @@ void Holder::otherHoveringOnAbove(Widget* widget)
 
     int snapIndex          = getIndexOfClosestSnapPoint(widget);
 
-    moveOtherWidgetAside(snapIndex);
+    if (snapIndex != _currentHoveringIndex)
+    {
+        this->stopActionByTag(_widgetHolderActionTag);
+        moveOtherWidgetAside(snapIndex);
+        _currentHoveringIndex = snapIndex;
+    }
 
     // Move shadow to the snap
-    _shadow->setWorldPosition(widget->getPositionOffsetByDirection(this->getWorldSnapPositionAtIndex(snapIndex), _spreadDirection));
+    _shadow->setWorldPosition(getClosestWorldSnapPointWithWidgetOffset(widget));
 
 }
 
@@ -159,20 +166,87 @@ void Holder::otherStopHoveringOnAbove(Widget* widget)
 {
     setHoverTarget(nullptr);
     moveWidgetBackToPosition();
+    _currentHoveringIndex = -1;
+    _shadow->setVisible(false);
 }
 
 void Holder::onWidgetEnter(Widget* widget)
 {
     int index = getIndexOfClosestSnapPoint(widget);
+    this->stopActionByTag(_widgetHolderActionTag);
     moveOtherWidgetAside(index);
 
+    // Add widget
+    addWidgetChildren(widget);
+    _childrenWithOrder.insert(_childrenWithOrder.begin() + index, widget);
+
+    // Move widget to
+    _shadow->setVisible(false);
+    MoveTo* widgetMoveToAction = MoveTo::create(
+        0.2f, helper::convertWorldPositionToParentSpace(widget, getClosestWorldSnapPointWithWidgetOffset(widget)));
+    TargetedAction* targertedAction = TargetedAction::create(widget, widgetMoveToAction);
+    targertedAction->setFlags(_widgetHolderActionTag);
+    this->runAction(targertedAction);
+
+    updateSnapPositionList();
 }
 
-void Holder::onWidgetLeave(Widget* widget) {}
+void Holder::onWidgetLeave(Widget* widget)
+{
+    std::erase(_childrenWithOrder, widget);
+    removeWidgetChildren(widget);
+    updateSnapPositionList();
+    moveWidgetBackToPosition();
+    removeWidgetChildren(widget);
+}
 
-void Holder::moveWidgetBackToPosition() {}
+void Holder::moveWidgetBackToPosition()
+{
+    Vector<FiniteTimeAction*> targetedActionList;
+    if (_childrenWithOrder.empty())
+    {
+        return;
+    }
+    for (int i = 0; i < _childrenWithOrder.size(); i++)
+    {
+        auto widget         = _childrenWithOrder[i];
+        auto newPosition    = getSnapPositionInNodeParentSpaceAtIndex(widget, i);
+        auto moveToAction   = MoveTo::create(0.2f, newPosition);
+        auto targetedAction = TargetedAction::create(widget, moveToAction);
+        targetedActionList.pushBack(targetedAction);
+    }
 
-void Holder::moveOtherWidgetAside(int snapIndex) {}
+    // Combine it to one and run it with holder
+    auto moveWidgetsAsideAction = Spawn::create(targetedActionList);
+    moveWidgetsAsideAction->setTag(_widgetHolderActionTag);
+    this->runAction(moveWidgetsAsideAction);
+}
+
+void Holder::moveOtherWidgetAside(int snapIndex)
+{
+    AXASSERT(_snapPositionList.size() == _childrenWithOrder.size() + 1, "Snap position list not correct to move widgets aside");
+
+    if (_childrenWithOrder.empty() || snapIndex >= _childrenWithOrder.size())
+    {
+        return;
+    }
+
+    // Get list of target action on each widget
+    Vector<FiniteTimeAction*> targetedActionList;
+    for (int i = snapIndex; i < _childrenWithOrder.size(); i++)
+    {
+        auto widget = _childrenWithOrder[i];
+        auto newPosition = getSnapPositionInNodeParentSpaceAtIndex(widget, i + 1);
+        auto moveToAction = MoveTo::create(0.2f, newPosition);
+        auto targetedAction = TargetedAction::create(widget, moveToAction);
+        targetedActionList.pushBack(targetedAction);
+    }
+
+    // Combine it to one and run it with holder
+    auto moveWidgetsAsideAction = Spawn::create(targetedActionList);
+    moveWidgetsAsideAction->setTag(_widgetHolderActionTag);
+    this->runAction(moveWidgetsAsideAction);
+}
 
 void Holder::updateSnapPositionList()
 {
@@ -205,16 +279,17 @@ void Holder::updateSnapPositionList()
     {
         _dropOffset = size / 2;
     }
+
     const float offset = 50.f;
     _stackOffset = _spreadDirection * offset;
-
+    _snapPositionList.clear();
     for (int i = 0; i <= _children.size(); i++) // One extra point for future drop in widget
     {
         auto nodeSnapPoint = _dropOffset + _stackOffset * i;
         _snapPositionList.push_back(nodeSnapPoint);
     }
 
-    moveWidgetBackToPosition();
+    //moveWidgetBackToPosition();
 }
 
 std::vector<ax::Vec2> Holder::getAvailableWorldSnapPosition()
@@ -236,6 +311,9 @@ ax::Vec2 Holder::getWorldSnapPositionAtIndex(int index)
 
 int Holder::getIndexOfClosestSnapPoint(Widget* widget)
 {
+    if (_spreadDirection == Vec2(0, 0))
+        return _snapPositionList.size() - 1;
+
     auto worldPosition = helper::getNodePositionInWorldSpace(widget);
     auto worldSnapPosition = getAvailableWorldSnapPosition();
 
@@ -254,4 +332,17 @@ int Holder::getIndexOfClosestSnapPoint(Widget* widget)
     }
 
     return minIndex;
+}
+
+ax::Vec2 Holder::getClosestWorldSnapPointWithWidgetOffset(Widget* widget)
+{
+    return widget->getPositionOffsetByDirection(this->getWorldSnapPositionAtIndex(this->getIndexOfClosestSnapPoint(widget)), _spreadDirection);
+}
+
+ax::Vec2 Holder::getSnapPositionInNodeParentSpaceAtIndex(Widget* widget, int index)
+{
+    auto worldSnapPosition = widget->getPositionOffsetByDirection(this->getWorldSnapPositionAtIndex(index), _spreadDirection);
+    auto ret               = helper::convertWorldPositionToParentSpace(widget, worldSnapPosition);
+
+    return ret;
 }

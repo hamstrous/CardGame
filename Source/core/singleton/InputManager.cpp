@@ -333,6 +333,8 @@ void InputManager::endDragging() {
     if (!_dragging)
         return;
     _dragging = false;
+    if (_selectedAloneWidget)
+        _selectedAloneWidget->droppedAlone();
 }
 
 void InputManager::updateDragging(const Vec2& mousePosition) {

@@ -15,6 +15,9 @@ bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint);
 ax::Vec2 getNodePositionInWorldSpace(ax::Node* node);
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition);
 
+// Because we want to move the node there using action so set world position wont work
+ax::Vec2 convertWorldPositionToParentSpace(ax::Node* node, ax::Vec2 worldPosition);
+
 ax::Rect getNodeWorldBoundingBox(ax::Node* node);
 
 void moveNodeToFront(ax::Node* node);

@@ -114,6 +114,7 @@ public:
     ax::Sprite* getActiveFace() { return _image; }
     std::string getActiveFaceFileLink() { return _faceImageLinkList[_activeFace]; }
     void setFaceCycle(int cycle) { _faceCycle = cycle; }
+    bool haveActiveFace() { return !_faceImageLinkList.empty(); }
 
     void setEnlargeRatio(float ratio) { _enlargeRatio = ratio; }
     float getEnlargeRatio() { return _enlargeRatio; }

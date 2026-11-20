@@ -125,7 +125,8 @@ void LayerManager::enlargeWidget(Widget* widget)
         return;
     }
 
-    if (widget->getEnlargeRatio() == 0 || ModeManager::getInstance()->getCurrentMode() != Mode::PLAY)
+    // Only for play mode
+    if (widget->getEnlargeRatio() == 0 || ModeManager::getInstance()->getCurrentMode() != Mode::PLAY || !widget->haveActiveFace())
         return;
 
     helper::spriteSetUpWithFileName(_enlargeSprite, widget->getActiveFaceFileLink(), Vec2(0.5, 0.5f));
@@ -440,7 +441,7 @@ Holder* LayerManager::findHoveredOnHolder(Widget* widget)
     for (auto node : nonInteractiveWidgets)
     {
         Holder* holder = dynamic_cast<Holder*>(node);
-        if (holder == nullptr || holder->getType() != "Holder")
+        if (holder == nullptr || holder->getType() != "Holder" || holder == widget)
             continue;
         Vec2 mtv(0, 0);
         if (holder->isWidgetHoveringOn(widget, mtv))

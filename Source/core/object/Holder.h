@@ -51,8 +51,11 @@ public:
     std::vector<ax::Vec2> getAvailableWorldSnapPosition();
     ax::Vec2 getWorldSnapPositionAtIndex(int index);
     int getIndexOfClosestSnapPoint(Widget* widget);
+    ax::Vec2 getClosestWorldSnapPointWithWidgetOffset(Widget* widget);
+    ax::Vec2 getSnapPositionInNodeParentSpaceAtIndex(Widget* widget, int index);
 
 protected:
+    int _widgetHolderActionTag; 
     static int _count;
     int _id;
 
@@ -71,4 +74,6 @@ protected:
 
     std::vector<ax::Vec2> _snapPositionList; // In node space
     std::vector<Widget*> _childrenWithOrder; //Index of children
+
+    int _currentHoveringIndex = -1; //Where is the widget hover on
 };
