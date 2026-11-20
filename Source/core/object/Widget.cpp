@@ -510,8 +510,6 @@ void Widget::draggingAlone()
 
     if (_holderParent != nullptr)
     {
-        AXLOGD("Children size on just drag and leave holder: {}", _holderParent->getWidgetChildren().size());
-
         _holderParent->onWidgetLeave(this);
         _holderParent = nullptr;
         // If leave then stop cant also hover on the same frame
@@ -530,14 +528,8 @@ void Widget::draggingAlone()
     // If hovering on something constantly call it
     if (hoveredOnHolder != nullptr)
     {
-        AXLOGD("Children size on dragging alone before hovering: {}", hoveredOnHolder->getWidgetChildren().size());
-
         hoveredOnHolder->otherHoveringOnAbove(this);
-        AXLOGD("Children size on dragging alone after checking on holder: {}", hoveredOnHolder->getWidgetChildren().size());
-
         this->otherHoveringDownBelow(hoveredOnHolder);
-
-        AXLOGD("Children size on dragging alone after everything: {}", hoveredOnHolder->getWidgetChildren().size());
 
     }
 }
@@ -551,7 +543,6 @@ void Widget::droppedAlone()
     this->setHoverParent(nullptr);
     if (holder == nullptr)
         return;
-    AXLOGD("Children size on dropped alone before enter: {}", holder->getWidgetChildren().size());
     holder->onWidgetEnter(this);
     _holderParent = holder;
 }

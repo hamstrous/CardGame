@@ -283,18 +283,14 @@ void LayerManager::moveWidgetsBackward(std::set<Widget*>& widgets) {
 
 void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, int type) {
     // If widgets is in holder then the holder manage their order
-    vector<Widget*> heldWidgets;
-    for (auto& widget : widgets)
-    {
-        if (widget->isHeld())
-            heldWidgets.push_back(widget);
+    //set<Widget*> heldWidgets;
+    //for (auto& widget : widgets)
+    //{
+    //    if (widget->isHeld())
+    //        heldWidgets.insert(widget);
 
-    }
-    // Reason for bug with children
-    for (auto& widget : heldWidgets)
-    {
-        widgets.erase(widget);
-    }
+    //}
+
     sortAllLayersChildren();
     map<Node*, vector<Widget*>> needMovingWidgets;
     map<Node*, Vector<Node*>> layerChildren;
@@ -309,7 +305,7 @@ void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, in
         needMovingWidgets[layer] = vector<Widget*>();
         for (auto& child : children)
         {
-            if (widgets.find(static_cast<Widget*>(child)) != widgets.end())
+            if (widgets.contains(static_cast<Widget*>(child)))// && !heldWidgets.contains(static_cast<Widget*>(child)))
             {
                 needMovingWidgets[layer].push_back(static_cast<Widget*>(child));
             }
