@@ -60,6 +60,8 @@ bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint)
     return bbox.containsPoint(localPoint);
 }
 
+// More accurate is the anchor point world position
+// Which is node actual position
 ax::Vec2 getNodePositionInWorldSpace(ax::Node* node)
 {
     return node->getParent()->convertToWorldSpace(node->getPosition());
@@ -261,7 +263,7 @@ ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& l
 void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename, ax::Vec2 anchorPoint)
 {
     AXASSERT(sprite != nullptr, "Sprite is null");
-    sprite->initWithFile(filename);
+    sprite->setTexture(filename);
     sprite->setStretchEnabled(true);
     sprite->getTexture()->setAliasTexParameters();
     sprite->setAnchorPoint(anchorPoint);

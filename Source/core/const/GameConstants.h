@@ -26,6 +26,7 @@ enum ActionTag
 {
     WIDGET_ROTATION,
     WIDGET_DRAG_EMPHASIS,
+    WIDGET_IN_HOLDER
 };
 
 enum Mode

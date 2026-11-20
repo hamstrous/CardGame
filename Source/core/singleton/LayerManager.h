@@ -32,10 +32,10 @@ public:
     void disruptEnlargeWidget();
 
 
-    void addWidgetToObjectLayer(Widget* widget);
-    void addWidgetToCollectionLayer(Widget* widget);
-    void addWidgetToInteractiveLayer(Widget* widget);
-    void addWidgetToNonInteractiveLayer(Widget* widget);
+    void addNodeToObjectLayer(Node* widget);
+    void addNodeToCollectionLayer(Node* widget);
+    void addNodeToInteractiveLayer(Node* widget);
+    void addNodeToNonInteractiveLayer(Node* widget);
 
     void removeWidgetFromObjectLayer(Widget* widget);
     void removeWidgetFromCollectionLayer(Widget* widget);

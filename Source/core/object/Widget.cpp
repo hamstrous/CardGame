@@ -33,7 +33,7 @@ Widget* Widget::create()
 // The layer that widget get added to is deterministic
 void Widget::addToLayer()
 {
-    LayerManager::getInstance()->addWidgetToObjectLayer(this);
+    LayerManager::getInstance()->addNodeToObjectLayer(this);
 }
 
 bool Widget::init()
@@ -495,7 +495,7 @@ void Widget::removeFace(int index)
 
 void Widget::setActiveFace(int index)
 {
-    _image->initWithFile(_faceImageLinkList[index]);
+    _image->setTexture(_faceImageLinkList[index]);
     _image->setStretchEnabled(true);
     _image->getTexture()->setAliasTexParameters();
     _image->setAnchorPoint(Vec2(0.f, 0.f));
@@ -513,11 +513,23 @@ void Widget::draggingAlone()
         hoveredOnHolder->otherHoveringOnAbove(this);
         this->otherHoveringDownBelow(hoveredOnHolder);
     }
+    else if (_hoverParent != nullptr) {
+        _hoverParent->otherStopHoveringOnAbove(this);
+        this->otherStopHoveringDownBelow(_hoverParent);
+    }
 }
 
 void Widget::otherHoveringDownBelow(Widget* widget)
 {
     this->setHoverParent(widget);
+}
+
+// assume that we want to set the anchor in the oposite direction
+// so we move it the oposite way to simulate the snap
+ax::Vec2 Widget::getPositionOffsetByDirection(Vec2 position, Vec2 offsetDirection)
+{
+    offsetDirection.normalize();
+    return position + _contentSize/2 * offsetDirection;
 }
 
 Widget::BorderPosition Widget::isPointOnBorder(const Vec2& point, float threshold) const

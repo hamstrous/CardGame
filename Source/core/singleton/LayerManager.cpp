@@ -150,22 +150,22 @@ void LayerManager::disruptEnlargeWidget()
     }
 }
 
-void LayerManager::addWidgetToObjectLayer(Widget* widget)
+void LayerManager::addNodeToObjectLayer(Node* widget)
 {
     _objectLayer->addChild(widget, _objectLayer->getChildrenCount());
 }
 
-void LayerManager::addWidgetToCollectionLayer(Widget* widget)
+void LayerManager::addNodeToCollectionLayer(Node* widget)
 {
     _collectionLayer->addChild(widget, _collectionLayer->getChildrenCount());
 }
 
-void LayerManager::addWidgetToInteractiveLayer(Widget* widget)
+void LayerManager::addNodeToInteractiveLayer(Node* widget)
 {
     _interactiveLayer->addChild(widget, _interactiveLayer->getChildrenCount());
 }
 
-void LayerManager::addWidgetToNonInteractiveLayer(Widget* widget)
+void LayerManager::addNodeToNonInteractiveLayer(Node* widget)
 {
     _nonInteractiveLayer->addChild(widget, _nonInteractiveLayer->getChildrenCount());
 }
@@ -277,6 +277,18 @@ void LayerManager::moveWidgetsBackward(std::set<Widget*>& widgets) {
 }
 
 void LayerManager::moveWidgetsByOffsetPreparation(std::set<Widget*>& widgets, int type) {
+    // If widgets is in holder then the holder manage their order
+    vector<Widget*> heldWidgets;
+    for (auto& widget : widgets)
+    {
+        if (widget->isHeld())
+            heldWidgets.push_back(widget);
+
+    }
+    for (auto& widget : heldWidgets)
+    {
+        widgets.erase(widget);
+    }
     sortAllChildren();
     map<Node*, vector<Widget*>> needMovingWidgets;
     map<Node*, Vector<Node*>> layerChildren;

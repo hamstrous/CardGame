@@ -38,40 +38,21 @@ Holder* Holder::create()
 // The layer that holder get added to is deterministic
 void Holder::addToLayer()
 {
-    LayerManager::getInstance()->addWidgetToNonInteractiveLayer(this);
+    LayerManager::getInstance()->addNodeToNonInteractiveLayer(this);
 }
 
 bool Holder::init()
 {
-    if (!Node::init())
+    if (!Widget::init())
     {
         return false;
     }  
 
-    _mouseListener = ax::EventListenerMouse::create();
-    _mouseListener->onMouseDown = AX_CALLBACK_1(Holder::onMouseDown, this);
-    _mouseListener->onMouseMove = AX_CALLBACK_1(Holder::onMouseMove, this);
-    _mouseListener->setSwallowMouse(true);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_mouseListener, this);
+    _shadow = Sprite::create();
+    LayerManager::getInstance()->addNodeToObjectLayer(_shadow);
+    _shadow->setVisible(false);
 
-    setUpMainVisual();  //Before effect
-    setUpInteractEffect();
-
-    scheduleUpdate();
-
-    _inspectorData = createInspectorData();
-
-    _id = _count++;
-    this->setName(getId());
-
-    addAllowedRotation(0);
-    addAllowedRotation(90);
-    addAllowedRotation(180);
-    addAllowedRotation(270);
-
-    _faceCycle = 1;
-
-    GuiManager::getInstance()->addCallbackToImGuiDrawLoop([this]() { drawGui(); });
+    //updateSnapPositionList();
 
     return true;
 }
@@ -92,8 +73,12 @@ void Holder::drawGui()
 }
 
 void Holder::update(float delta) {
-    InputManager* inputManager = InputManager::getInstance();
-    inputManager->isWidgetIntersectingRubberBand(this);
+    Widget::update(delta);
+
+    if (_previouslyHoveredOn)
+    {
+
+    }
 }
 
 //void Holder::setContentSize(const ax::Size& contentSize) {
@@ -102,6 +87,12 @@ void Holder::update(float delta) {
 //        _image->setContentSize(contentSize);
 //    }
 //}
+
+void Holder::setContentSize(const ax::Size& size)
+{
+    Node::setContentSize(size);
+    this->updateSnapPositionList();
+}
 
 void Holder::setUpMainVisual()
 {
@@ -130,9 +121,17 @@ bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
     Rect box = helper::getNodeWorldBoundingBox(this);
     Rect widgetBox = helper::getNodeWorldBoundingBox(widget);
 
+    // Remove target because maybe the previous frame widget is hovering on it
+
+    if (_dropLimit != -1 && _dropLimit <= _children.size())
+    {
+        setHoverTarget(nullptr);
+        return false;
+    }
+
     if (!box.intersectsRect(widgetBox) || !Collision::overlap(this, widget, mtv))
     {
-        setHoverTarget(nullptr); // Remove target 
+        setHoverTarget(nullptr); 
         return false;
     }
     return true;
@@ -140,6 +139,114 @@ bool Holder::isWidgetHoveringOn(Widget* widget, Vec2& mtv)
 
 void Holder::otherHoveringOnAbove(Widget* widget)
 {
-    AXLOGD("{} hovering on {}", widget->getName(), this->getName());
     setHoverTarget(widget);
+    helper::spriteSetUpWithFileName(_shadow, widget->getActiveFaceFileLink(), Vec2(0.5f, 0.5f));
+    _shadow->setVisible(true);
+    _shadow->setContentSize(widget->getContentSize());
+    // Turn dark
+    _shadow->setColor(Color3B::GRAY);
+
+    int snapIndex          = getIndexOfClosestSnapPoint(widget);
+
+    moveOtherWidgetAside(snapIndex);
+
+    // Move shadow to the snap
+    _shadow->setWorldPosition(widget->getPositionOffsetByDirection(this->getWorldSnapPositionAtIndex(snapIndex), _spreadDirection));
+
+}
+
+void Holder::otherStopHoveringOnAbove(Widget* widget)
+{
+    setHoverTarget(nullptr);
+    moveWidgetBackToPosition();
+}
+
+void Holder::onWidgetEnter(Widget* widget) {}
+
+void Holder::onWidgetLeave(Widget* widget) {}
+
+void Holder::moveWidgetBackToPosition() {}
+
+void Holder::moveOtherWidgetAside(int snapIndex) {}
+
+void Holder::updateSnapPositionList()
+{
+    // Recreate the snap list with the current state;
+
+    auto size = this->getContentSize();
+
+    // Set up the offset
+    if (_spreadDirection == Vec2::UNIT_X) {
+        // Spread to right
+        _dropOffset = Vec2(0, size.height / 2);
+    }
+    else if (_spreadDirection == -Vec2::UNIT_X)
+    {
+        // Spread to left
+        _dropOffset = Vec2(size.width, size.height / 2);
+
+    }
+    else if (_spreadDirection == Vec2::UNIT_Y)
+    {
+        // Spread to up
+        _dropOffset = Vec2(size.width / 2, 0);
+    }
+    else if (_spreadDirection == -Vec2::UNIT_Y)
+    {
+        // Spread to bottom
+        _dropOffset = Vec2(size.width / 2, size.height);
+    }
+    else if (_spreadDirection == Vec2::ZERO)
+    {
+        _dropOffset = size / 2;
+    }
+    const float offset = 50.f;
+    _stackOffset = _spreadDirection * offset;
+
+    for (int i = 0; i <= _children.size(); i++) // One extra point for future drop in widget
+    {
+        auto nodeSnapPoint = _dropOffset + _stackOffset * i;
+        _snapPositionList.push_back(nodeSnapPoint);
+    }
+
+    moveWidgetBackToPosition();
+}
+
+std::vector<ax::Vec2> Holder::getAvailableWorldSnapPosition()
+{
+    vector<Vec2> worldSnapPositions;
+    for (auto nodeSnapPosition : _snapPositionList)
+    {
+        worldSnapPositions.push_back(this->convertToWorldSpace(nodeSnapPosition));
+    }
+
+    return worldSnapPositions;
+}
+
+ax::Vec2 Holder::getWorldSnapPositionAtIndex(int index)
+{
+    AXASSERT(index < _snapPositionList.size(), "Index greater than snap position list size");
+    return this->convertToWorldSpace(_snapPositionList[index]);
+}
+
+int Holder::getIndexOfClosestSnapPoint(Widget* widget)
+{
+    auto worldPosition = helper::getNodePositionInWorldSpace(widget);
+    auto worldSnapPosition = getAvailableWorldSnapPosition();
+
+    float minDistance = std::numeric_limits<float>::max();
+    int minIndex      = -1;
+
+    for (int i = 0; auto& snapPosition : worldSnapPosition)
+    {
+        float distance = snapPosition.distanceSquared(worldPosition);
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            minIndex    = i;
+        }
+        ++i;
+    }
+
+    return minIndex;
 }

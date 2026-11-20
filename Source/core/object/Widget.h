@@ -5,6 +5,8 @@
 #include "core/ui/data/InspectorData.h"
 #include "core/ui/data/ContextMenuData.h"
 
+class Holder;
+
 class Widget : public ax::Node
 {
 public:
@@ -29,6 +31,7 @@ public:
     bool init();
     virtual Widget* clone() const;
 
+    // Wrap this with a callable and send to GuiManager to draw gui that handle its private properties
     virtual void drawGui() {};
 
     void update(float delta) override;
@@ -87,6 +90,7 @@ public:
         return ax::RectApplyTransform(rect, getNodeToWorldTransform());
     }
 
+    // Transform will update after this, setting property directly wont work without this
     void markTransformDirty();
     
     std::set<int>& getAllowedRotation() { return _allowedRotation; }
@@ -114,9 +118,9 @@ public:
     void setEnlargeRatio(float ratio) { _enlargeRatio = ratio; }
     float getEnlargeRatio() { return _enlargeRatio; }
 
-    std::vector<Widget*>& getWidgetChildren() { return _children; }
-    std::vector<Widget*> addWidgetChildren(Widget* widget) { _children.push_back(widget); }
-    std::vector<Widget*> removeWidgetChildren(Widget* widget) { std::erase(_children, widget); }
+    std::unordered_set<Widget*>& getWidgetChildren() { return _children; }
+    void addWidgetChildren(Widget* widget) { _children.insert(widget); }
+    void removeWidgetChildren(Widget* widget) { _children.erase(widget); }
 
 
     // For holder interaction
@@ -124,16 +128,26 @@ public:
     void droppedAlone();
 
     virtual void otherHoveringOnAbove(Widget* widget) {};
+    virtual void otherStopHoveringOnAbove(Widget* widget) { setHoverTarget(nullptr); }
     virtual void otherHoveringDownBelow(Widget* widget);
+    virtual void otherStopHoveringDownBelow(Widget* widget) { setHoverParent(nullptr); }
 
-    void setHoverTarget(Widget* widget) { hoverTarget = widget; }
-    void setHoverParent(Widget* widget) { hoverParent = widget; }
+    void setHoverTarget(Widget* widget) { _hoverTarget = widget; }
+    void setHoverParent(Widget* widget) { _hoverParent = widget; }
+
+    // A holder is holding it
+    bool isHeld() { return _holderParent != nullptr; }
+
+    // Because the anchor fixed in the middle
+    // Simulate setting position with different anchor 
+    ax::Vec2 getPositionOffsetByDirection(ax::Vec2 postion, ax::Vec2 offsetDirection);
 
 protected:
     
     BorderPosition isPointOnBorder(const ax::Vec2& point, float threshold = 10.f) const;
     bool isPointOnRotatableCircle(const ax::Vec2& point, float threshold = 10.f) const;
 
+    // TODO: change border map to VEC2 ANCHOR 
     std::unordered_map<BorderPosition, ax::Vec2> _borderPointsNormalized = {
         {BorderPosition::BOTTOM_LEFT, ax::Vec2(0, 0)},    {BorderPosition::BOTTOM_RIGHT, ax::Vec2(1, 0)},
         {BorderPosition::TOP_RIGHT, ax::Vec2(1, 1)},      {BorderPosition::TOP_LEFT, ax::Vec2(0, 1)},
@@ -185,9 +199,11 @@ protected:
     // Draw Node Visual
     ax::DrawNode* _drawNodeVisual;
 
-    std::vector<Widget*> _children;
+    std::unordered_set<Widget*> _children;
 
-    Widget* hoverTarget = nullptr;
-    Widget* hoverParent = nullptr;
+    Widget* _hoverTarget = nullptr;
+    Widget* _hoverParent = nullptr;
+
+    Holder* _holderParent = nullptr;
 
 };

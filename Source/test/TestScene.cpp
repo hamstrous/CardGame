@@ -70,22 +70,22 @@ bool TestScene::init()
     Widget* widget = Widget::create();
     widget->setContentSize(Size(100, 100));
     widget->setPosition(visibleSize / 2);
-    _layerManager->addWidgetToObjectLayer(widget);
+    _layerManager->addNodeToObjectLayer(widget);
 
     Widget* widget2 = Widget::create();
     widget2->setContentSize(Size(100, 100));
     widget2->setPosition(visibleSize / 2 - Vec2(50,50));
-    _layerManager->addWidgetToObjectLayer(widget2);
+    _layerManager->addNodeToObjectLayer(widget2);
 
     Widget* widget3 = Widget::create();
     widget3->setContentSize(Size(100, 100));
     widget3->setPosition(visibleSize / 2 + Vec2(50, 50));
-    _layerManager->addWidgetToObjectLayer(widget3);
+    _layerManager->addNodeToObjectLayer(widget3);
 
     Widget* widget4 = Widget::create();
     widget4->setContentSize(Size(100, 100));
     widget4->setPosition(visibleSize / 2 + Vec2(100, 100));
-    _layerManager->addWidgetToObjectLayer(widget4);
+    _layerManager->addNodeToObjectLayer(widget4);
 
     auto vectorWidget = {widget, widget2, widget3, widget4};
     for (auto& w : vectorWidget)
@@ -99,7 +99,7 @@ bool TestScene::init()
     Holder* holder = Holder::create();
     holder->setContentSize(Size(200, 100));
     holder->setPosition(visibleSize - Vec2(300, 300));
-    _layerManager->addWidgetToNonInteractiveLayer(holder);
+    _layerManager->addNodeToNonInteractiveLayer(holder);
     // Add singleton with no auto release
     // Parent coordinates align with world coordinates
     // Need for layer, event, transform
