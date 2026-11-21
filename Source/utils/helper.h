@@ -15,6 +15,11 @@ bool containPoint(const ax::Node* node, const ax::Vec2& worldPoint);
 ax::Vec2 getNodePositionInWorldSpace(ax::Node* node);
 bool isWorldPositionInNode(ax::Node* node, const ax::Vec2& worldPosition);
 
+// Because we want to move the node there using action so set world position wont work
+ax::Vec2 convertWorldPositionToParentSpace(ax::Node* node, ax::Vec2 worldPosition);
+
+ax::Rect getNodeWorldBoundingBox(ax::Node* node);
+
 void moveNodeToFront(ax::Node* node);
 void reparentPreserveTransform(ax::Node* child, ax::Node* newParent);
 
@@ -41,4 +46,21 @@ ax::Vector<T> castToVectorOfType(ax::Vector<V> v)
     return result;
 }
 
+ax::Rect getRectFromPoints(const ax::Vec2 pointA, const ax::Vec2 pointB);
+
+void setNodeAnchorPointPreservePosition(ax::Node* node, const ax::Vec2& newAnchorPoint);
+
+ax::Vec3 getLineEquationFromTwoPoints(const ax::Vec2& pointA, const ax::Vec2& pointB);
+
+ax::Vec2 getSolutionForLineIntersection(const ax::Vec3& line1, const ax::Vec3& line2); // 2 unknown solver
+
+// A generic function to convert ANY enum to its underlying numeric value
+template <typename T>
+constexpr auto enumToNum(T e) noexcept
+{
+    static_assert(std::is_enum<T>::value, "Template argument must be an enum type.");
+    return static_cast<std::underlying_type_t<T>>(e);
+}
+
+void spriteSetUpWithFileName(ax::Sprite* sprite, std::string filename, ax::Vec2 anchorPoint = ax::Vec2(0.f, 0.f));
 }  // namespace helper

@@ -1,11 +1,7 @@
 #include "AppDelegate.h"
 
-#include "MainScene.h"
-#include "core/scene/MenuScene.h"
-#include "core/scene/RoomScene.h"
-#include "core/scene/LoginScene.h"
-#include "core/scene/TestScene.h"
-#include "game/uno/UnoScene.h"
+//#include "MainScene.h"
+#include "test/TestScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -56,12 +52,18 @@ bool AppDelegate::applicationDidFinishLaunching()
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
 
+    // ser projection for 2d game
+    director->setProjection(ax::Director::Projection::_2D);
+
     // Set the design resolution
     renderView->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
                                     ResolutionPolicy::SHOW_ALL);
 
+    // set the clear color to white
+    director->setClearColor(ax::Color4F::GRAY);
+
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<LoginScene>();
+    auto scene = TestScene::create();
 
     // run
     director->runWithScene(scene);
