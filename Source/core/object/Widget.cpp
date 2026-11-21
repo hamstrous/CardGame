@@ -126,8 +126,8 @@ void Widget::setUpMainVisual() {
 
     schedule([this](float delta) {
         _drawNodeVisual->clear();
-        _drawNodeVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 4.f);
-        _drawNodeVisual->drawDot(this->getAnchorPointInPoints(), 5.f, ax::Color4F::RED);
+        _drawNodeVisual->drawRect(ax::Vec2(0, 0), this->getContentSize(), ax::Color4F::BLACK, 1.f);
+        _drawNodeVisual->drawDot(this->getAnchorPointInPoints(), 1.f, ax::Color4F::RED);
     }, "placeholder_visual");
 }
 
