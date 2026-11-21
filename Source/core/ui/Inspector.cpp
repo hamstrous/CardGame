@@ -165,8 +165,8 @@ void Inspector::drawBoolPointer(const std::vector<bool*>& boolPointers, const ch
 }
 
 void Inspector::drawAllowedRotation(const std::vector<std::set<int>*>& allowedRotationLists,
-                                    const std::vector<std::function<void(float)>>& allowRotationCallbackList,
-                                    const std::vector<std::function<void(float)>>& notAllowRotationCallbackList)
+                                    const std::vector<std::function<void(int)>>& allowRotationCallbackList,
+                                    const std::vector<std::function<void(int)>>& notAllowRotationCallbackList)
 {
     vector<int> degreeList {
         0,
@@ -311,7 +311,7 @@ void Inspector::drawBasic(const vector<InspectorData>& inspectorDataList)
     vector<float*> widthList, heightList;
     vector<bool*> isAllowClickList, isAllowDragList;
     vector<std::set<int>*> allowedRotationLists;
-    vector<function<void(float)>> allowRotationCallbackList, notAllowRotationCallbackList;
+    vector<function<void(int)>> allowRotationCallbackList, notAllowRotationCallbackList;
     vector<int*> faceCycleList, enlargeRatioList;
 
     for (const auto& data : inspectorDataList)

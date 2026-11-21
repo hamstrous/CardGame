@@ -21,36 +21,6 @@ public:
     static bool sameIntPointers(const std::vector<int*>& intPointers, int*& outInt);
     static void setAllIntPointers(const std::vector<int*>& intPointers, int value);
 
-    template <typename T>
-    static bool samePointers(const std::vector<T*>& pointers, T*& out)
-    {
-        bool samePointer = true;
-        if (pointers.empty())
-            return false;
-        out = pointers[0];
-        for (T* p : pointers)
-        {
-            if (p == nullptr)
-                return false;
-            if (*p != *out)
-            {
-                samePointer = false;
-                break;
-            }
-        }
-        return samePointer;
-    }
-
-    template <typename T>
-    static void setAllPointers(std::vector<T*> pointers, T value)
-    {
-        for (auto& pointer : pointers)
-        {
-            *pointer = value;
-        }
-    }
-
-
 public:
     InspectorData() = default;
 
@@ -92,4 +62,42 @@ public:
     // Spread
     ax::Vec2* spreadDirection = nullptr;
 
+
+
+public:
+    // Template
+    template <typename T>
+    static bool samePointers(const std::vector<T*>& pointers, T*& out)
+    {
+        bool samePointer = true;
+        if (pointers.empty())
+            return false;
+        out = pointers[0];
+        for (T* p : pointers)
+        {
+            if (p == nullptr)
+                return false;
+            if (*p != *out)
+            {
+                samePointer = false;
+                break;
+            }
+        }
+        return samePointer;
+    }
+
+    template <typename T>
+    static void setAllPointers(std::vector<T*> pointers, T value)
+    {
+        for (auto& pointer : pointers)
+        {
+            *pointer = value;
+        }
+    }
+
+
 };
+
+
+
+

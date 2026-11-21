@@ -27,15 +27,27 @@ public:
     void drawBoolPointer(const std::vector<bool*>& boolPointers, const char* labelTrue, const char* labelFalse);
 
     void drawAllowedRotation(const std::vector<std::set<int>*>& allowedRotationLists,
-                             const std::vector<std::function<void(float)>>& allowRotationCallbackList,
-                             const std::vector<std::function<void(float)>>& notAllowRotationCallbackList);
+                             const std::vector<std::function<void(int)>>& allowRotationCallbackList,
+                             const std::vector<std::function<void(int)>>& notAllowRotationCallbackList);
 
     void drawMultipleIntValueButton(const std::vector<int*>& intPointers, const std::vector<int> allowedValues, const std::vector<std::string> labels);
 
+    void drawGui();
+
+    void drawBasic(const std::vector<InspectorData>& inspectorDataList);
+
+    void drawHolder(const std::vector<InspectorData>& inspectorDataList);
+
+private:
+    static Inspector* _instance;
+
+
+public:
+    // Template
     template <typename T>
     void drawMultipleValueButton(const std::vector<T*>& valuePointers,
-                                               const std::vector<T> allowedValues,
-                                               const std::vector<std::string> labels)
+                                            const std::vector<T> allowedValues,
+                                            const std::vector<std::string> labels)
     {
         AXASSERT(allowedValues.size() == labels.size(),
                  "Inspector draw multiple value button: values and labels must have equal size");
@@ -49,8 +61,8 @@ public:
                 if (i > 0)
                     ImGui::SameLine();
 
-                T allowedValue = allowedValues[i];
-                std::string label     = labels[i];
+                T allowedValue    = allowedValues[i];
+                std::string label = labels[i];
                 if (*value == allowedValue)
                 {
                     pushStyleSelectedButton();
@@ -75,8 +87,8 @@ public:
                 if (i > 0)
                     ImGui::SameLine();
 
-                T allowedValue = allowedValues[i];
-                std::string label     = labels[i];
+                T allowedValue    = allowedValues[i];
+                std::string label = labels[i];
                 pushStyleUndeterminedButton();
                 if (ImGui::Button(label.c_str(), buttonSize))
                 {
@@ -86,13 +98,7 @@ public:
             }
         }
     }
-
-    void drawGui();
-
-    void drawBasic(const std::vector<InspectorData>& inspectorDataList);
-
-    void drawHolder(const std::vector<InspectorData>& inspectorDataList);
-
-private:
-    static Inspector* _instance;
 };
+
+
+
