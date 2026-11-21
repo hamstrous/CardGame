@@ -403,7 +403,7 @@ void InputManager::endScaling() {
         return;
     _scaling = false;
     setNodeAnchorPointPreservePosition(_selectedAloneWidget, _previousAnchorPoint);
-    _selectedAloneWidget = nullptr;
+    //_selectedAloneWidget = nullptr;
 }
 
 void InputManager::updateScaling(const Vec2& mousePosition) {
@@ -464,7 +464,7 @@ void InputManager::endRotating() {
     _rotating = false;
     setNodeAnchorPointPreservePosition(_selectedAloneWidget, _previousAnchorPoint);
     _selectedAloneWidget->rotateToNeareastAllowedRotation();
-    _selectedAloneWidget = nullptr;
+    //_selectedAloneWidget = nullptr;
 
 }
 
